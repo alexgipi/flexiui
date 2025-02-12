@@ -1,0 +1,90 @@
+---
+// Astro prop type
+
+// type Component
+
+interface Component {
+  name: string;
+  slug: string;
+  description: string;
+  allowedTechnologies: {
+    vanillajs: boolean;
+    svelte: boolean;
+    angular: boolean;
+    vue: boolean;
+    react: boolean;
+  };
+}
+
+interface Props {
+  components: Component[];
+  activeTechnology: string;
+  activeComponentSlug: string;
+}
+
+const { components, activeTechnology, activeComponentSlug } = Astro.props;
+---
+
+<aside>
+  <span class="text-logo">
+    <span class="flip-letter">F</span>lexi<strong>UI</strong> 
+    <span class="beta-badge">Beta</span>
+  </span>
+
+  <nav>
+    {components.map(component => (
+      <a 
+      class={component.slug === activeComponentSlug ? 'active' : ''} 
+      href={`/${activeTechnology}/${component.slug}`}
+      >
+        {component.name}
+      </a>
+    ))}
+  </nav>
+</aside>
+
+<style>
+  .beta-badge {
+    margin-left: 8px;
+    line-height: 1;
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 10px;
+    background: #fff;
+    color: #080808;
+    font-weight: 600;
+  }
+
+  .text-logo {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      font-size: 1.5rem;
+      font-family: sans-serif;
+      color: #fff;
+  }
+
+  aside {
+    height: 100dvh;
+    position: sticky;
+    top: 0;
+    padding: 2rem;
+    border-right: 1px solid #25222169;
+    min-width: 210px;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  nav a {
+    color: #ffffffbd;
+    font-weight: 400;
+  }
+
+  nav a.active {
+    color: #ffffff;
+    font-weight: 500;
+  }
+</style>

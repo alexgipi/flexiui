@@ -1,0 +1,47 @@
+{
+  "name": "@flexiui/svelte-prism-code-editor",
+  "version": "0.0.12",
+  "description": "A lightweight and flexible Svelte component that wraps Prism Code Editor, providing syntax highlighting with ease of integration",
+  "keywords": [
+    "svelte",
+    "prism",
+    "code",
+    "editor",
+    "highlight",
+    "syntax",
+    "component"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && svelte-package",
+    "preview": "vite preview"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.3.10",
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"svelte": "^5.19.9",
+		"vite": "^6.1.0"
+  },
+  "author": "alexgipi <alexgp895@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "prism-code-editor": "^3.4.0"
+  }
+}

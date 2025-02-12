@@ -1,0 +1,38 @@
+blockquote {
+    border-color: #fff;
+    border-left: 3px solid;
+    margin: 0;
+    position: relative;
+    flex: 1;
+  }
+  
+  blockquote.editable {
+    cursor: text;
+  }
+  
+  .quote-icon-box {
+    display: flex;
+    width: 66px;
+    justify-content: center;
+    position: absolute;
+    height: 100%;
+    padding: 1.25rem;
+    box-sizing: border-box;
+  }
+  
+  .quote-icon {
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
+  }
+  
+  .quote-content {
+    outline: none;
+    min-width: 25px;
+    padding: 1rem;
+    padding-left: 64px;
+    position: relative;
+    display: flex;
+    text-align: left;
+    min-height: 56px;
+  }

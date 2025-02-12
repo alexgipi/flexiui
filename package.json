@@ -1,0 +1,41 @@
+{
+  "name": "flexiui",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FlexiUI, the official Flexi CMS component library.",
+  "workspaces": [
+    "docs",
+    "svelte/*",
+    "vue/*",
+    "react/*",
+    "angular/*",
+    "vanilla/*"
+  ],
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "FlexiUI",
+    "UI",
+    "Component",
+    "Library",
+    "FlexiCMS",
+    "Astro",
+    "Svelte",
+    "Angular",
+    "React",
+    "Vue"
+  ],
+  "devDependencies": {
+    "@sveltejs/package": "^2.3.10",
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"svelte": "^5.19.9",
+		"vite": "^6.1.0"
+  },
+  "author": "alexgipi",
+  "license": "MIT"
+}

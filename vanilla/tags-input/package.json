@@ -1,0 +1,22 @@
+{
+  "name": "@flexi/tags-input",
+  "version": "1.0.0",
+  "description": "A lightweight and flexible tags input component for managing tags.",
+  "main": "dist/tags-input.umd.js",
+  "module": "dist/tags-input.es.js",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "author": "alexgipi",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.4.10"
+  }
+}

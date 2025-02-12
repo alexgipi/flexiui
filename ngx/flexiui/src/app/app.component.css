@@ -1,0 +1,60 @@
+:host {
+    --primary-color: #FF3E00;
+    --primary-gradient: linear-gradient(225deg, #810cf0, #7e0af1 20%, #c31ea2 40%, #f5094d 50%, #e92794 70%, #ff31d6), linear-gradient(47deg, #FF31D9, rgba(255, 91, 225, 0) 100%);
+  }
+
+  a {
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+  }
+
+  .is-primary-gradient a {
+    background: var(--primary-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .read-the-docs {
+    color: #888;
+  }
+
+  .technology-tags {
+    margin: 2.75rem 0 2em;
+    display: flex;
+    gap: .75rem;
+    justify-content: center;
+    border-radius: 53px;
+    align-items: center;
+  }
+
+  .technology-tags .chip {
+    padding: 6px 16px 6px 14px;
+    border-radius: 31px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-weight: 400;
+    line-height: 1.4;
+    transition: background-color 0.3s ease;
+
+    &.active {
+      background-color: rgba(255,255,255, 0.1);
+    }
+
+    & .chip-icon {
+      transition: filter 0.3s ease;
+    }
+
+    &.angular-chip:not(.active) .chip-icon {
+      filter: grayscale(1) brightness(1.45);
+    }
+
+    &:not(.active) .chip-icon {
+      filter: grayscale(1);
+    }
+  }

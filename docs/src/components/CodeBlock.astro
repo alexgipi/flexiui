@@ -1,0 +1,34 @@
+---
+import { Code } from 'astro-expressive-code/components'
+
+const { theme, fullWidth, code, lang } = Astro.props;
+
+let codeBlockThemes:any = {
+    'vanillajs': { background: '#fff2990d' },
+    'svelte': { background: '#fabba40d' },
+    'angular': { background: '#eda8fd0d' },
+    'vue': { background: '#abffd90a' },
+    'react': { background: '#90eeff0a' }
+}
+
+let cssVarStyles = `--code-block-bg:${codeBlockThemes[theme].background};`;
+let codeContent = `Hello`;
+
+---
+<div class="code-block" style={cssVarStyles}>
+    <Code code={code || 'Example code'} lang={lang}  />
+</div>
+
+<style>
+    :root {
+        --code-block-bg: #fff2990d;
+    }
+
+    .code-block {
+        background: var(--code-block-bg);
+        border-radius: 1rem;
+        overflow: hidden;
+        margin: 2rem 0;
+        /* padding: .5rem; */
+    }
+</style>

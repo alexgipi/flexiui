@@ -1,0 +1,620 @@
+---
+import ComponentPreview from '../../components/ComponentPreview.svelte';
+import {Content as VanillaJsDocumentation } from '../../docs/vanillajs.md';
+import {Content as SvelteDocumentation } from '../../docs/svelte.md';
+import {Content as AngularDocumentation } from '../../docs/angular.md';
+import {Content as VueDocumentation } from '../../docs/vue.md';
+import {Content as ReactDocumentation } from '../../docs/react.md';
+// import {Contet as ContributionGuide } from '../../docs/contribution-guide.md';
+
+import Navigation from '../../components/Navigation.astro';
+import Layout from '../../layouts/Layout.astro';
+
+const { component: componentParam, technology: technologyParam } = Astro.params;
+
+const componentDocs:any = {
+  vanillajs: VanillaJsDocumentation,
+  svelte: SvelteDocumentation,
+  angular: AngularDocumentation,
+  vue: VueDocumentation,
+  react: ReactDocumentation
+}
+
+let components = [
+  {
+    name: "Accordion",
+    slug: "accordion",
+    description: `The accordion component is a user interface element that displays a list of items in a vertically stacked format. It allows users to expand and collapse the items to reveal their content.`,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: false,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Alert",
+    slug: "alert",
+    description: `The Alert component is a user interface element that displays a message to the user. It can be used to notify the user of important information, warnings, or errors.`,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: false,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Quote",
+    slug: "quote",
+    description: `A lightweight, simple and flexible "Quote" component for displaying a quote text.`,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: true,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Button",
+    slug: "button",
+    description: `The Button is a versatile UI element that triggers actions on click. It supports various styles, sizes, and colors, allowing full customization to match different designs and use cases.`,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Dropdown",
+    slug: "dropdown",
+    description: `The Dropdown is a floating panel that opens when triggered, displaying a list of options. It allows users to select an item, perform an action, or navigate, with customizable styles and behaviors.`,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Tabs",
+    slug: "tabs",
+    description: `The Tabs component organizes content into sections, enabling users to switch seamlessly. It enhances navigation and usability by keeping related content accessible within a compact layout.`,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Tags input",
+    slug: "tags-input",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Input",
+    slug: "input",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Textarea",
+    slug: "textarea",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "CSS Vars",
+    slug: "cssvars",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "EdiTable",
+    slug: "editable",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Rich editor",
+    slug: "rich-editor",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Block editor",
+    slug: "block-editor",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Code editor",
+    slug: "code-editor",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "JSONTree",
+    slug: "jsontree",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+  }
+]
+
+let technologies = [
+    { 
+      label: 'VanillaJS',
+      value: 'vanillajs',
+      allowed: true,
+      brandColor: '#f0db4f',
+      svg: `<svg class="chip-icon"  xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 1052 1052" style="border-radius: 3px;"><path fill="#f0db4f" d="M0 0h1052v1052H0z"></path><path d="M965.9 801.1c-7.7-48-39-88.3-131.7-125.9-32.2-14.8-68.1-25.399-78.8-49.8-3.8-14.2-4.3-22.2-1.9-30.8 6.9-27.9 40.2-36.6 66.6-28.6 17 5.7 33.1 18.801 42.8 39.7 45.4-29.399 45.3-29.2 77-49.399-11.6-18-17.8-26.301-25.4-34-27.3-30.5-64.5-46.2-124-45-10.3 1.3-20.699 2.699-31 4-29.699 7.5-58 23.1-74.6 44-49.8 56.5-35.6 155.399 25 196.1 59.7 44.8 147.4 55 158.6 96.9 10.9 51.3-37.699 67.899-86 62-35.6-7.4-55.399-25.5-76.8-58.4-39.399 22.8-39.399 22.8-79.899 46.1 9.6 21 19.699 30.5 35.8 48.7 76.2 77.3 266.899 73.5 301.1-43.5 1.399-4.001 10.6-30.801 3.199-72.101zm-394-317.6h-98.4c0 85-.399 169.4-.399 254.4 0 54.1 2.8 103.7-6 118.9-14.4 29.899-51.7 26.2-68.7 20.399-17.3-8.5-26.1-20.6-36.3-37.699-2.8-4.9-4.9-8.7-5.601-9-26.699 16.3-53.3 32.699-80 49 13.301 27.3 32.9 51 58 66.399 37.5 22.5 87.9 29.4 140.601 17.3 34.3-10 63.899-30.699 79.399-62.199 22.4-41.3 17.6-91.3 17.4-146.6.5-90.2 0-180.4 0-270.9z" fill="#323330"></path></svg>`
+    },
+    { 
+      label: 'Svelte',
+      value: 'svelte',
+      allowed: true,
+      brandColor: '#FF3E00',
+      svg: `<svg class="chip-icon"  viewBox="0 0 256 308" width="20" height="20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid"><path d="M239.682 40.707C211.113-.182 154.69-12.301 113.895 13.69L42.247 59.356a82.198 82.198 0 0 0-37.135 55.056 86.566 86.566 0 0 0 8.536 55.576 82.425 82.425 0 0 0-12.296 30.719 87.596 87.596 0 0 0 14.964 66.244c28.574 40.893 84.997 53.007 125.787 27.016l71.648-45.664a82.182 82.182 0 0 0 37.135-55.057 86.601 86.601 0 0 0-8.53-55.577 82.409 82.409 0 0 0 12.29-30.718 87.573 87.573 0 0 0-14.963-66.244" fill="#FF3E00"></path><path d="M106.889 270.841c-23.102 6.007-47.497-3.036-61.103-22.648a52.685 52.685 0 0 1-9.003-39.85 49.978 49.978 0 0 1 1.713-6.693l1.35-4.115 3.671 2.697a92.447 92.447 0 0 0 28.036 14.007l2.663.808-.245 2.659a16.067 16.067 0 0 0 2.89 10.656 17.143 17.143 0 0 0 18.397 6.828 15.786 15.786 0 0 0 4.403-1.935l71.67-45.672a14.922 14.922 0 0 0 6.734-9.977 15.923 15.923 0 0 0-2.713-12.011 17.156 17.156 0 0 0-18.404-6.832 15.78 15.78 0 0 0-4.396 1.933l-27.35 17.434a52.298 52.298 0 0 1-14.553 6.391c-23.101 6.007-47.497-3.036-61.101-22.649a52.681 52.681 0 0 1-9.004-39.849 49.428 49.428 0 0 1 22.34-33.114l71.664-45.677a52.218 52.218 0 0 1 14.563-6.398c23.101-6.007 47.497 3.036 61.101 22.648a52.685 52.685 0 0 1 9.004 39.85 50.559 50.559 0 0 1-1.713 6.692l-1.35 4.116-3.67-2.693a92.373 92.373 0 0 0-28.037-14.013l-2.664-.809.246-2.658a16.099 16.099 0 0 0-2.89-10.656 17.143 17.143 0 0 0-18.398-6.828 15.786 15.786 0 0 0-4.402 1.935l-71.67 45.674a14.898 14.898 0 0 0-6.73 9.975 15.9 15.9 0 0 0 2.709 12.012 17.156 17.156 0 0 0 18.404 6.832 15.841 15.841 0 0 0 4.402-1.935l27.345-17.427a52.147 52.147 0 0 1 14.552-6.397c23.101-6.006 47.497 3.037 61.102 22.65a52.681 52.681 0 0 1 9.003 39.848 49.453 49.453 0 0 1-22.34 33.12l-71.664 45.673a52.218 52.218 0 0 1-14.563 6.398" fill="#FFF"></path></svg> `
+    },
+    {
+      label: 'Angular',
+      value: 'angular',
+      allowed: true,
+      brandColor: 'linear-gradient(225deg, #E40035, #F60A48 20%, #F20755 40%, #DC087D 50%, #9717E7 70%, #6C00F5), linear-gradient(47deg, #FF31D9, rgba(255, 91, 225, 0) 100%)',
+      svg: `<svg class="chip-icon"  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 242 256" width="20" height="20"><g clip-path="url(#a)"><mask id="b" width="242" height="256" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:luminance"><path fill="#fff" d="M0 0h242v256H0V0Z"></path></mask><g mask="url(#b)"><path fill="url(#c)" d="m241 43-9 136L149 0l92 43Zm-58 176-62 36-63-36 12-31h101l12 31ZM121 68l32 80H88l33-80ZM9 179 0 43 92 0 9 179Z"></path><path fill="url(#d)" d="m241 43-9 136L149 0l92 43Zm-58 176-62 36-63-36 12-31h101l12 31ZM121 68l32 80H88l33-80ZM9 179 0 43 92 0 9 179Z"></path></g></g><defs><linearGradient id="c" x1="53.2" x2="245" y1="231.9" y2="140.7" gradientUnits="userSpaceOnUse"><stop stop-color="#E40035"></stop><stop offset=".2" stop-color="#F60A48"></stop><stop offset=".4" stop-color="#F20755"></stop><stop offset=".5" stop-color="#DC087D"></stop><stop offset=".7" stop-color="#9717E7"></stop><stop offset="1" stop-color="#6C00F5"></stop></linearGradient> <linearGradient id="d" x1="44.5" x2="170" y1="30.7" y2="174" gradientUnits="userSpaceOnUse"> <stop stop-color="#FF31D9"></stop><stop offset="1" stop-color="#FF5BE1" stop-opacity="0"></stop></linearGradient><clipPath id="a"><path fill="#fff" d="M0 0h242v256H0z"></path></clipPath></defs></svg>`
+    },
+    { 
+      label: 'Vue',
+      value: 'vue', 
+      allowed: true,
+      brandColor: '#41B883',
+      svg: `<svg  class="chip-icon" viewBox="0 0 256 221" width="20" height="20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid"><path d="M204.8 0H256L128 220.8 0 0h97.92L128 51.2 157.44 0h47.36Z" fill="#41B883"></path><path d="m0 0 128 220.8L256 0h-51.2L128 132.48 50.56 0H0Z" fill="#41B883"></path><path d="M50.56 0 128 133.12 204.8 0h-47.36L128 51.2 97.92 0H50.56Z" fill="#35495E"></path></svg>`
+    },
+    { 
+      label: 'React',
+      value: 'react', 
+      allowed: true,
+      brandColor: '#00D8FF',
+      svg: `<svg class="chip-icon"  viewBox="0 0 256 228" width="20" height="20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid"><path d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621 6.238-30.281 2.16-54.676-11.769-62.708-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848 155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233 50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165 167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266 13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923 168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586 13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488 29.348-9.723 48.443-25.443 48.443-41.52 0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345-3.24-10.257-7.612-21.163-12.963-32.432 5.106-11 9.31-21.767 12.459-31.957 2.619.758 5.16 1.557 7.61 2.4 23.69 8.156 38.14 20.213 38.14 29.504 0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787-1.524 8.219-4.59 13.698-8.382 15.893-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246 12.376-1.098 24.068-2.894 34.671-5.345.522 2.107.986 4.173 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994 7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863-6.35-5.437-9.555-10.836-9.555-15.216 0-9.322 13.897-21.212 37.076-29.293 2.813-.98 5.757-1.905 8.812-2.773 3.204 10.42 7.406 21.315 12.477 32.332-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789 8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152 7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793 2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433 4.902.192 9.899.29 14.978.29 5.218 0 10.376-.117 15.453-.343-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026 347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815 329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627 310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695 358.489 358.489 0 0 1 11.036 20.54 329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026-.344 1.668-.73 3.367-1.15 5.09-10.622-2.452-22.155-4.275-34.23-5.408-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86-22.86-10.235-22.86-22.86 10.235-22.86 22.86-22.86Z" fill="#00D8FF"></path></svg>`
+    }
+]
+
+let codeBlockThemes:any = {
+    'vanillajs': { background: '#fff2990d' },
+    'svelte': { background: '#fabba40d' },
+    'angular': { background: '#eda8fd0d' },
+    'vue': { background: '#abffd90a' },
+    'react': { background: '#90eeff0a' }
+}
+
+let selectedTechnology:any =  technologies.find(technology => technology.value === technologyParam);
+let selectedComponent:any = components.find(component => component.slug === componentParam);
+
+const DocComponent = componentDocs[technologyParam];
+
+let cssVarStyles = `--primary-color:${selectedTechnology?.brandColor}; --code-block-bg:${codeBlockThemes[technologyParam].background};`;
+
+
+function isGradient() {
+  return selectedTechnology?.brandColor.startsWith('linear-gradient');
+}
+
+let code = `<script>
+  import { Quote } from '@flexiui/svelte-quote';
+  let content = 'This is a quote component example with editable mode enabled.';
+</script>
+
+<Quote
+className="my-quote"
+id="flexi-quote"
+bgColor="transparent" 
+editable={true}
+bind:value={content}
+on:focus={handleFocus}
+on:keydown={handleKeyDown}
+on:input={handleInput}
+>
+</Quote>`
+
+
+// static paths
+export async function getStaticPaths() {
+
+  return [
+    {params: { component: 'accordion', technology: 'vanillajs' }},
+    {params: { component: 'accordion', technology: 'svelte' }},
+    {params: { component: 'accordion', technology: 'angular' }},
+    {params: { component: 'accordion', technology: 'vue' }},
+    {params: { component: 'accordion', technology: 'react' }},
+
+    
+    {params: { component: 'alert', technology: 'vanillajs' }},
+    {params: { component: 'alert', technology: 'svelte' }},
+    {params: { component: 'alert', technology: 'angular' }},
+    {params: { component: 'alert', technology: 'vue' }},
+    {params: { component: 'alert', technology: 'react' }},
+    
+    {params: { component: 'quote', technology: 'vanillajs' }},
+    {params: { component: 'quote', technology: 'svelte' }},
+    {params: { component: 'quote', technology: 'angular' }},
+    {params: { component: 'quote', technology: 'vue' }},
+    {params: { component: 'quote', technology: 'react' }},
+
+    {params: { component: 'button', technology: 'vanillajs' }},
+    {params: { component: 'button', technology: 'svelte' }},
+    {params: { component: 'button', technology: 'angular' }},
+    {params: { component: 'button', technology: 'vue' }},
+    {params: { component: 'button', technology: 'react' }},
+
+    {params: { component: 'dropdown', technology: 'vanillajs' }},
+    {params: { component: 'dropdown', technology: 'svelte' }},
+    {params: { component: 'dropdown', technology: 'angular' }},
+    {params: { component: 'dropdown', technology: 'vue' }},
+    {params: { component: 'dropdown', technology: 'react' }},
+
+    {params: { component: 'tabs', technology: 'vanillajs' }},
+    {params: { component: 'tabs', technology: 'svelte' }},
+    {params: { component: 'tabs', technology: 'angular' }},
+    {params: { component: 'tabs', technology: 'vue' }},
+    {params: { component: 'tabs', technology: 'react' }},
+
+    {params: { component: 'tags-input', technology: 'vanillajs' }},
+    {params: { component: 'tags-input', technology: 'svelte' }},
+    {params: { component: 'tags-input', technology: 'angular' }},
+    {params: { component: 'tags-input', technology: 'vue' }},
+    {params: { component: 'tags-input', technology: 'react' }},
+
+    {params: { component: 'input', technology: 'vanillajs' }},
+    {params: { component: 'input', technology: 'svelte' }},
+    {params: { component: 'input', technology: 'angular' }},
+    {params: { component: 'input', technology: 'vue' }},
+    {params: { component: 'input', technology: 'react' }},
+
+    {params: { component: 'textarea', technology: 'vanillajs' }},
+    {params: { component: 'textarea', technology: 'svelte' }},
+    {params: { component: 'textarea', technology: 'angular' }},
+    {params: { component: 'textarea', technology: 'vue' }},
+    {params: { component: 'textarea', technology: 'react' }},
+
+    {params: { component: 'cssvars', technology: 'vanillajs' }},
+    {params: { component: 'cssvars', technology: 'svelte' }},
+    {params: { component: 'cssvars', technology: 'angular' }},
+    {params: { component: 'cssvars', technology: 'vue' }},
+    {params: { component: 'cssvars', technology: 'react' }},
+    
+    {params: { component: 'editable', technology: 'vanillajs' }},
+    {params: { component: 'editable', technology: 'svelte' }},
+    {params: { component: 'editable', technology: 'angular' }},
+    {params: { component: 'editable', technology: 'vue' }},
+    {params: { component: 'editable', technology: 'react' }},
+
+    {params: { component: 'rich-editor', technology: 'vanillajs' }},
+    {params: { component: 'rich-editor', technology: 'svelte' }},
+    {params: { component: 'rich-editor', technology: 'angular' }},
+    {params: { component: 'rich-editor', technology: 'vue' }},
+    {params: { component: 'rich-editor', technology: 'react' }},
+
+    {params: { component: 'block-editor', technology: 'vanillajs' }},
+    {params: { component: 'block-editor', technology: 'svelte' }},
+    {params: { component: 'block-editor', technology: 'angular' }},
+    {params: { component: 'block-editor', technology: 'vue' }},
+    {params: { component: 'block-editor', technology: 'react' }},
+
+    {params: { component: 'code-editor', technology: 'vanillajs' }},
+    {params: { component: 'code-editor', technology: 'svelte' }},
+    {params: { component: 'code-editor', technology: 'angular' }},
+    {params: { component: 'code-editor', technology: 'vue' }},
+    {params: { component: 'code-editor', technology: 'react' }},
+
+    {params: { component: 'jsontree', technology: 'vanillajs' }},
+    {params: { component: 'jsontree', technology: 'svelte' }},
+    {params: { component: 'jsontree', technology: 'angular' }},
+    {params: { component: 'jsontree', technology: 'vue' }},
+    {params: { component: 'jsontree', technology: 'react' }},
+  ];
+}
+
+const notAllowedMessage = "¡La unión hace la fuerza! Estamos trabajando para que los componentes de FlexiUI estén disponibles para la mayor cantidad de frameworks y librerías posibles, si quieres, puedes aportar tu granito de arena en la misión!"
+---
+
+<Layout title="Welcome to Astro.">
+  <Navigation activeComponentSlug={componentParam} activeTechnology={selectedTechnology?.value || 'svelte'} components={components}></Navigation>
+	<main>
+		<div class={`page-content ${isGradient() ? 'is-primary-gradient' : ''}`} style={cssVarStyles}>
+			<div class="page-logo">
+			  <span class="flexi-fl-icon">
+				<span class="flip-letter">F</span>L
+			  </span>
+			</div>
+
+			{ selectedTechnology?.value === 'vanillajs' ? 
+				<h1 class="text-center">@flexiui/{componentParam}</h1> 
+			  : 
+				<h1 class="text-center">
+          @flexiui/{selectedTechnology?.value === 'angular' ? 'ngx' : selectedTechnology?.value}-{componentParam}
+        </h1>
+			}
+		  
+			<p class="text-center">
+        {selectedComponent?.description}
+      </p>
+		  
+			<nav class="tecnology-tags">
+			  { technologies.map(technology => (
+            <a 
+            href={`/${technology.value}/${componentParam}`}
+            class={`chip ${technology.value}-chip ${selectedTechnology?.value === technology.value ? 'active' : ''}`}
+            >
+              <span class="flex" set:html={technology.svg}></span>
+              {technology.label}
+
+              {selectedComponent?.allowedTechnologies[technology.value] ?
+                <svg class="status-icon allowed" xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"></path></svg>
+                :
+                <svg class="status-icon not-allowed" xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="18px" fill="currentColor"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q54 0 104-17.5t92-50.5L228-676q-33 42-50.5 92T160-480q0 134 93 227t227 93Zm252-124q33-42 50.5-92T800-480q0-134-93-227t-227-93q-54 0-104 17.5T284-732l448 448Z"></path></svg>
+              }
+              
+              
+            </a>
+			  	))
+			  }
+			</nav>      
+			
+			<div class="card">
+        {
+          () => {
+            if(selectedComponent?.allowedTechnologies[technologyParam]) {
+              return <ComponentPreview client:load></ComponentPreview>
+            } else {
+              return <p>This component is not yet available for {selectedTechnology?.label}.</p>
+            }
+          }
+        }
+			</div>
+      
+      <div class="alert alert--warning">
+        <!-- <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="starlight-aside__icon"><path d="M12 11C11.7348 11 11.4804 11.1054 11.2929 11.2929C11.1054 11.4804 11 11.7348 11 12V16C11 16.2652 11.1054 16.5196 11.2929 16.7071C11.4804 16.8946 11.7348 17 12 17C12.2652 17 12.5196 16.8946 12.7071 16.7071C12.8946 16.5196 13 16.2652 13 16V12C13 11.7348 12.8946 11.4804 12.7071 11.2929C12.5196 11.1054 12.2652 11 12 11ZM12.38 7.08C12.1365 6.97998 11.8635 6.97998 11.62 7.08C11.4973 7.12759 11.3851 7.19896 11.29 7.29C11.2017 7.3872 11.1306 7.49882 11.08 7.62C11.024 7.73868 10.9966 7.86882 11 8C10.9992 8.13161 11.0245 8.26207 11.0742 8.38391C11.124 8.50574 11.1973 8.61656 11.29 8.71C11.3872 8.79833 11.4988 8.86936 11.62 8.92C11.7715 8.98224 11.936 9.00632 12.099 8.99011C12.2619 8.97391 12.4184 8.91792 12.5547 8.82707C12.691 8.73622 12.8029 8.61328 12.8805 8.46907C12.9582 8.32486 12.9992 8.16378 13 8C12.9963 7.73523 12.8927 7.48163 12.71 7.29C12.6149 7.19896 12.5028 7.12759 12.38 7.08ZM12 2C10.0222 2 8.08879 2.58649 6.4443 3.6853C4.79981 4.78412 3.51809 6.3459 2.76121 8.17317C2.00433 10.0004 1.8063 12.0111 2.19215 13.9509C2.578 15.8907 3.53041 17.6725 4.92894 19.0711C6.32746 20.4696 8.10929 21.422 10.0491 21.8079C11.9889 22.1937 13.9996 21.9957 15.8268 21.2388C17.6541 20.4819 19.2159 19.2002 20.3147 17.5557C21.4135 15.9112 22 13.9778 22 12C22 10.6868 21.7413 9.38642 21.2388 8.17317C20.7363 6.95991 19.9997 5.85752 19.0711 4.92893C18.1425 4.00035 17.0401 3.26375 15.8268 2.7612C14.6136 2.25866 13.3132 2 12 2ZM12 20C10.4178 20 8.87104 19.5308 7.55544 18.6518C6.23985 17.7727 5.21447 16.5233 4.60897 15.0615C4.00347 13.5997 3.84504 11.9911 4.15372 10.4393C4.4624 8.88743 5.22433 7.46197 6.34315 6.34315C7.46197 5.22433 8.88743 4.4624 10.4393 4.15372C11.9911 3.84504 13.5997 4.00346 15.0615 4.60896C16.5233 5.21447 17.7727 6.23984 18.6518 7.55544C19.5308 8.87103 20 10.4177 20 12C20 14.1217 19.1572 16.1566 17.6569 17.6569C16.1566 19.1571 14.1217 20 12 20Z"></path></svg> -->
+         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="starlight-aside__icon"><path d="M12 16C11.8022 16 11.6089 16.0587 11.4444 16.1686C11.28 16.2784 11.1518 16.4346 11.0761 16.6173C11.0004 16.8001 10.9806 17.0011 11.0192 17.1951C11.0578 17.3891 11.153 17.5673 11.2929 17.7071C11.4327 17.847 11.6109 17.9422 11.8049 17.9808C11.9989 18.0194 12.2 17.9996 12.3827 17.9239C12.5654 17.8482 12.7216 17.72 12.8315 17.5556C12.9413 17.3911 13 17.1978 13 17C13 16.7348 12.8946 16.4805 12.7071 16.2929C12.5196 16.1054 12.2652 16 12 16ZM22.67 17.47L14.62 3.47003C14.3598 3.00354 13.9798 2.61498 13.5192 2.3445C13.0586 2.07401 12.5341 1.9314 12 1.9314C11.4659 1.9314 10.9414 2.07401 10.4808 2.3445C10.0202 2.61498 9.64019 3.00354 9.38 3.47003L1.38 17.47C1.11079 17.924 0.966141 18.441 0.960643 18.9688C0.955144 19.4966 1.089 20.0166 1.34868 20.4761C1.60837 20.9356 1.9847 21.3185 2.43968 21.5861C2.89466 21.8536 3.41218 21.9964 3.94 22H20.06C20.5921 22.0053 21.1159 21.8689 21.5779 21.6049C22.0399 21.341 22.4234 20.9589 22.689 20.4978C22.9546 20.0368 23.0928 19.5134 23.0895 18.9814C23.0862 18.4493 22.9414 17.9277 22.67 17.47ZM20.94 19.47C20.8523 19.626 20.7245 19.7556 20.5697 19.8453C20.4149 19.935 20.2389 19.9815 20.06 19.98H3.94C3.76111 19.9815 3.5851 19.935 3.43032 19.8453C3.27553 19.7556 3.14765 19.626 3.06 19.47C2.97223 19.318 2.92602 19.1456 2.92602 18.97C2.92602 18.7945 2.97223 18.622 3.06 18.47L11.06 4.47003C11.1439 4.30623 11.2714 4.16876 11.4284 4.07277C11.5855 3.97678 11.766 3.92599 11.95 3.92599C12.134 3.92599 12.3145 3.97678 12.4716 4.07277C12.6286 4.16876 12.7561 4.30623 12.84 4.47003L20.89 18.47C20.9892 18.6199 21.0462 18.7937 21.055 18.9732C21.0638 19.1527 21.0241 19.3312 20.94 19.49V19.47ZM12 8.00003C11.7348 8.00003 11.4804 8.10538 11.2929 8.29292C11.1054 8.48046 11 8.73481 11 9.00003V13C11 13.2652 11.1054 13.5196 11.2929 13.7071C11.4804 13.8947 11.7348 14 12 14C12.2652 14 12.5196 13.8947 12.7071 13.7071C12.8946 13.5196 13 13.2652 13 13V9.00003C13 8.73481 12.8946 8.48046 12.7071 8.29292C12.5196 8.10538 12.2652 8.00003 12 8.00003Z"></path></svg>
+        <span>This library is currently in <strong>fase beta</strong>. It’s <strong>not recommended</strong> for use <strong>in production</strong> environments.</span>
+      </div>
+
+      {
+        () => {
+          if(selectedComponent?.allowedTechnologies[technologyParam]) {
+            return <DocComponent></DocComponent>
+          } else {
+            return (
+              <h2 id="contribute">Contribute to this component</h2>
+              <p>¡La unión hace la fuerza! Estamos trabajando para que los componentes de FlexiUI estén disponibles para la mayor cantidad de tecnologías posibles, si quieres, puedes aportar tu granito de arena en la misión!</p>
+            )
+          }          
+        }
+      }
+          
+      <!-- <p class="text-center">
+          Check out <a class="primary-link" href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">FlexiUI</a>, the official Flexi CMS component library. Created by alexgipi ♥️
+      </p> -->
+		</div>
+		
+	</main>
+</Layout>
+
+<style>
+	:root {
+	  --primary-color: #FF3E00;
+	  --primary-gradient: linear-gradient(225deg, #810cf0, #7e0af1 20%, #c31ea2 40%, #f5094d 50%, #e92794 70%, #ff31d6), linear-gradient(47deg, #FF31D9, rgba(255, 91, 225, 0) 100%);
+	}
+
+  h1 {
+    color: #fff;
+  }
+  
+	a {
+	  color: var(--primary-color);
+	  transition: color 0.3s ease;
+	}
+  
+	.is-primary-gradient .primary-link {
+	  background: var(--primary-gradient);
+	  background-clip: text;
+	  -webkit-background-clip: text;
+	  -webkit-text-fill-color: transparent;
+	}
+  
+	.read-the-docs {
+	  color: #888;
+	}
+  
+	.tecnology-tags {
+	  margin: 2.75rem 0 2em;
+	  display: flex;
+	  gap: .75rem;
+	  justify-content: center;
+	  border-radius: 53px;
+	  align-items: center;
+	}
+  
+	.tecnology-tags .chip {
+    padding: 6px 16px 6px 14px;
+    border-radius: 31px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-weight: 400;
+    line-height: 1.4;
+    transition: background-color 0.3s ease;
+    color: #ffffffcf;
+  
+	  &.active {
+      background-color: rgba(255,255,255, 0.1);
+      color: #fff;
+
+      .status-icon.allowed {
+        color: #91ff43;
+      }
+
+      .status-icon.not-allowed {
+        color: #ff3753;
+      }
+	  }
+  
+	  .chip-icon {
+		  transition: filter 0.3s ease;
+	  }
+  
+	  &.angular-chip:not(.active) .chip-icon {
+		  filter: grayscale(1) brightness(1.45);
+	  }
+  
+	  &:not(.active) .chip-icon {
+		  filter: grayscale(1);
+	  }
+	}
+
+  .alert {
+    padding: 14px 20px;
+    background: #d5d5d50f;
+    font-size: 14px;
+    width: 100%;
+    backdrop-filter: blur(9px);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffffe5;
+    border-radius: 12px;
+  }
+
+  .alert--warning {
+    background: #ff9d2b14;
+    color: #ffc875;
+  }
+</style>
+
+<style is:global>
+
+    li {
+        margin: 7px 0;
+    }
+
+    p code, li code {        
+        padding: 4px 8px;
+        position: relative;
+        overflow: hidden;
+        background: #ffffff0a;
+        border-radius: 8px;
+
+        &::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--code-block-bg);
+            border-radius: 8px;
+        }
+    }
+    
+    .expressive-code .copy.copy button {
+        opacity: 1;
+        background-color: transparent !important;
+
+        div {
+            display: none;
+        }
+        &:hover {
+            div {
+                background-color: transparent !important;
+            }
+        }
+    }
+
+    .expressive-code .frame.is-terminal {
+
+        .header {
+            background-color: #ffffff05 !important;
+        }
+
+        pre {
+            background-color: transparent !important;
+        }
+    }
+
+    .expressive-code {
+        background: var(--code-block-bg);
+        border-radius: 1rem;
+        overflow: hidden;
+        margin: 1.25rem 0 1.75rem;
+    }
+
+    .tags-field {
+        flex: auto;
+    }
+
+</style>

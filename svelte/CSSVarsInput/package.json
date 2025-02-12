@@ -1,0 +1,39 @@
+{
+  "name": "@flexiui/svelte-cssvars",
+  "version": "0.0.18",
+  "description": "A lightweight and flexible CSS Vars editor component for Svelte",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && svelte-package",
+    "preview": "vite preview"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.3.10",
+		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"svelte": "^5.19.9",
+		"vite": "^6.1.0"
+  },
+  "author": "alexgipi <alexgp895@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@flexiui/svelte-dropdown": "^0.0.7",
+    "@flexiui/svelte-prism-code-editor": "^0.0.10"
+  }
+}

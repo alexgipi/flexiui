@@ -1,0 +1,39 @@
+.code-editor {
+    --editor__border-radius: 12px;
+    min-height: 200px;
+    background-color: #1e1e1e;
+    border-radius: var(--editor__border-radius);
+    overflow: hidden;
+    
+
+    & textarea:focus, & textarea:focus-visible {
+        outline: none;
+        border: none;
+        box-shadow: none;
+    }
+
+    .prism-code-editor {
+        --editor__bg: #1e1e1e;
+        --widget__border: #404040;
+        --widget__bg: #1e1e1e;
+        --widget__color: #8d8d8d;
+        --widget__color-active: #fff;
+        --widget__color-options: #ffffff9e;
+        --widget__bg-input: #a4fff700;
+        --widget__bg-hover: #a4fff714;
+        --widget__bg-active: #1cdddd33;
+        --widget__focus-ring: #a4fff7;
+        padding: 0;
+        font-size: 16px;
+    }
+
+    .pce-wrapper {
+        margin: .75em 0;
+    }
+
+    .pce-input button {
+        font-size: 13px;
+        text-align: center;
+        flex: auto;
+    }
+}
