@@ -1,0 +1,37 @@
+---
+title: '@flexiui/svelte-alert'
+author: 'alexgipi'
+content: 'This is a alert component example with editable mode enabled.'
+contentBasic: 'This is a basic usage of the Alert component.'
+---
+import { Code } from 'astro-expressive-code/components'
+
+import PreviewCard from '../../../components/PreviewCard.svelte';
+
+import ComponentPreview from '../../../components/ComponentPreview.svelte';
+
+import AlertSeverityExample from './examples/AlertSeverityExample.svelte';
+import AlertSeverityExampleRaw from './examples/AlertSeverityExample.svelte?raw';
+
+## Introduction
+Alerts give users brief and potentially time-sensitive information in an unobtrusive manner.
+
+The Flexi UI Alert component includes several props for quickly customizing its styles to provide immediate visual cues about its contents.
+
+## Installation
+
+To install the `Alert` component in your Svelte project, you can use npm or yarn.
+
+```bash
+npm install @flexiui/svelte-alert
+```
+
+## Severity
+
+The `severity` prop accepts four values representing different states—`info` (the default), `success`, `warning`, `error`, and `tip`–with corresponding icon and color combinations for each:
+
+<PreviewCard rounded outlined>
+  <AlertSeverityExample />
+</PreviewCard>
+
+<Code code={AlertSeverityExampleRaw} lang="svelte" />

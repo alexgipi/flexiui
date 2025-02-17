@@ -45,11 +45,35 @@ const { title } = Astro.props;
   }
 
   .flex {
-	display: flex;
+	  display: flex;
+  }
+
+  .items-center {
+	  align-items: center;
+  }
+
+  .justify-center {
+	  justify-content: center;
   }
 
   .text-center {
-	text-align: center;
+	  text-align: center;
+  }
+
+  .gap-1 {
+    gap: 0.25rem;
+  }
+
+  .gap-2 {
+    gap: 0.5rem;
+  }
+
+  .gap-3 {
+    gap: 0.75rem;
+  }
+
+  .gap-4 {
+    gap: 1rem;
   }
 
   a {
@@ -60,6 +84,10 @@ const { title } = Astro.props;
 
   a:hover {
     color: #535bf2;
+  }
+
+  html {
+    scrollbar-width: thin
   }
 
   body {
@@ -91,10 +119,18 @@ const { title } = Astro.props;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
-    border: 1px solid var(--code-block-bg);
-    border-radius: 1.25rem;
     text-wrap: pretty;
+    border: 1px solid var(--code-block-bg);
+    padding: 2rem;
+
+    &.without-border {
+      border: none;
+      padding: 0;
+    }
+
+    &.rounded {
+      border-radius: 1.25rem;
+    }
   }
 
   button {

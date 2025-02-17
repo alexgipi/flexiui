@@ -1,4 +1,12 @@
-# `@flexiui/svelte-quote`
+<br/>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/withastro/astro/HEAD/.github/assets/banner.jpg" alt="Build the web you want">
+  <br/><br/>
+  <a href="https://astro.build">Astro</a> is the all-in-one web framework designed for speed.
+  <br/>
+  Pull your content from anywhere and deploy everywhere, all powered by your favorite UI components and libraries.
+  <br/><br/>
+</p>
 
 Un componente de cita, 'Quote' o 'Blockquote' para Svelte.
 ## Instalación

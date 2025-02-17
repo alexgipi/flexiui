@@ -4,11 +4,11 @@ import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 import astroExpressiveCode from 'astro-expressive-code'
 
+import mdx from '@astrojs/mdx';
+
 // https://astro.build/config
 export default defineConfig({
-  integrations: [
-    svelte(),
-    astroExpressiveCode({
+  integrations: [svelte(), astroExpressiveCode({
       // You can use any of the themes bundled with Shiki by name,
       // specify a path to JSON theme file, or pass an instance
       // of the `ExpressiveCodeTheme` class here:
@@ -28,6 +28,7 @@ export default defineConfig({
           frameBoxShadowCssValue: 'none'
         }
       }
-    }),
+    }), 
+    mdx(),
   ]
 });

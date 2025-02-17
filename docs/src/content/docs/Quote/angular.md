@@ -21,7 +21,7 @@ yarn add @flexiui/ngx-quote
 
 ## Uso
 
-Una vez instalado, puedes usar el selextor `flexiui-quote` en tu aplicación de Angular.
+Una vez instalado, puedes usar el selector `flexiui-quote` en tu aplicación de Angular.
 
 ```html
 <flexiui-quote

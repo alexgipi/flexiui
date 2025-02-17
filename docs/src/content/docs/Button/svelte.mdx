@@ -1,0 +1,70 @@
+---
+title: '@flexiui/svelte-button'
+author: 'alexgipi'
+content: 'This is a button component example with editable mode enabled.'
+contentBasic: 'This is a basic usage of the Button component.'
+---
+import { Code } from 'astro-expressive-code/components'
+import PreviewCard from '../../../components/PreviewCard.svelte';
+
+import ComponentPreview from '../../../components/ComponentPreview.svelte';
+
+import ButtonPreview from './examples/ButtonPreview.svelte';
+import ButtonPreviewRaw from './examples/ButtonPreview.svelte?raw';
+
+import ButtonTextExample from './examples/ButtonTextExample.svelte';
+import ButtonTextExampleRaw from './examples/ButtonTextExample.svelte?raw';
+
+import ButtonContainedExample from './examples/ButtonContainedExample.svelte';
+import ButtonContainedExampleRaw from './examples/ButtonContainedExample.svelte?raw';
+
+import ButtonOutlinedExample from './examples/ButtonOutlinedExample.svelte';
+import ButtonOutlinedExampleRaw from './examples/ButtonOutlinedExample.svelte?raw';
+
+import ButtonSizesExample from './examples/ButtonSizesExample.svelte';
+import ButtonSizesExampleRaw from './examples/ButtonSizesExample.svelte?raw';
+
+## Installation
+
+To install the `Button` component in your Svelte project, you can use npm or yarn.
+
+```bash
+npm install @flexiui/svelte-button
+```
+
+## Text button
+Text buttons are typically used for less-pronounced actions, including those located: in dialogs, in cards. In cards, text buttons help maintain an emphasis on card content.
+
+<PreviewCard rounded outlined>
+  <ButtonTextExample />
+</PreviewCard>
+
+<Code code={ButtonTextExampleRaw} lang="svelte" />
+
+## Contained button
+Contained buttons are high-emphasis, distinguished by their use of elevation and fill. They contain actions that are primary to your app.
+
+<PreviewCard rounded outlined>
+  <ButtonContainedExample />
+</PreviewCard>
+
+<Code code={ButtonContainedExampleRaw} lang="svelte" />
+
+## Outlined button
+Outlined buttons are medium-emphasis buttons. They contain actions that are important, but aren’t the primary action in an app.
+Outlined buttons are also a lower emphasis alternative to contained buttons, or a higher emphasis alternative to text buttons.
+
+<PreviewCard rounded outlined>
+  <ButtonOutlinedExample />
+</PreviewCard>
+
+<Code code={ButtonOutlinedExampleRaw} lang="svelte" />
+
+## Sizes
+For larger or smaller buttons, use the `size` prop.
+
+<PreviewCard rounded outlined>
+  <ButtonSizesExample />
+</PreviewCard>
+
+<Code code={ButtonSizesExampleRaw} lang="svelte" />
