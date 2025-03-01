@@ -64,7 +64,7 @@
         initDropdown();
     }
 
-    async function toggleDropdown(el, key) {
+    export async function toggleDropdown(el, key) {
         console.log("Toggle");
         console.log({openedKey, key});
         if (openedKey === key) {
@@ -77,7 +77,9 @@
         }
 
         await tick();
-        if (opened) calculatePosition(el);
+        if (opened) {
+            calculatePosition(el)
+        }
     }
 
 
@@ -87,8 +89,14 @@
         dispatch('close', { id, eventType: 'dropdown-close' });
     }
 
+    export function toggleByKey(key) {        
+        let el = document.querySelector(`[data-dropdown-key="${key}"]`);
+        toggleDropdown(el, key);
+    }
+
     function closeDropdown(event) {
         if (
+            opened &&
             dropdownPanelEl &&
             !dropdownPanelEl.contains(event.target) &&
             !dropdownToggle[0].contains(event.target)

@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import Dropdown from './lib/Dropdown.svelte';
   import DropdownItem from './lib/DropdownItem.svelte';
 
   let recalculateDropdownPosition = null;
   let refreshDropdown = null;
+  let toggleByKey = null;
 
   function handleOpenDropdown(e) {
     console.log(e);
@@ -21,7 +23,7 @@
   let activePosition: "top-left" | "top-center" | "top-right" | 
                         "bottom-left" | "bottom-center" | "bottom-right" | 
                         "left-top" | "left-center" | "left-bottom" | 
-                        "right-top" | "right-center" | "right-bottom" = "bottom-right";
+                        "right-top" | "right-center" | "right-bottom" = "top-left";
 
   let positions = [
     ["top-left", "top-center", "top-right"], 
@@ -39,6 +41,18 @@
 
     refreshDropdown();
   }
+
+  onMount(() => {
+    console.log('mounted');
+    toggleByKey('top-left');
+  });
+
+  function toggleTopLeft(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    activePosition = 'top-left';
+    toggleByKey('top-left');
+  }
 </script>
 
 <main>
@@ -49,6 +63,7 @@
   </div>
   <button on:click={refreshDropdown}>Refresh</button>
   <button on:click={addPosition}>Add Position</button>
+  <button on:click={(e) => toggleTopLeft(e)}>Toggle top-left</button>
   <h1>@flexiui/svelte-tags-input</h1>
   <p>A lightweight and flexible tags input component for managing tags.</p>
 
@@ -74,6 +89,7 @@
     <Dropdown 
     bind:refreshDropdown={refreshDropdown}
     bind:calculatePosition={recalculateDropdownPosition} 
+    bind:toggleByKey={toggleByKey}
     position={activePosition}
     yOffset={0} 
     xOffset={0}
