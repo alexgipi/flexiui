@@ -1,0 +1,32 @@
+import { Code } from 'astro-expressive-code/components'
+import Alert from '@components/ui/Alert.svelte';
+import PreviewCard from '@components/PreviewCard.svelte';
+
+import BasicExample from './examples/BasicExample.svelte';
+import BasicExampleRaw from './examples/BasicExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+ <BasicExample client:load/>
+</PreviewCard>
+
+<Alert client:load severity="warning">
+  <span>This library is currently in <strong>fase beta</strong>. It’s <strong>not recommended</strong> for use <strong>in production</strong> environments.</span>
+</Alert>
+
+## Introduction
+
+The Flexi UI Accordion component enables users to toggle content visibility, offering an organized and customizable solution for collapsible sections in Svelte projects.
+
+## Installation
+
+To install the `Accordion` component in your Svelte project, you can use npm or yarn.
+
+```bash
+npm install @flexiui/svelte-accordion
+```
+
+<PreviewCard rounded outlined>
+ <BasicExample client:load />
+</PreviewCard>
+
+<Code code={BasicExampleRaw} lang="svelte" />
