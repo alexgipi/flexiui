@@ -109,7 +109,6 @@
     const cssRuleRegex = new RegExp(`${ruleSeparator}(.*)`, "s");
 
     rules.forEach((rule) => {
-      console.log({ rule });
       let [key, value] = rule.split(cssRuleRegex);
       key = key.trim();
       value = value.trim();
@@ -180,6 +179,7 @@
   }
 
   let prevVarsObject = null;
+
   // For icon indicators (Types: margin, padding, border-radius)
   function handleClick(e, key) {
     const element = e.target;
