@@ -2,6 +2,7 @@
 import { Quote } from '@flexiui/svelte-quote';
 import { TagsInput } from '@flexiui/svelte-tags-input';
 import { CSSVars } from "@flexiui/svelte-cssvars";
+import latestVersion from 'latest-version';
 
 import ComponentPreview from '../../components/ComponentPreview.svelte';
 
@@ -20,6 +21,14 @@ import Layout from '../../layouts/Layout.astro';
 import { getCollection, getEntry, render } from 'astro:content';
 
 const { component: componentParam, technology: technologyParam } = Astro.params;
+
+let publishedVersion = null;
+
+try {
+  publishedVersion = await latestVersion(`@flexiui/${technologyParam}-${componentParam}`);
+} catch (error) {
+  console.error(error);
+}
 
 // const componentDocs:any = {
 //   vanillajs: VanillaJsDocumentation,
@@ -401,7 +410,7 @@ export async function getStaticPaths() {
 const notAllowedMessage = "¡La unión hace la fuerza! Estamos trabajando para que los componentes de FlexiUI estén disponibles para la mayor cantidad de frameworks y librerías posibles, si quieres, puedes aportar tu granito de arena en la misión!"
 ---
 
-<Layout title="Welcome to Astro.">
+<Layout title={`${selectedComponent.name} - FlexiUi ${selectedTechnology.label} component`} description="FlexiUI is a lightweight and flexible UI component library for Svelte.">
   <Navigation activeComponentSlug={componentParam} activeTechnology={selectedTechnology?.value || 'svelte'} components={componentss}></Navigation>
 	<main>
 		<div class={`page-content ${isGradient() ? 'is-primary-gradient' : ''}`} style={cssVarStyles}>
@@ -410,6 +419,12 @@ const notAllowedMessage = "¡La unión hace la fuerza! Estamos trabajando para q
 				<span class="flip-letter">F</span>L
 			  </span>
 			</div>
+
+      <div class="bagde-container">
+        <span class="fl-badge version-badge">
+          Current version: {publishedVersion || '0.0.0'}
+        </span>
+      </div>
 
 			{ selectedTechnology?.value === 'vanillajs' ? 
 				<h1 class="text-center">@flexiui/{componentParam}</h1> 
@@ -626,4 +641,15 @@ const notAllowedMessage = "¡La unión hace la fuerza! Estamos trabajando para q
         flex: auto;
     }
 
+    .bagde-container {
+      display: flex;
+      justify-content: center;
+    }
+
+    .fl-badge {
+      padding: 6px 14px;
+      background: #ffffff17;
+      border-radius: 24px;
+      font-size: 14px;
+    }
 </style>
