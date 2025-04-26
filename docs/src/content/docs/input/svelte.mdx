@@ -1,0 +1,27 @@
+---
+title: '@flexiui/svelte-button'
+author: 'alexgipi'
+content: 'This is a button component example with editable mode enabled.'
+contentBasic: 'This is a basic usage of the Button component.'
+---
+import { Code } from 'astro-expressive-code/components'
+import PreviewCard from '../../../components/PreviewCard.svelte';
+
+import InputBasicExample from './examples/InputBasicExample.svelte';
+import InputBasicExampleRaw from './examples/InputBasicExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+  <InputBasicExample />
+</PreviewCard>
+
+## Installation
+
+To install the `Input` component in your Svelte project, you can use npm or yarn.
+
+```bash
+npm install @flexiui/svelte-input
+```
+
+## Basic usage of the Input component
+
+<Code code={InputBasicExampleRaw} lang="svelte" />
