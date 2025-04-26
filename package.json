@@ -12,6 +12,19 @@
     "react/*",
     "vanilla/*"
   ],
+  "config": {
+    "sui-mono": {
+      "access": "public",
+      "overrides": {
+        "literals": [{
+          "regex": "Lokalise:"
+        }]
+      }
+    },
+    "validate-commit-msg": {
+      "types": "@s-ui/mono/src/types"
+    }
+  },
   "main": "index.js",
   "directories": {
     "doc": "docs"
