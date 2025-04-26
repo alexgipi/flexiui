@@ -1,11 +1,11 @@
 <script lang="ts">
     export let field = null;
     export let name = null;
-    export let activeTab = 0;
+    export let activeTabIndex = 0;
     export let tabs:any = [];
   
     function handleTabClick(index: number) {
-      activeTab = index;
+      activeTabIndex = index;
     }
   </script>
   
@@ -14,7 +14,7 @@
       {#each tabs as tab, index (tab.name)}
         <button
           type="button"
-          class:active={activeTab === index}
+          class:active={activeTabIndex === index}
           on:click={(e) => {
             handleTabClick(index);
           }}
