@@ -234,10 +234,6 @@
   </div>
 </div>
 
-<!-- <pre class="output-console">
-    {JSON.stringify(tags, null, 3)}
-</pre> -->
-
 <style>
   .tags-field {
     display: flex;
