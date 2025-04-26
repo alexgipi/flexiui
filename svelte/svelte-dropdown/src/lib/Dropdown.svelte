@@ -20,10 +20,10 @@
     // Cuando el componente se monta
     onMount(() => {
         initDropdown();
-    });
 
-    onDestroy(() => {
-        document.removeEventListener("click", closeDropdown);
+        onDestroy(() => {
+            document.removeEventListener("click", closeDropdown);
+        });
     });
 
     let dropdownListeners = new Map<Element, EventListener>();
@@ -98,8 +98,7 @@
         if (
             opened &&
             dropdownPanelEl &&
-            !dropdownPanelEl.contains(event.target) &&
-            !dropdownToggle[0].contains(event.target)
+            !dropdownPanelEl.contains(event.target) 
         ) {
             close();
         }

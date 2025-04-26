@@ -44,7 +44,7 @@
 
   onMount(() => {
     console.log('mounted');
-    toggleByKey('top-left');
+    // toggleByKey('top-left');
   });
 
   function toggleTopLeft(e) {
