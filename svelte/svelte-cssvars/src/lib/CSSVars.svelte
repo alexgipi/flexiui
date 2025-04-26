@@ -265,7 +265,6 @@
   }
 
   function handleFocus(e, key) {
-    console.log("Focus");
     selectElementText(e.target);
     prevVarsObject = { ...varsObject };
   }
