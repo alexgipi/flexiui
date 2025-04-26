@@ -1,5 +1,7 @@
 {
   "name": "@flexiui/ngx-quote",
+  "description": "FlexiUI quote component for Angular",
+  "author": "Alex Gipi",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^19.1.0",

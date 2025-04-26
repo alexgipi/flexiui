@@ -10,6 +10,9 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "ngx-button": [
+        "./dist/ngx-button"
+      ],
       "ngx-quote": [
         "./dist/ngx-quote"
       ]
