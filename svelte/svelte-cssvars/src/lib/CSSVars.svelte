@@ -324,7 +324,7 @@
 
     if (type === "range" && varsConfig[key].unit) {
       if (e.key === ".") {
-        console.log("El valor es un .");
+        
         // comprobar si ya hay 1 '.' en innerText
         if (element.innerText.includes(".")) {
           e.preventDefault();
