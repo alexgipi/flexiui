@@ -656,11 +656,6 @@
 
         varsConfig = updateVarsConfig();
         refreshDropdown();
-
-        console.log(
-          "Cambios detectados en varsObject:",
-          getObjectDifferences(currentVarsObject, newVarsObject)
-        );
       }
     }
   }
