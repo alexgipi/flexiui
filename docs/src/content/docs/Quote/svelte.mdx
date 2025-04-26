@@ -1,11 +1,10 @@
----
-title: '@flexiui/svelte-quote'
-author: 'alexgipi'
-content: 'This is a quote component example with editable mode enabled.'
-contentBasic: 'This is a basic usage of the Quote component.'
----
+
 import { Code } from 'astro-expressive-code/components'
 import { Quote } from '@flexiui/svelte-quote';
+import PreviewCard from '../../../components/PreviewCard.svelte';
+
+import Alert from '../../../components/ui/Alert.svelte';
+
 import ComponentPreview from '../../../components/ComponentPreview.svelte';
 import QuoteBasicExample from './examples/QuoteBasicExample.svelte';
 import QuoteBasicExampleRaw from './examples/QuoteBasicExample.svelte?raw';
@@ -13,35 +12,31 @@ import QuoteBasicExampleRaw from './examples/QuoteBasicExample.svelte?raw';
 import QuoteEditableExample from './examples/QuoteEditableExample.svelte';
 import QuoteEditableExampleRaw from './examples/QuoteEditableExample.svelte?raw';
 
-## Instalación
+<PreviewCard rounded outlined>
+  <QuoteBasicExample client:load />
+</PreviewCard>
 
-Para instalar el componente `Quote` en tu proyecto de Svelte, puedes usar npm o yarn.
+<Alert client:load severity="warning">
+  <span>This library is currently in <strong>fase beta</strong>. It’s <strong>not recommended</strong> for use <strong>in production</strong> environments.</span>
+</Alert>
 
-Con npm:
+## Installation
+
+To install the `Quote` component in your Svelte project, you can use npm or yarn.
 
 ```bash
 npm install @flexiui/svelte-quote
 ```
 
-Con yarn:
+## Basic Usage of the Component
 
-```bash
-yarn add @flexiui/svelte-quote
-```
-
-## Uso básico del componente
-
-Una vez instalado, puedes usar el componente `Quote` en tu aplicación de Svelte.
-
-<div class="card preview rounded">
-  <QuoteBasicExample />
-</div>
+Once installed, you can use the `Quote` component in your Svelte application.
 
 <Code code={QuoteBasicExampleRaw} lang="svelte" />
 
-## Modo Editable y Eventos
+## Editable Mode and Events
 
-En el modo editable, el componente dispara una serie de eventos que se pueden utilizar para interactuar y responder a las acciones del usuario. Además, mediante `bind:` es posible vincular el contenido del componente a una variable en el script, permitiendo una sincronización automática.
+In editable mode, the component triggers a series of events that can be used to interact and respond to user actions. Additionally, using `bind:`, it is possible to link the component's content to a variable in the script, allowing automatic synchronization.
 
 <div class="card preview rounded">
   <QuoteEditableExample />
@@ -49,12 +44,12 @@ En el modo editable, el componente dispara una serie de eventos que se pueden ut
 
 <Code code={QuoteEditableExampleRaw} lang="svelte" />
 
-### Eventos disponibles
+### Available Events
 
-- **`on:focus`**: Se dispara cuando el componente recibe el foco.
-- **`on:keydown`**: Se dispara al presionar una tecla mientras el componente está enfocado.
-- **`on:input`**: Se dispara cada vez que el usuario realiza cambios en el contenido del componente.
+- **`on:focus`**: Triggered when the component gains focus.
+- **`on:keydown`**: Triggered when a key is pressed while the component is focused.
+- **`on:input`**: Triggered whenever the user makes changes to the component's content.
 
-### Vinculaciones (`bind:`)
+### Bindings (`bind:`)
 
-- **`bind:value`**: Permite sincronizar el contenido editable del componente con una variable externa (en este caso, `content`). Cualquier cambio en el contenido del componente actualizará esta variable, y cualquier cambio en la variable actualizará el contenido del componente.
+- **`bind:value`**: Allows synchronizing the editable content of the component with an external variable (in this case, `content`). Any changes to the component's content will update this variable, and any changes to the variable will update the component's content.
