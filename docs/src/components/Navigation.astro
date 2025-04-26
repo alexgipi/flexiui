@@ -27,10 +27,10 @@ const { components, activeTechnology, activeComponentSlug } = Astro.props;
 ---
 
 <aside>
-  <span class="text-logo">
+  <a href="/" class="text-logo">
     <span class="flip-letter">F</span>lexi<strong>UI</strong> 
     <span class="beta-badge">Beta</span>
-  </span>
+  </a>
 
   <nav>
     {components.map(component => {
