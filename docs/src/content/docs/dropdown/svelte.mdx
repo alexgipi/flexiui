@@ -1,0 +1,27 @@
+---
+title: '@flexiui/svelte-button'
+author: 'alexgipi'
+content: 'This is a button component example with editable mode enabled.'
+contentBasic: 'This is a basic usage of the Button component.'
+---
+import { Code } from 'astro-expressive-code/components'
+import PreviewCard from '../../../components/PreviewCard.svelte';
+
+import DropdownBasicExample from './examples/DropdownBasicExample.svelte';
+import DropdownBasicExampleRaw from './examples/DropdownBasicExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+  <DropdownBasicExample client:load/>
+</PreviewCard>
+
+## Installation
+
+To install the `Dropdown` component in your Svelte project, you can use npm or yarn.
+
+```bash
+npm install @flexiui/svelte-dropdown
+```
+
+## Basic usage of the component
+
+<Code theme="solarized-light" code={DropdownBasicExampleRaw} lang="svelte" ins={[23,24,25, 36]} />
