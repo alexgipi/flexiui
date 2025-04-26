@@ -14,15 +14,7 @@
   ],
   "config": {
     "sui-mono": {
-      "access": "public",
-      "overrides": {
-        "literals": [{
-          "regex": "Lokalise:"
-        }]
-      }
-    },
-    "validate-commit-msg": {
-      "types": "@s-ui/mono/src/types"
+      "access": "public"
     }
   },
   "main": "index.js",
