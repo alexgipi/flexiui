@@ -1,5 +1,5 @@
 <script>
-    import Alert from '../../../../components/ui/Alert.svelte'
+    import Alert from '@components/ui/Alert.svelte'
 </script>
 
 <Alert severity="info">
