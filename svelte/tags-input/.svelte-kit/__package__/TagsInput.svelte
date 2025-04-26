@@ -14,6 +14,10 @@
   export let placeholder = "Press enter to add a new tag";
   export let required = false;
   export let labels = null;
+  export let enableTextView = false;
+  export let tagType: 'text' | 'number' = "text";
+  export let showRemoveAll: boolean = true;
+  export let showCounter: boolean = true;
 
   let view = "tags";
 
@@ -160,7 +164,7 @@
 
     <div class="tags-field-input-box">
       <input
-        type="text"
+        type={tagType}
         {placeholder}
         on:keydown={keyDownHandler}
         on:keyup={keyUpHandler}
@@ -174,6 +178,14 @@
         value={JSON.stringify(tags)}
       />
 
+      <span 
+      class:number={tagType === 'number'} 
+      class:text={tagType === 'text'}
+      class="type-badge">
+        {tagType === 'number' ? 'Number' : 'Text'}
+      </span>
+
+      {#if separator && enableTextView}
       <div class="toggle-view">
         <button
           type="button"
@@ -186,6 +198,7 @@
           on:click={toggleView}>Text</button
         >
       </div>
+      {/if}
     </div>
   </div>
   <div class="tags-field-actions">
@@ -197,16 +210,20 @@
           Estas {duplicatedTags.length} etiquetas ya existen
         </span>
       {/if}
-
-      <span>
-        {tags.length}
-        {tags.length === 1
-          ? labels.singular?.[lang] || labels.singular
-          : labels.plural?.[lang] || labels.plural}
-      </span>
+      
+      {#if showCounter}
+        <span>
+          {tags.length}
+          {tags.length === 1
+            ? labels?.singular?.[lang] || labels?.singular || 'Item'
+            : labels?.plural?.[lang] || labels?.plural || 'Items'}
+        </span>
+      {/if}
     </div>
 
-    <button type="button" on:click={() => (tags = [])}> Remove all </button>
+    {#if showRemoveAll }
+      <button type="button" on:click={() => (tags = [])}> Remove all </button>
+    {/if}
   </div>
 </div>
 
@@ -328,6 +345,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.75rem;
   }
 
   .toggle-view {
@@ -382,5 +400,19 @@
     padding: 0;
     border-radius: 0;
     border: none;
+  }
+
+  .type-badge {
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 18px;
+    color: #9f89ff;
+    background: #7462ff24;
+    font-weight: 600;
+
+    &.text {
+      background: #ff942224;
+      color: #ffa45e;
+    }
   }
 </style>

@@ -14,6 +14,10 @@ declare const __propDef: {
         placeholder?: string;
         required?: boolean;
         labels?: any;
+        enableTextView?: boolean;
+        tagType?: "text" | "number";
+        showRemoveAll?: boolean;
+        showCounter?: boolean;
     };
     events: {
         [evt: string]: CustomEvent<any>;
