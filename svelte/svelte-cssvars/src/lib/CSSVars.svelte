@@ -330,7 +330,7 @@
           e.preventDefault();
         }
       } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        console.log("Arrows: " + element.innerText);
+        // console.log("Arrows: " + element.innerText);
       } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault(); // Evitamos que se ejecute el comportamiento por defecto
         let currentValue = element.innerText.replace(varsConfig[key].unit, ""); // Obtenemos el valor actual como cadena
