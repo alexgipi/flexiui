@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/mdx": "^4.0.8",
-    "@astrojs/svelte": "^7.0.4",
-    "@flexiui/svelte-cssvars": "^0.0.18",
-    "@flexiui/svelte-dropdown": "^0.0.7",
+    "@astrojs/mdx": "^4.2.5",
+    "@astrojs/svelte": "^7.0.11",
+    "@flexiui/svelte-cssvars": "^0.0.20",
+    "@flexiui/svelte-dropdown": "^0.0.12",
     "@flexiui/svelte-quote": "^1.0.9",
     "@flexiui/svelte-tags-input": "^1.1.5",
-    "astro": "^5.2.5",
+    "astro": "^5.7.5",
     "astro-expressive-code": "^0.40.1",
     "svelte": "^5.19.9",
     "typescript": "^5.6.3"
