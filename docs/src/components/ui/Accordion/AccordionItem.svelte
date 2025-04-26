@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
 
     export let state: 'open' | 'closed' = 'closed';
     export let name: string | null = null;
@@ -30,9 +30,16 @@
         }
     }
 
-    onMount(() => {
-      contentHeight = state === 'open' ? accordionContent.clientHeight + 'px' : '0';
-      contentWidth = accordionContent.clientWidth + 'px';
+
+  
+
+    onMount(async () => {
+        contentHeight = state === 'open' ? accordionContent.clientHeight + 'px' : '0';
+            contentWidth = accordionContent?.clientWidth + 'px';
+            if (state === 'open') {
+                await tick();
+                contentHeight = 'auto';
+            }
     })
 </script>
 
