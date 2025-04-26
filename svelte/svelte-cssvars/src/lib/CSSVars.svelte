@@ -208,7 +208,6 @@
   // On blur variable value box (Types: all)
   function handleBlur(e, key) {
     const element = e.target;
-    console.log(e.target.innerText);
     activeProperty = null;
     activeKey = null;
 
