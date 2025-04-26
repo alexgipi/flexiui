@@ -1,5 +1,5 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -9,7 +9,7 @@ const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dracula">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content="Astro description" />
@@ -17,7 +17,7 @@ const { title } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-	<ViewTransitions fallback='swap'/>
+	  <ClientRouter fallback='swap'/>
   </head>
   <body>
     <slot />
@@ -57,7 +57,9 @@ const { title } = Astro.props;
   }
 
   .text-center {
-	  text-align: center;
+    text-align: center;
+    max-width: 80ch;
+    margin-inline: auto;
   }
 
   .gap-1 {
@@ -104,7 +106,7 @@ const { title } = Astro.props;
   }
 
   .page-content {
-	  max-width: 700px;
+	  max-width: 800px;
     margin: 0 auto;
   }
 
@@ -214,7 +216,6 @@ const { title } = Astro.props;
   }
 
   .expressive-code {
-        text-align: left;
-		
+      text-align: left;
    }
 </style>
