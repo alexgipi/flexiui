@@ -6,6 +6,7 @@ contentBasic: 'This is a basic usage of the Button component.'
 ---
 import { Code } from 'astro-expressive-code/components'
 import PreviewCard from '../../../components/PreviewCard.svelte';
+import Alert from '../../../components/ui/Alert.svelte';
 
 import ComponentPreview from '../../../components/ComponentPreview.svelte';
 
@@ -23,6 +24,14 @@ import ButtonOutlinedExampleRaw from './examples/ButtonOutlinedExample.svelte?ra
 
 import ButtonSizesExample from './examples/ButtonSizesExample.svelte';
 import ButtonSizesExampleRaw from './examples/ButtonSizesExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+  <ButtonPreview client:load />
+</PreviewCard>
+
+<Alert client:load severity="warning">
+  <span>This library is currently in <strong>fase beta</strong>. It’s <strong>not recommended</strong> for use <strong>in production</strong> environments.</span>
+</Alert>
 
 ## Installation
 
