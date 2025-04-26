@@ -1,0 +1,27 @@
+---
+title: '@flexiui/svelte-button'
+author: 'alexgipi'
+content: 'This is a button component example with editable mode enabled.'
+contentBasic: 'This is a basic usage of the Button component.'
+---
+import { Code } from 'astro-expressive-code/components'
+import PreviewCard from '../../../components/PreviewCard.svelte';
+
+import TextareaBasicExample from './examples/TextareaBasicExample.svelte';
+import TextareaBasicExampleRaw from './examples/TextareaBasicExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+  <TextareaBasicExample />
+</PreviewCard>
+
+## Installation
+
+To install the `Textarea` component in your Svelte project, you can use npm or yarn.
+
+```bash
+npm install @flexiui/svelte-textarea
+```
+
+## Basic usage of the Textarea component
+
+<Code code={TextareaBasicExampleRaw} lang="svelte" />
