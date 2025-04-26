@@ -65,8 +65,6 @@
     }
 
     export async function toggleDropdown(el, key) {
-        console.log("Toggle");
-        console.log({openedKey, key});
         if (openedKey === key) {
             opened = false;
             openedKey = null;
