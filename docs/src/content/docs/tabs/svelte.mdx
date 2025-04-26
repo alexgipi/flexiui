@@ -1,0 +1,36 @@
+---
+title: '@flexiui/sevelte-tabs'
+author: 'alexgipi'
+content: 'This is a button component example with editable mode enabled.'
+contentBasic: 'This is a basic usage of the Button component.'
+---
+import { Code } from 'astro-expressive-code/components'
+import PreviewCard from '../../../components/PreviewCard.svelte';
+import Alert from '../../../components/ui/Alert.svelte';
+
+import ComponentPreview from '../../../components/ComponentPreview.svelte';
+
+import TabsBasicExample from './examples/TabsBasicExample.svelte';
+import TabsBasicExampleRaw from './examples/TabsBasicExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+  <TabsBasicExample client:load />
+</PreviewCard>
+
+<Alert client:load severity="warning">
+  <span>This library is currently in <strong>fase beta</strong>. It’s <strong>not recommended</strong> for use <strong>in production</strong> environments.</span>
+</Alert>
+
+## Installation
+
+To install the `Tabs` component in your Svelte project, you can use npm or yarn.
+
+```bash
+npm install @flexiui/svelte-tabs
+```
+
+## Basic Usage of the Component
+
+Once installed, you can use the `Tabs` component in your Svelte application.
+
+<Code code={TabsBasicExampleRaw} lang="svelte" />
