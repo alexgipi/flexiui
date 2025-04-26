@@ -1,5 +1,5 @@
 <script>
-    import Button from '../../../../components/ui/Button.svelte';
+    import Button from '@components/ui/Button.svelte';
 </script>
 
 <div class="flex justify-center items-center gap-2">
