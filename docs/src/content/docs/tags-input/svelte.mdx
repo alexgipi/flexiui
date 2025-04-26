@@ -1,0 +1,27 @@
+---
+title: '@flexiui/svelte-textarea'
+author: 'alexgipi'
+content: 'This is a button component example with editable mode enabled.'
+contentBasic: 'This is a basic usage of the Button component.'
+---
+import { Code } from 'astro-expressive-code/components'
+import PreviewCard from '@components/PreviewCard.svelte';
+
+import TagsInputBasicExample from './examples/TagsInputBasicExample.svelte';
+import TagsInputBasicExampleRaw from './examples/TagsInputBasicExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+  <TagsInputBasicExample client:load/>
+</PreviewCard>
+
+## Installation
+
+To install the `TagsInput` component in your Svelte project, you can use npm or yarn.
+
+```bash
+npm install @flexiui/svelte-tags-input
+```
+
+## Basic usage
+
+<Code code={TagsInputBasicExampleRaw} lang="svelte" />
