@@ -1,34 +1,48 @@
 ---
+import { Quote } from '@flexiui/svelte-quote';
+import { TagsInput } from '@flexiui/svelte-tags-input';
+import { CSSVars } from "@flexiui/svelte-cssvars";
+
 import ComponentPreview from '../../components/ComponentPreview.svelte';
+
 import Alert from '../../components/ui/Alert.svelte';
-import {Content as VanillaJsDocumentation } from '../../content/docs/Quote/vanillajs.md';
-import {Content as SvelteDocumentation } from '../../content/docs/Quote/svelte.mdx';
-import {Content as AngularDocumentation } from '../../content/docs/Quote/angular.md';
-import {Content as VueDocumentation } from '../../content/docs/Quote/vue.md';
-import {Content as ReactDocumentation } from '../../content/docs/Quote/react.md';
-import {Content as Readme} from '../../../../svelte/svelte-quote/README.md';
-// import {Contet as ContributionGuide } from '../../docs/contribution-guide.md';
+import Tabs from '../../components/ui/Tabs/Tabs.svelte';
+import TabPanel from '../../components/ui/Tabs/TabPanel.svelte';
+import Accordion from '../../components/ui/Accordion/Accordion.svelte';
+import AccordionItem from '../../components/ui/Accordion/AccordionItem.svelte';
+import Button from '../../components/ui/Button.svelte';
+import Input from '../../components/ui/Input.svelte';
+import Textarea from '../../components/ui/Textarea.svelte';
 
 import Navigation from '../../components/Navigation.astro';
 import Layout from '../../layouts/Layout.astro';
 
-import { getCollection, getEntry } from 'astro:content';
-const AlertDocsEntries = await getCollection('docs', ({ id }:any) => {
-  return id.startsWith('Alert');
-});
-
+import { getCollection, getEntry, render } from 'astro:content';
 
 const { component: componentParam, technology: technologyParam } = Astro.params;
 
-const componentDocs:any = {
-  vanillajs: VanillaJsDocumentation,
-  svelte: SvelteDocumentation,
-  angular: AngularDocumentation,
-  vue: VueDocumentation,
-  react: ReactDocumentation
+// const componentDocs:any = {
+//   vanillajs: VanillaJsDocumentation,
+//   svelte: SvelteDocumentation,
+//   angular: AngularDocumentation,
+//   vue: VueDocumentation,
+//   react: ReactDocumentation
+// }
+const importedComponents:any = {
+  Accordion,
+  AccordionItem,
+  Alert,
+  Tabs,
+  TabPanel,
+  Quote,
+  Button,
+  Input,
+  Textarea,
+  TagsInput,
+  CSSVars
 }
 
-let components = [
+let componentss = [
   {
     name: "Accordion",
     slug: "accordion",
@@ -54,18 +68,6 @@ let components = [
     },
   },
   {
-    name: "Quote",
-    slug: "quote",
-    description: `A lightweight, simple and flexible "Quote" component for displaying a quote text.`,
-    allowedTechnologies: {
-      vanillajs: false,
-      svelte: true,
-      angular: true,
-      vue: false,
-      react: false
-    },
-  },
-  {
     name: "Button",
     slug: "button",
     description: `The Button is a versatile UI element that triggers actions on click. It supports various styles, sizes, and colors, allowing full customization to match different designs and use cases.`,
@@ -85,6 +87,18 @@ let components = [
       vanillajs: false,
       svelte: true,
       angular: false,
+      vue: false,
+      react: false
+    },
+  },
+  {
+    name: "Quote",
+    slug: "quote",
+    description: `A lightweight, simple and flexible "Quote" component for displaying a quote text.`,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: true,
       vue: false,
       react: false
     },
@@ -160,6 +174,7 @@ let components = [
       vue: false,
       react: false
     },
+    soon: true
   },
   {
     name: "Rich editor",
@@ -172,6 +187,7 @@ let components = [
       vue: false,
       react: false
     },
+    soon: true
   },
   {
     name: "Block editor",
@@ -184,6 +200,7 @@ let components = [
       vue: false,
       react: false
     },
+    soon: true
   },
   {
     name: "Code editor",
@@ -196,6 +213,7 @@ let components = [
       vue: false,
       react: false
     },
+    soon: true
   },
   {
     name: "JSONTree",
@@ -208,6 +226,7 @@ let components = [
       vue: false,
       react: false
     },
+    soon: true
   }
 ]
 
@@ -258,19 +277,22 @@ let codeBlockThemes:any = {
 }
 
 let selectedTechnology:any =  technologies.find(technology => technology.value === technologyParam);
-let selectedComponent:any = components.find(component => component.slug === componentParam);
+let selectedComponent:any = componentss.find(component => component.slug === componentParam);
 
-const DocComponent = componentDocs[technologyParam];
+// const DocComponent = componentDocs[technologyParam];
 
 const componentPath = `${componentParam}/${technologyParam}`;
 
 const componentDoc:any = await getEntry('docs', componentPath);
-console.log(componentDoc);
 
 let DocContent = null;
-if(componentDoc) {
-  const { Content, headings } = await componentDoc.render();
-  DocContent = Content;
+
+if(componentDoc){
+  const { Content, headings} = await render(componentDoc);
+
+  if (Content) {
+    DocContent = Content;
+  }
 }
 
 let cssVarStyles = `--primary-color:${selectedTechnology?.brandColor}; --code-block-bg:${codeBlockThemes[technologyParam].background};`;
@@ -380,7 +402,7 @@ const notAllowedMessage = "¡La unión hace la fuerza! Estamos trabajando para q
 ---
 
 <Layout title="Welcome to Astro.">
-  <Navigation activeComponentSlug={componentParam} activeTechnology={selectedTechnology?.value || 'svelte'} components={components}></Navigation>
+  <Navigation activeComponentSlug={componentParam} activeTechnology={selectedTechnology?.value || 'svelte'} components={componentss}></Navigation>
 	<main>
 		<div class={`page-content ${isGradient() ? 'is-primary-gradient' : ''}`} style={cssVarStyles}>
 			<div class="page-logo">
@@ -426,7 +448,7 @@ const notAllowedMessage = "¡La unión hace la fuerza! Estamos trabajando para q
         {
           () => {
             if(selectedComponent?.allowedTechnologies[technologyParam]) {
-              if(componentParam === 'cssvars' || componentParam === 'dropdown'){
+              if(componentParam === 'cssvars'){
                 return <ComponentPreview client:only="svelte" component={componentParam}></ComponentPreview>
               }else {
                 return <ComponentPreview client:load component={componentParam}></ComponentPreview>
@@ -436,18 +458,12 @@ const notAllowedMessage = "¡La unión hace la fuerza! Estamos trabajando para q
             }
           }
         }
-      
-      <Alert client:load severity="warning">
-        <span>This library is currently in <strong>fase beta</strong>. It’s <strong>not recommended</strong> for use <strong>in production</strong> environments.</span>
-      </Alert>
 
       <div class="page-content documentation">
         {
           () => {
-            if(selectedComponent?.allowedTechnologies[technologyParam]) {
-              if(DocContent) {
-                return <DocContent></DocContent>
-              }
+            if(selectedComponent?.allowedTechnologies[technologyParam] && DocContent) {
+              return <DocContent components={importedComponents}></DocContent>
             } else {
               return (
                 <h2 id="contribute">Contribute to this component</h2>
