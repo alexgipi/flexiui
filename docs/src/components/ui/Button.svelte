@@ -1,9 +1,18 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
   export let variant: "text" | "contained" | "outlined" = "text";
   export let size: "small" | "medium" | "large" = "medium";
   export let disabled:boolean = false;
   export let href:string | null = null;
+  export let id:string | null = null;
 
+  // event dispatcher click
+  const dispatch = createEventDispatcher();
+
+  function handleClick(e:any) {
+    dispatch('click', e);
+  }
 </script>
 
 <svelte:element 
@@ -11,6 +20,10 @@ this={href ? 'a' : 'button'}
 class="fl-button fl-button-size--{size} fl-button-variant--{variant}"
 disabled={disabled}
 href={href}
+on:click={handleClick}
+role="button"
+tabindex="0"
+{...$$restProps}
 >
     <slot></slot>
 </svelte:element>
