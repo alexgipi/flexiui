@@ -14,6 +14,7 @@ interface Component {
     vue: boolean;
     react: boolean;
   };
+  soon?: boolean;
 }
 
 interface Props {
@@ -32,14 +33,20 @@ const { components, activeTechnology, activeComponentSlug } = Astro.props;
   </span>
 
   <nav>
-    {components.map(component => (
-      <a 
-      class={component.slug === activeComponentSlug ? 'active' : ''} 
-      href={`/${activeTechnology}/${component.slug}`}
-      >
-        {component.name}
-      </a>
-    ))}
+    {components.map(component => {
+      if(component.soon) {
+        return <a class="disabled">{component.name}</a>
+      } else {
+        return (
+        <a 
+          class={component.slug === activeComponentSlug ? 'active' : ''}
+          href={`/${activeTechnology}/${component.slug}`}
+          >
+            {component.name}
+          </a>
+        )
+      }
+    })}
   </nav>
 </aside>
 
@@ -81,10 +88,15 @@ const { components, activeTechnology, activeComponentSlug } = Astro.props;
   nav a {
     color: #ffffffbd;
     font-weight: 400;
-  }
 
-  nav a.active {
-    color: #ffffff;
-    font-weight: 500;
+    &.active {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    &.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
   }
 </style>
