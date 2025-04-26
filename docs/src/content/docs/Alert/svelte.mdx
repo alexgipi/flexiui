@@ -5,6 +5,7 @@ content: 'This is a alert component example with editable mode enabled.'
 contentBasic: 'This is a basic usage of the Alert component.'
 ---
 import { Code } from 'astro-expressive-code/components'
+import Alert from '../../../components/ui/Alert.svelte';
 
 import PreviewCard from '../../../components/PreviewCard.svelte';
 
@@ -12,6 +13,20 @@ import ComponentPreview from '../../../components/ComponentPreview.svelte';
 
 import AlertSeverityExample from './examples/AlertSeverityExample.svelte';
 import AlertSeverityExampleRaw from './examples/AlertSeverityExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+  <Alert client:load severity="info">
+    <span>Here is a information message that you may want to display to your users</span>
+  </Alert>
+
+  <Alert client:load severity="success">
+    <span>Here is a gentle confirmation that your action was successful</span>
+  </Alert>
+</PreviewCard>
+
+<Alert client:load severity="warning">
+  <span>This library is currently in <strong>fase beta</strong>. It’s <strong>not recommended</strong> for use <strong>in production</strong> environments.</span>
+</Alert>
 
 ## Introduction
 Alerts give users brief and potentially time-sensitive information in an unobtrusive manner.
