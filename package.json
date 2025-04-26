@@ -18,6 +18,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "co": "sui-mono commit",
     "build:docs": "npm run build --workspace=docs",
     "dev:docs": "npm run dev --workspace=docs",
     "dev:svelte:tags-input": "npm run dev --workspace=svelte/tags-input",
@@ -44,6 +45,6 @@
   "author": "alexgipi",
   "license": "MIT",
   "dependencies": {
-    "@flexiui/svelte-cssvars": "^0.0.20"
+    "@s-ui/mono": "^2.45.0"
   }
 }
