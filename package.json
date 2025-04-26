@@ -5,10 +5,11 @@
   "description": "FlexiUI, the official Flexi CMS component library.",
   "workspaces": [
     "docs",
-    "svelte/*",
+    "svelte/**",
+    "ngx/flexiui",
+    "ngx/flexiui/projects/*",
     "vue/*",
     "react/*",
-    "angular/*",
     "vanilla/*"
   ],
   "main": "index.js",
@@ -18,8 +19,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:docs": "npm run build --workspace=docs",
-    "start:docs": "npm run start --workspace=docs",
-    "dev:docs": "npm run dev --workspace=docs"
+    "dev:docs": "npm run dev --workspace=docs",
+    "dev:svelte:tags-input": "npm run dev --workspace=svelte/tags-input",
+    "dev:ngx": "npm run start --workspace=ngx/flexiui"
   },
   "keywords": [
     "FlexiUI",
@@ -35,10 +37,13 @@
   ],
   "devDependencies": {
     "@sveltejs/package": "^2.3.10",
-		"@sveltejs/vite-plugin-svelte": "^5.0.3",
-		"svelte": "^5.19.9",
-		"vite": "^6.1.0"
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "svelte": "^5.19.9",
+    "vite": "^6.1.0"
   },
   "author": "alexgipi",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@flexiui/svelte-cssvars": "^0.0.20"
+  }
 }
