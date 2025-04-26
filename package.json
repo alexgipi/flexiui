@@ -12,6 +12,11 @@
     "react/*",
     "vanilla/*"
   ],
+  "config": {
+    "sui-mono": {
+      "access": "public"
+    }
+  },
   "main": "index.js",
   "directories": {
     "doc": "docs"

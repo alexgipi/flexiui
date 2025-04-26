@@ -208,7 +208,6 @@
   // On blur variable value box (Types: all)
   function handleBlur(e, key) {
     const element = e.target;
-    console.log(e.target.innerText);
     activeProperty = null;
     activeKey = null;
 
@@ -266,7 +265,6 @@
   }
 
   function handleFocus(e, key) {
-    console.log("Focus");
     selectElementText(e.target);
     prevVarsObject = { ...varsObject };
   }
@@ -326,13 +324,13 @@
 
     if (type === "range" && varsConfig[key].unit) {
       if (e.key === ".") {
-        console.log("El valor es un .");
+        
         // comprobar si ya hay 1 '.' en innerText
         if (element.innerText.includes(".")) {
           e.preventDefault();
         }
       } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-        console.log("Arrows: " + element.innerText);
+        // console.log("Arrows: " + element.innerText);
       } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault(); // Evitamos que se ejecute el comportamiento por defecto
         let currentValue = element.innerText.replace(varsConfig[key].unit, ""); // Obtenemos el valor actual como cadena
@@ -656,11 +654,6 @@
 
         varsConfig = updateVarsConfig();
         refreshDropdown();
-
-        console.log(
-          "Cambios detectados en varsObject:",
-          getObjectDifferences(currentVarsObject, newVarsObject)
-        );
       }
     }
   }
