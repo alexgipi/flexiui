@@ -20,10 +20,6 @@
     // Cuando el componente se monta
     onMount(() => {
         initDropdown();
-
-        onDestroy(() => {
-            document.removeEventListener("click", closeDropdown);
-        });
     });
 
     let dropdownListeners = new Map<Element, EventListener>();
