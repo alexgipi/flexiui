@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, onDestroy, tick, createEventDispatcher } from "svelte";
+    import { onMount, tick, createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher();
         
@@ -17,7 +17,6 @@
     let openedKey: string;
     let dropdownToggle: NodeListOf<Element>;
 
-    // Cuando el componente se monta
     onMount(() => {
         initDropdown();
     });
@@ -29,13 +28,12 @@
         dropdownToggle = document.querySelectorAll(`[data-dropdown-toggle="${id}"]`);
 
         dropdownToggle.forEach((el: Element) => {
-            // Define la función listener para el elemento
+
             const listener = (event: Event) => {
                 event.stopPropagation();
                 const key = el.getAttribute("data-dropdown-key");
                 toggleDropdown(el, key);
-            };
-
+            }; 
  
             el.addEventListener("click", listener);
             dropdownListeners.set(el, listener);
@@ -49,6 +47,7 @@
         dropdownListeners.forEach((listener, el) => {
             el.removeEventListener("click", listener);
         });
+
         dropdownListeners.clear();
 
         // También elimina el listener global si es necesario
