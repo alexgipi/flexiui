@@ -25,7 +25,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "co": "sui-mono commit",
     "check": "sui-mono check",
-    "release": "sui-mono release",
+    "release": "sui-mono release --lock",
     "build:docs": "npm run build --workspace=docs",
     "dev:docs": "npm run dev --workspace=docs",
     "dev:svelte:tags-input": "npm run dev --workspace=svelte/tags-input",
