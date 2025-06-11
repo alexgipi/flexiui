@@ -28,7 +28,8 @@
     "release": "sui-mono release --lock",
     "build:docs": "npm run build --workspace=docs",
     "dev:docs": "npm run dev --workspace=docs",
-    "dev:svelte:tags-input": "npm run dev --workspace=svelte/tags-input",
+    "dev:svelte-tags-input": "npm run dev --workspace=svelte/tags-input",
+    "build:svelte-tags-input": "npm run build --workspace=svelte/tags-input",
     "dev:ngx": "npm run start --workspace=ngx/flexiui"
   },
   "keywords": [
@@ -46,7 +47,7 @@
   "devDependencies": {
     "@sveltejs/package": "^2.3.10",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
-    "svelte": "^5.19.9",
+    "svelte": "^5.33.18",
     "vite": "^6.1.0"
   },
   "author": "alexgipi",
