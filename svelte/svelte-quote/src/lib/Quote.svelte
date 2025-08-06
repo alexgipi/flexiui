@@ -86,6 +86,7 @@
     padding-left: 64px;
     position: relative;
     display: flex;
+    flex-direction: column;
     text-align: left;
     min-height: 56px;
   }
