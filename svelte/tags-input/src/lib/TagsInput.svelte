@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
   // create labels types {plural: string, singular, string}
 
   export let name;
@@ -24,6 +26,16 @@
   if (!labels) labels = { singular: "Tag", plural: "Tags" };
 
   let duplicatedTags = [];
+
+  const dispatch = createEventDispatcher();
+
+  function emitUpdate(type:string, data:any) {
+    const event = {
+      type,
+      data,
+    };
+    dispatch("update", event);
+  }
 
   function keyDownHandler(e) {
     if (e.key !== "Enter") return;
@@ -65,6 +77,10 @@
               .slice(0, 2)
           )),
     ];
+
+    const data = { name, tags };
+    
+    emitUpdate("update-tags", data);
 
     e.target.value = duplicatedTags.join(separator || " ") || "";
   }
