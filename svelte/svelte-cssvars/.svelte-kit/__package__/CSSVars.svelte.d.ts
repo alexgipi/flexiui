@@ -20,7 +20,7 @@ declare const __propDef: {
             [k: string]: any;
         };
         varsObject?: {
-            [x: string]: any;
+            [k: string]: any;
         };
         getCSS?: () => string;
     };

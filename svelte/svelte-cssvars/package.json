@@ -1,6 +1,6 @@
 {
   "name": "@flexiui/svelte-cssvars",
-  "version": "0.5.0",
+  "version": "0.6.4",
   "description": "A lightweight and flexible CSS Vars editor component for Svelte",
   "type": "module",
   "scripts": {
@@ -27,7 +27,7 @@
   "author": "alexgipi <alexgp895@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@flexiui/svelte-dropdown": "^0.0.12",
-    "@flexiui/svelte-prism-code-editor": "^0.0.10"
+    "@flexiui/svelte-dropdown": "^0.4.0",
+    "@flexiui/svelte-prism-code-editor": "^0.0.14"
   }
 }
