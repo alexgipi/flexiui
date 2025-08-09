@@ -1,0 +1,55 @@
+---
+title: '@flexiui/svelte-alert'
+author: 'alexgipi'
+content: 'This is a alert component example with editable mode enabled.'
+contentBasic: 'This is a basic usage of the Alert component.'
+---
+import { Code } from 'astro-expressive-code/components'
+import Alert from '../../../components/ui/Alert.svelte';
+
+import PreviewCard from '../../../components/PreviewCard.svelte';
+
+import ComponentPreview from '../../../components/ComponentPreview.svelte';
+
+import CSSCodeExample from './examples/CSSCodeExample.svelte';
+import CSSCodeExampleRaw from './examples/CSSCodeExample.svelte?raw';
+
+import HTMLCodeExample from './examples/HTMLCodeExample.svelte';
+import HTMLCodeExampleRaw from './examples/HTMLCodeExample.svelte?raw';
+
+<PreviewCard rounded outlined>
+  <CSSCodeExample client:load />
+</PreviewCard>
+
+<Alert client:load severity="warning">
+  <span>This library is currently in <strong>fase beta</strong>. It’s <strong>not recommended</strong> for use <strong>in production</strong> environments.</span>
+</Alert>
+
+## Introduction
+The Prism Code Editor component for Svelte provides a syntax-highlighted, editable code editor using Prism.js.
+
+It supports multiple languages, customizable themes, and is ideal for embedding live code examples in your Svelte apps.
+
+## Installation
+
+To install the `PrismCodeEditor` component in your Svelte project, use npm or yarn:
+
+```bash
+npm install @flexiui/svelte-prism-code-editor
+```
+
+## Languages
+
+The `language` prop at the moment accepts the following five values representing different languages:
+
+- `html`
+- `css`
+- `javascript`
+- `typescript`
+- `json`
+
+<PreviewCard rounded outlined>
+  <HTMLCodeExample client:load />
+</PreviewCard>
+
+<Code code={HTMLCodeExampleRaw} lang="svelte" />
