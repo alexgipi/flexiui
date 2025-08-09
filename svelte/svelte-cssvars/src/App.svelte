@@ -5,6 +5,7 @@
 
   let name = packageJson.name;
   let description = packageJson.description;
+  let editable = true;
   
   const field = {
       name: "cssVars",
@@ -278,6 +279,10 @@
     const { type, data } = e.detail;
     console.log({type, data})
   }
+
+  function toggleEditable(){
+    editable = !editable;
+  }
 </script>
 
 <main>
@@ -290,10 +295,13 @@
   <h1>{name}</h1>
   <p>{description}</p>
 
+  <div class="options">
+    <button on:click={() => toggleEditable()}>Editable: {editable ? 'Yes' : 'No'}</button>
+  </div>
   <div class="card">
     <CSSVars 
     id="css-vars"
-    editable={false}
+    {editable}
     on:update={e => onUpdate(e)}
     {varsCSSFixed}
     {varsConfigFixed}
