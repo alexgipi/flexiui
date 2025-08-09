@@ -4,7 +4,7 @@ import { TagsInput } from '@flexiui/svelte-tags-input';
 import { CSSVars } from "@flexiui/svelte-cssvars";
 import latestVersion from 'latest-version';
 
-import ComponentPreview from '../../components/ComponentPreview.svelte';
+import PreviewCard from '../../components/PreviewCard.svelte';
 
 import Alert from '../../components/ui/Alert.svelte';
 import Tabs from '../../components/ui/Tabs/Tabs.svelte';
@@ -38,6 +38,7 @@ try {
 //   react: ReactDocumentation
 // }
 const importedComponents:any = {
+  PreviewCard,
   Accordion,
   AccordionItem,
   Alert,
@@ -172,6 +173,19 @@ let componentss = [
       react: false
     },
   },
+    {
+    name: "Code editor",
+    slug: "prism-code-editor",
+    description: ``,
+    allowedTechnologies: {
+      vanillajs: false,
+      svelte: true,
+      angular: false,
+      vue: false,
+      react: false
+    },
+    // soon: true
+  },
   {
     name: "EdiTable",
     slug: "editable",
@@ -201,19 +215,6 @@ let componentss = [
   {
     name: "Block editor",
     slug: "block-editor",
-    description: ``,
-    allowedTechnologies: {
-      vanillajs: false,
-      svelte: false,
-      angular: false,
-      vue: false,
-      react: false
-    },
-    soon: true
-  },
-  {
-    name: "Code editor",
-    slug: "code-editor",
     description: ``,
     allowedTechnologies: {
       vanillajs: false,
@@ -393,11 +394,11 @@ export async function getStaticPaths() {
     {params: { component: 'block-editor', technology: 'vue' }},
     {params: { component: 'block-editor', technology: 'react' }},
 
-    {params: { component: 'code-editor', technology: 'vanillajs' }},
-    {params: { component: 'code-editor', technology: 'svelte' }},
-    {params: { component: 'code-editor', technology: 'angular' }},
-    {params: { component: 'code-editor', technology: 'vue' }},
-    {params: { component: 'code-editor', technology: 'react' }},
+    {params: { component: 'prism-code-editor', technology: 'vanillajs' }},
+    {params: { component: 'prism-code-editor', technology: 'svelte' }},
+    {params: { component: 'prism-code-editor', technology: 'angular' }},
+    {params: { component: 'prism-code-editor', technology: 'vue' }},
+    {params: { component: 'prism-code-editor', technology: 'react' }},
 
     {params: { component: 'jsontree', technology: 'vanillajs' }},
     {params: { component: 'jsontree', technology: 'svelte' }},
@@ -460,19 +461,11 @@ const notAllowedMessage = "¡La unión hace la fuerza! Estamos trabajando para q
 			</nav>      
 			
 	
-        {
-          () => {
-            if(selectedComponent?.allowedTechnologies[technologyParam]) {
-              if(componentParam === 'cssvars'){
-                return <ComponentPreview client:only="svelte" component={componentParam}></ComponentPreview>
-              }else {
-                return <ComponentPreview client:load component={componentParam}></ComponentPreview>
-              }
-            } else {
-              return 	<div class="card outlined rounded"><p>This component is not yet available for {selectedTechnology?.label}.</p></div>
-            }
-          }
-        }
+      {!selectedComponent?.allowedTechnologies[technologyParam] &&  
+        <div class="card outlined rounded">
+          <p>This component is not yet available for {selectedTechnology?.label}.</p>
+        </div>
+      }
 
       <div class="page-content documentation">
         {
