@@ -395,13 +395,16 @@
     const unit = varsConfig[key]?.unit || "%";
     const value = e.target.value + unit;
     varsObject[key] = value;
-
-    const data = { key, value };
-    emitUpdate("modified", data);
   }
 
   function rangeChangeHandler(e, key) {
-    // Nothin at the moment
+    const unit = varsConfig[key]?.unit || "%";
+    const value = e.target.value + unit;
+    varsObject[key] = value;
+
+    const data = { key, value };
+
+    emitUpdate("modified", data);
   }
 
   function handleColorChange(e, key) {
@@ -573,12 +576,16 @@
         varsConfig[key].label = updated;
       }
     }
+
+    emitUpdate("update-vars-config", varsConfig);
   }
 
   // Cambiar el valor asociado al idioma
   function updateLangValue(lang, e) {
     let newValue = e.target.value;
     varsConfig[openedKey].label[lang] = newValue;
+
+    emitUpdate("update-vars-config", varsConfig);
   }
 
   function addLabelItem() {
@@ -598,6 +605,8 @@
         varsConfig[key].label = { "": "" };
       }
     }
+
+    emitUpdate("update-vars-config", varsConfig);
   }
 
   function removeLabelItemHandler(e, index) {
@@ -624,6 +633,8 @@
     }
 
     console.log("Actualizado varsConfig después de eliminar:", varsConfig);
+
+    emitUpdate("update-vars-config", varsConfig);
   }
 
   // Get CSS code
@@ -639,7 +650,7 @@
   let value = null; // If value is null provides a sample code
 
   function onTokenize(e) {
-    console.log(e);
+    // console.log(e);
   }
 
   function onUpdate(e) {
@@ -651,6 +662,9 @@
 
       if (!isEqual(currentVarsObject, newVarsObject)) {
         varsObject = newVarsObject;
+
+        const data = { code };
+        emitUpdate("update-css", data);
 
         varsConfig = updateVarsConfig();
         refreshDropdown();
@@ -784,12 +798,15 @@
     varsConfig = varsConfig;
     // update CSS code in svelte
 
+    emitUpdate("update-vars-config", {varsConfig, varsObject});
+
     editor.setOptions({ value: getCSS() });
     closeDropdown();
   }
 
   function handleChangeType(e) {
     varsConfig[openedKey].type = e.target.value;
+    emitUpdate("update-vars-config", varsConfig);
   }
 </script>
 
@@ -848,7 +865,7 @@
                       class="color-box-input"
                       type="color"
                       value={formatColor(value)}
-                      on:input={(e) => handleColorChange(e, key)}
+                      on:change={(e) => handleColorChange(e, key)}
                     />
                   </label>
                 </div>
@@ -1275,7 +1292,7 @@
           <h3 class="labels-editor-title">Labels</h3>
         </div>
         <!-- svelte-ignore a11y_consider_explicit_label -->
-        <button on:click={(e) => addLabelItem()} class="add-label-btn">
+        <button on:click={(e) => addLabelItem()} class="add-label-btn" type="button">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="20"
@@ -1302,7 +1319,7 @@
             <input
               class="label-item-input label-item-input--value"
               {value}
-              on:input={(e) => updateLangValue(lang, e)}
+              on:change={(e) => updateLangValue(lang, e)}
             />
 
             {#if !varsConfigFixed[Object.keys(varsConfigFixed)[0]]?.label[lang]}
