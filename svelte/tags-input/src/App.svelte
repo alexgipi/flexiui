@@ -13,6 +13,11 @@
       },
     },
   };
+
+  function onUpdate(e){
+    const { type, data } = e.detail;
+    console.log({type, data})
+  }
 </script>
 
 <main>
@@ -27,8 +32,9 @@
 
   <div class="card">
     <TagsInput
+      on:update={e => onUpdate(e)}
       name="tags"
-      tagType="number"
+      tagType="text"
       {field}
       labels={field.labels}
       tags={[]}

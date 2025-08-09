@@ -20,6 +20,8 @@ declare const __propDef: {
         showCounter?: boolean;
     };
     events: {
+        update: CustomEvent<any>;
+    } & {
         [evt: string]: CustomEvent<any>;
     };
     slots: {};
