@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
   // create labels types {plural: string, singular, string}
 
   export let name;
@@ -15,7 +17,7 @@
   export let required = false;
   export let labels = null;
   export let enableTextView = false;
-  export let tagType: 'text' | 'number' = "text";
+  export let tagType: "text" | "number" = "text";
   export let showRemoveAll: boolean = true;
   export let showCounter: boolean = true;
 
@@ -24,6 +26,16 @@
   if (!labels) labels = { singular: "Tag", plural: "Tags" };
 
   let duplicatedTags = [];
+
+  const dispatch = createEventDispatcher();
+
+  function emitUpdate(type:string, data:any) {
+    const event = {
+      type,
+      data,
+    };
+    dispatch("update", event);
+  }
 
   function keyDownHandler(e) {
     if (e.key !== "Enter") return;
@@ -47,19 +59,28 @@
           }
           return true;
         });
-	
-	// TODO: Hay que separar esto un poco!!!
-	// La regex es para que solo se separe por el primer bidimensionalSeparator
-	// Ej: bgImage: url("https://etcetera.com")
-	// Sin el regex los ":" de despues de https tambien se separarían.
-	// Por lo que el valor final sería: bgImage: url("https 
-	tags = [
-		...tags,
-		...(!bidimensional
-			? newTags
-			: newTags.map(tag => tag.split(new RegExp(`${bidimensionalSeparator}(.*)`, 's')).slice(0, 2))
-		),
-	];
+
+    // Comprobamos si el número total superará el máximo
+    const totalTags = tags.length + newTags.length;
+    if (typeof max === "number" && totalTags > max) {
+      alert(`No se pueden añadir más de ${max} ${labels?.plural || "tags"}.`);
+      return;
+    }
+
+    tags = [
+      ...tags,
+      ...(!bidimensional
+        ? newTags
+        : newTags.map((tag) =>
+            tag
+              .split(new RegExp(`${bidimensionalSeparator}(.*)`, "s"))
+              .slice(0, 2)
+          )),
+    ];
+
+    const data = { name, tags };
+    
+    emitUpdate("update-tags", data);
 
     e.target.value = duplicatedTags.join(separator || " ") || "";
   }
@@ -178,29 +199,31 @@
         value={JSON.stringify(tags)}
       />
 
-      <span 
-      class:number={tagType === 'number'} 
-      class:text={tagType === 'text'}
-      class="type-badge">
-        {tagType === 'number' ? 'Number' : 'Text'}
+      <span
+        class:number={tagType === "number"}
+        class:text={tagType === "text"}
+        class="type-badge"
+      >
+        {tagType === "number" ? "Number" : "Text"}
       </span>
 
       {#if separator && enableTextView}
-      <div class="toggle-view">
-        <button
-          type="button"
-          class:active={view === "tags"}
-          on:click={toggleView}>Tags</button
-        >
-        <button
-          type="button"
-          class:active={view === "raw"}
-          on:click={toggleView}>Text</button
-        >
-      </div>
+        <div class="toggle-view">
+          <button
+            type="button"
+            class:active={view === "tags"}
+            on:click={toggleView}>Tags</button
+          >
+          <button
+            type="button"
+            class:active={view === "raw"}
+            on:click={toggleView}>Text</button
+          >
+        </div>
       {/if}
     </div>
   </div>
+
   <div class="tags-field-actions">
     <div class="flex gap-4 items-center">
       {#if duplicatedTags?.length === 1}
@@ -210,26 +233,22 @@
           Estas {duplicatedTags.length} etiquetas ya existen
         </span>
       {/if}
-      
+
       {#if showCounter}
         <span>
           {tags.length}
           {tags.length === 1
-            ? labels?.singular?.[lang] || labels?.singular || 'Item'
-            : labels?.plural?.[lang] || labels?.plural || 'Items'}
+            ? labels?.singular?.[lang] || labels?.singular || "Item"
+            : labels?.plural?.[lang] || labels?.plural || "Items"}
         </span>
       {/if}
     </div>
 
-    {#if showRemoveAll }
+    {#if showRemoveAll}
       <button type="button" on:click={() => (tags = [])}> Remove all </button>
     {/if}
   </div>
 </div>
-
-<!-- <pre class="output-console">
-    {JSON.stringify(tags, null, 3)}
-</pre> -->
 
 <style>
   .tags-field {
