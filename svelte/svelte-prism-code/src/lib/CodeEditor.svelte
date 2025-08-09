@@ -125,4 +125,3 @@
 <div class="code-editor {className}">
   <div {id}></div>
 </div>
-
