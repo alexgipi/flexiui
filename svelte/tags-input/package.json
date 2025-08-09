@@ -1,6 +1,6 @@
 {
   "name": "@flexiui/svelte-tags-input",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A lightweight and flexible tags input component for Svelte. Easily add, edit, and remove tags with support for custom styling, basic validation, and events. Perfect for managing tags, categories, or keywords in interactive applications.",
   "type": "module",
   "scripts": {
