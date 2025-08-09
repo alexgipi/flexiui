@@ -1,6 +1,6 @@
 {
   "name": "@flexiui/svelte-dropdown",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A lightweight and flexible Svelte dropdown component",
   "type": "module",
   "scripts": {
@@ -25,5 +25,8 @@
     }
   },
   "author": "alexgipi <alexgp895@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@flexiui/svelte-dropdown": "^0.4.0"
+  }
 }
