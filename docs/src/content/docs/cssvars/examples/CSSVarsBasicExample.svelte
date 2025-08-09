@@ -34,7 +34,7 @@
 
 <CSSVars
   id="css-vars"
-  editable={false}
+  editable={true}
   on:update={(e) => onUpdate(e)}
   {varsCSS}
   bind:varsObject
