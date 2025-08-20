@@ -39,9 +39,10 @@
       labels={field.labels}
       tags={[]}
       min={1}
-      max={3}
+      max={10}
       allowDuplicates={false}
-      bidimensional={false}
+      bidimensional={true}
+      bidimensionalSeparator="=>"
       separator=","
       placeholder={"Press enter to add a new tag"}
       required={false}

@@ -91,6 +91,8 @@
 
   function removeTagHandler(tagIndex) {
     tags = tags.filter((_, index) => index !== tagIndex);
+    const data = { name, tags };
+    emitUpdate("update-tags", data);
   }
 
   function resetError() {
@@ -99,6 +101,24 @@
 
   function toggleView() {
     view = view === "tags" ? "raw" : "tags";
+  }
+
+  function onBlurTagHandler(e, tagIndex) {
+    const element = e.target;
+
+    const curretTagValue = tags[tagIndex];
+    const newValue = element.innerText.trim();
+
+    if(newValue !== curretTagValue) {
+      tags[tagIndex] = newValue;
+      const data = { name, tags };
+      emitUpdate("update-tags", data);
+    }
+  }
+
+  function onBlurBidimensionalTagHandler(e, tagIndex, position) {
+    const data = { name, tags };
+    emitUpdate("update-tags", data);
   }
 </script>
 
@@ -115,6 +135,7 @@
                   bind:innerText={tag[0]}
                   class="tag-content"
                   contenteditable
+                  on:blur={(e) => onBlurBidimensionalTagHandler(e, tagIndex, 0)}
                 >
                 </span>
 
@@ -131,15 +152,18 @@
 
                 <span
                   bind:innerText={tag[1]}
+                  on:blur={(e) => onBlurBidimensionalTagHandler(e, tagIndex, 1)}
                   class="tag-content"
                   contenteditable
                 ></span>
               {:else}
                 <span
-                  bind:innerText={tags[tagIndex]}
                   class="tag-content"
+                  on:blur={(e)=> onBlurTagHandler(e, tagIndex)}
                   contenteditable
-                ></span>
+                >
+                  {tags[tagIndex]}
+                </span>
               {/if}
 
               <button
