@@ -129,7 +129,7 @@
       if (!varsConfig[key]) setVarConfig(key, type);
     });
 
-    editor.setOptions({ value: getCSS() });
+    editor?.setOptions({ value: getCSS() });
 
     refreshDropdown();
 
@@ -257,7 +257,7 @@
       }
     }
 
-    editor.setOptions({ value: getCSS() });
+    editor?.setOptions({ value: getCSS() });
 
     console.log({ prevVarsObject, varsObject });
     getObjectDifferences(prevVarsObject, varsObject);
@@ -800,7 +800,7 @@
 
     emitUpdate("update-vars-config", {varsConfig, varsObject});
 
-    editor.setOptions({ value: getCSS() });
+    editor?.setOptions({ value: getCSS() });
     closeDropdown();
   }
 
@@ -1483,7 +1483,7 @@
     position: relative;
     text-align: left;
 
-    input:not([type="range"]) {
+    & input:not([type="range"]) {
       outline: none;
       min-width: 28px;
       flex: auto;
@@ -1753,6 +1753,7 @@
     padding: 0;
     border-radius: 6px;
     border: 1px solid #ffffff1f;
+    margin: 0;
   }
 
 

@@ -317,9 +317,9 @@
     required={false}
     styleConfig={{
       display: "flex",
-      alignItems: "center",
+      alignItems: "flex-end",
       justifyContent: "flex-start",
-      flexDirection: "row",
+      flexDirection: "column",
       flexWrap: "wrap",
       gap: "0.5rem",
     }}

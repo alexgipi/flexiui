@@ -129,7 +129,7 @@
       if (!varsConfig[key]) setVarConfig(key, type);
     });
 
-    editor.setOptions({ value: getCSS() });
+    editor?.setOptions({ value: getCSS() });
 
     refreshDropdown();
 
@@ -257,7 +257,7 @@
       }
     }
 
-    editor.setOptions({ value: getCSS() });
+    editor?.setOptions({ value: getCSS() });
 
     console.log({ prevVarsObject, varsObject });
     getObjectDifferences(prevVarsObject, varsObject);
@@ -800,7 +800,7 @@
 
     emitUpdate("update-vars-config", {varsConfig, varsObject});
 
-    editor.setOptions({ value: getCSS() });
+    editor?.setOptions({ value: getCSS() });
     closeDropdown();
   }
 
