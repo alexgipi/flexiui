@@ -19,6 +19,7 @@
     "@flexiui/svelte-dropdown": "^0.4.0",
     "@flexiui/svelte-prism-code-editor": "^0.0.14",
     "@flexiui/svelte-quote": "^1.0.9",
+    "@flexiui/svelte-tabs": "^0.0.14",
     "@flexiui/svelte-tags-input": "^1.1.5",
     "astro": "^5.7.5",
     "astro-expressive-code": "^0.40.1",

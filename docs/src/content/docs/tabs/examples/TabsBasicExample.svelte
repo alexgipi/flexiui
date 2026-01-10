@@ -1,6 +1,5 @@
 <script>
-  import Tabs from '@components/ui/Tabs/Tabs.svelte';
-  import TabPanel from '@components/ui/Tabs/TabPanel.svelte';
+  import { Tabs, TabPanel } from '@flexiui/svelte-tabs';
 
   let activeTabIndex = 0;
   let tabs = [
