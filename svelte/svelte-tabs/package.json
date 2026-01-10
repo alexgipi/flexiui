@@ -1,6 +1,6 @@
 {
 	"name": "@flexiui/svelte-tabs",
-	"version": "0.0.10",
+	"version": "0.0.14",
 	"description": "A simple tabs component for Svelte",
 	"keywords": [
 		"svelte",

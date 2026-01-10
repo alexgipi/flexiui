@@ -1,41 +1,38 @@
-# `@flexiui/svelte-quote`
+## Installation
 
-Un componente de cita, 'Quote' o 'Blockquote' para Svelte.
-## Instalación
-
-Para instalar el componente `Quote` en tu proyecto de Svelte, puedes usar npm o yarn.
-
-Con npm:
+To install the `Tabs` component in your Svelte project, you can use npm or yarn.
 
 ```bash
-npm install @flexiui/svelte-quote
+npm install @flexiui/svelte-tabs
 ```
 
-Con yarn:
+## Basic Usage of the Component
 
-```bash
-yarn add @flexiui/svelte-quote
-```
+Once installed, you can use the `Tabs` component in your Svelte application.
 
-## Uso
-
-Una vez instalado, puedes usar el componente `Quote` en tu aplicación de Svelte.
-
-```svelte
+``` svelte
 <script>
-  import { Quote } from '@flexiui/svelte-quote';
-  let content = `This is a quote component example with editable mode enabled.`
+  import { Tabs, TabPanel } from '@flexiui/svelte-tabs';
+
+  let activeTabIndex = 0;
+  let tabs = [
+    {
+      name: "exercise_content",
+      label: "Contenido del ejercicio",
+    },
+    {
+      name: "exercise_settings",
+      label: "Ajustes del ejercicio",
+    },
+  ];
 </script>
 
-<Quote
-className="my-quote"
-id="flexi-quote"
-bgColor="transparent" 
-editable={true}
-bind:value={content}
-on:focus={handleFocus}
-on:keydown={handleKeyDown}
-on:input={handleInput}
->
-</Quote>
+<Tabs {tabs} bind:activeTabIndex>
+  <TabPanel active={activeTabIndex === 0}>
+    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sapiente perferendis quod incidunt ullam necessitatibus rerum sunt fugiat et consequatur in at similique molestias nesciunt dolores, impedit modi aliquid! Fuga, vero?
+  </TabPanel>
+  <TabPanel active={activeTabIndex === 1}>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit illo quisquam aspernatur voluptatem laborum itaque dolores nemo culpa aliquid. Ipsum at dolorum a nulla nemo fugiat enim repudiandae ut quae!
+  </TabPanel>
+</Tabs>
 ```

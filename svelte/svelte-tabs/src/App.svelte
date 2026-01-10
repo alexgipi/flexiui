@@ -2,8 +2,9 @@
     import { onMount } from 'svelte';
     import packageJson from '../package.json';
     import Tabs from "./lib/Tabs.svelte";
+    import TabPanel from './lib/TabPanel.svelte';
 
-    let activeTab = 0;
+    let activeTabIndex = 0;
     let tabs: any = [
       // required
       {
@@ -38,7 +39,6 @@
         ],
       },
     ]
-
   
     let name = packageJson.name;
     let description = packageJson.description;
@@ -74,17 +74,13 @@
     <p class="package-desc">{description}</p>
   
     <div class="card">
-      <Tabs {tabs} bind:activeTab>
-
-
-        <div class="tab-panel" class:active={activeTab === 0}>
+      <Tabs {tabs} bind:activeTabIndex>
+        <TabPanel active={activeTabIndex === 0}>
           Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sapiente perferendis quod incidunt ullam necessitatibus rerum sunt fugiat et consequatur in at similique molestias nesciunt dolores, impedit modi aliquid! Fuga, vero?
-        </div>
-        <div class="tab-panel" class:active={activeTab === 1}>
+        </TabPanel>
+        <TabPanel active={activeTabIndex === 1}>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit illo quisquam aspernatur voluptatem laborum itaque dolores nemo culpa aliquid. Ipsum at dolorum a nulla nemo fugiat enim repudiandae ut quae!
-        </div>
-         
-      
+        </TabPanel>
       </Tabs>
     </div>
   
