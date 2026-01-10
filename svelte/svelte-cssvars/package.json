@@ -1,6 +1,6 @@
 {
   "name": "@flexiui/svelte-cssvars",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "A lightweight and flexible CSS Vars editor component for Svelte",
   "type": "module",
   "scripts": {
