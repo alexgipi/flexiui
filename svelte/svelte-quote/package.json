@@ -1,6 +1,6 @@
 {
   "name": "@flexiui/svelte-quote",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "A lightweight and flexible quote component for Svelte",
   "keywords": [
     "svelte",
