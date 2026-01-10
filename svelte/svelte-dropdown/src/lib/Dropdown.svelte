@@ -11,9 +11,9 @@
     export let xOffset = 0;
     export let yOffset = 0;
     export let margin = 8;
+    export let opened = false;
 
     let dropdownPanelEl;
-    let opened = false;
     let openedKey: string;
     let dropdownToggle: NodeListOf<Element>;
 

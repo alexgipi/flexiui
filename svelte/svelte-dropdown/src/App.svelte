@@ -79,7 +79,7 @@
             data-dropdown-toggle="dropdown"
             data-dropdown-trigger="click"
             data-dropdown-key={position}>
-            {position.replaceAll('-', ' ')}
+              {position.replaceAll('-', ' ')}
             </button>
           {/each}        
         </div>
