@@ -1,6 +1,6 @@
 {
   "name": "@flexiui/svelte-prism-code-editor",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "description": "A lightweight and flexible Svelte component that wraps Prism Code Editor, providing syntax highlighting with ease of integration",
   "keywords": [
     "svelte",
@@ -36,6 +36,6 @@
   "author": "alexgipi <alexgp895@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "prism-code-editor": "^3.4.0"
+    "prism-code-editor": "^4.1.0"
   }
 }

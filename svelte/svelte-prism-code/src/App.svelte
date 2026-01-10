@@ -6,7 +6,27 @@
   let name = packageJson.name;
   let description = packageJson.description;
 
-  let value = null;
+  let value = JSON.stringify({
+    "firstName": "John",
+    "lastName": "Doe",
+    "age": 30,
+    "address": {
+      "streetAddress": "21 2nd Street",
+      "city": "New York",
+      "state": "NY",
+      "postalCode": "10021"
+    },
+    "phoneNumbers": [
+      {
+        "type": "home",
+        "number": "212 555-1234"
+      },
+      {
+        "type": "fax",
+        "number": "646 555-4567"
+      }
+    ]
+  }, null, 2);
 
   let editor;
 
@@ -37,7 +57,9 @@
     <PrismCodeEditor 
     bind:editor={editor}
     on:update={e => onUpdate(e)}
-    language="css" 
+    readOnly={true}
+    lineNumbers={false}
+    language="json" 
     id="example-code-editor" 
     {value}
     className='no-drag'>

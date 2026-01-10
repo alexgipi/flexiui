@@ -1,8 +1,11 @@
 <script>
   import { onMount, createEventDispatcher } from "svelte";
+
   import "prism-code-editor/prism/languages/markup";
   import "prism-code-editor/prism/languages/css-extras";
   import "prism-code-editor/prism/languages/javascript";
+  import "prism-code-editor/prism/languages/json";
+  
 
   // Importing styles
   import "prism-code-editor/layout.css";
@@ -11,6 +14,7 @@
   import "./styles.css";
   import "prism-code-editor/search.css";
   import "prism-code-editor/copy-button.css";
+  import "prism-code-editor/code-folding.css"
 
   // import "prism-code-editor/languages/html"
   // import "prism-code-editor/languages/css"
@@ -62,6 +66,16 @@
       "prism-code-editor/highlight-brackets"
     );
 
+   const {
+    readOnlyCodeFolding,
+    markdownFolding,
+    blockCommentFolding,
+    bracketFolding,
+    tagFolding
+   } = await import("prism-code-editor/code-folding");
+
+
+
     // count dom element with id #${id} child nodes
 
     let editorContainer = document.getElementById(id);
@@ -75,7 +89,7 @@
       `#${id}`,
       {
         language,
-        value: isNullOrUndefined(value) ? defaultCode : value,
+        value,
         tabSize,
         insertSpaces,
         lineNumbers,
@@ -103,7 +117,6 @@
           });
         },
       },
-      indentGuides(),
       matchBrackets()
     );
 
@@ -111,11 +124,17 @@
       highlightSelectionMatches(),
       searchWidget(),
       defaultCommands(),
-      copyButton(),
+      // copyButton(),
       matchTags(),
       highlightBracketPairs(),
       cursorPosition(),
-      editHistory()
+      editHistory(),
+      readOnlyCodeFolding(
+        bracketFolding,
+        tagFolding,
+        markdownFolding,
+        blockCommentFolding
+      )
     );
     
     editors = [...editors, editor];
