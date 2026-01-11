@@ -15,6 +15,7 @@
   export let playerType: "waveform" | "seekbar" = "waveform";
 
   let wavesurfer: WaveSurfer | null = null;
+  let waveformEl: HTMLDivElement | null = null;
   let wavesurferReady: boolean = false;
   let loading: boolean = true;
   let audio: any = null;
@@ -105,8 +106,12 @@
     if (WaveSurfer) {
         
         setTimeout(() => {
+          const identifier = "waveform-" + id;
+          console.log({ identifier });
+          console.log({ waveformEl });
+
           wavesurfer = WaveSurfer?.create({
-            container: "#waveform-" + id,
+            container: waveformEl,
             height: 46,
             normalize: false,
             waveColor: "#b0b0b0",
@@ -296,6 +301,7 @@
   <!-- <span class="media-item-number">{index+1}</span> -->
 
   <div
+    bind:this={waveformEl}
     class="audio-player-wave"
     id={"waveform-" + id}
     class:hidden={mounted && !wavesurferReady}
