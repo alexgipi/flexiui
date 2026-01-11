@@ -1,31 +1,9 @@
 <script lang="ts">
   import { SpecialBox } from "./lib/extensions/SpecialBox";
   import { PrismCodeEditor } from "@flexiui/svelte-prism-code-editor";
-  import { CustomTableHeader } from "./lib/extensions/Table/CustomTableHeader";
-  import { CustomTableCell } from "./lib/extensions/Table/CustomTableCell";
-  import { TableKit } from "@tiptap/extension-table";
-  import { CellSelection } from "prosemirror-tables";
-  import { MediaGridExtension } from "./lib/extensions/MediaGrid/MediaGrid";
-  import { MediaGridItemExtension } from "./lib/extensions/MediaGrid/MediaGridItem";
-  import {
-    Mathematics,
-  } from "@tiptap/extension-mathematics";
   import RichText from "./lib/RichText.svelte";
   import packageJson from "../package.json";
-  import StarterKit from "@tiptap/starter-kit";
-  import Highlight from "@tiptap/extension-highlight";
-  import TextAlign from "@tiptap/extension-text-align";
-  import Image from "@tiptap/extension-image";
-  import { Audio } from "./lib/extensions/Audio";
-  import Link from "@tiptap/extension-link";
-  import { ListKit } from "@tiptap/extension-list";
-  import { TextStyleKit } from "@tiptap/extension-text-style";
-  import { renderToHTMLString, serializeChildrenToHTMLString  } from "@tiptap/static-renderer";
-  import "katex/dist/katex.min.css";
-
-  import katex from "katex";
-  import { NodeLineHeight } from "./lib/extensions/NodeLineHeight";
-  import AudioPlayer from './lib/extensions/AudioPlayer.svelte';
+  import { renderHTMLFromJSON } from "./lib/renderRichText";
 
   let name = packageJson.name;
   let description = packageJson.description;
@@ -37,60 +15,6 @@
   let json = $state(null);
 
   let customExtensions = [SpecialBox];
-
-  const extensions = [
-    // Color.configure({ types: [TextStyle.name, ListItem.name] }),
-    Highlight.configure({ multicolor: true }),
-    TextStyleKit,
-    StarterKit.configure({
-      // Disable an included extension
-      trailingNode: false,
-      link: false,
-      bulletList: false,
-      listItem: false,
-      orderedList: false,
-      listKeymap: false,
-    }),
-    Link.configure({
-      openOnClick: false,
-      HTMLAttributes: {
-        target: "_self",
-        rel: "noopener noreferrer",
-      },
-    }),
-    ListKit,
-    TextAlign.configure({
-      types: [
-        "heading",
-        "paragraph",
-        "bulletList",
-        "taskList",
-        "listItem",
-        "blockquote",
-      ],
-    }),
-    Mathematics,
-    Image,
-    Audio.configure({
-      HTMLAttributes: { class: "audio-player" },
-    }),
-    NodeLineHeight,
-    MediaGridExtension,
-    MediaGridItemExtension,
-    TableKit.configure({
-      table: {
-        HTMLAttributes: { class: "fl-table-editable" },
-        resizable: true,
-      },
-    }),
-    CustomTableCell.configure({
-      HTMLAttributes: { class: "fl-cell-editable" },
-    }),
-    CustomTableHeader.configure({
-      HTMLAttributes: { class: "fl-cell-editable" },
-    }),
-    ...customExtensions,
-  ];
 
   let content = {
     "type": "doc",
@@ -597,63 +521,7 @@
     ]
   }
 
-  // Renderer
-
-  function renderFromJSON(json){
-    const html = renderToHTMLString({
-      extensions: extensions, // using your extensions
-      content: json,
-      options: {
-        nodeMapping: {
-          // Aquí le dices cómo renderizar el nodo "mathematics"
-          inlineMath({ node }) {
-            const latex = node.attrs.latex || ''
-            // Devuelve el HTML que quieres que se genere
-            return `<span class="math-inline">${katex.renderToString(latex, { throwOnError: false })}</span>`
-          },
-          MediaGridComponent({ node, children }) {
-            const cols = node.attrs.cols || 2;
-            const gap = node.attrs.gap || '1rem';
-            const showIndicator = node.attrs.showIndicator || false;
-            const indicatorType = node.attrs.indicatorType || 'numeric';
-
-            return `
-            <div 
-            class="fl-media-grid" 
-            data-cols="${cols}"
-            data-gap="${gap}"
-            data-show-indicator="${showIndicator}"
-            data-indicator-type="${indicatorType}"
-            style="
-              --fl-grid-cols: ${cols};
-              --fl-grid-gap: ${gap};
-            ">
-              ${serializeChildrenToHTMLString(children)}
-            </div>`
-          },
-          gridItem({ node, children }) {
-            return `<div class="fl-grid-item">${serializeChildrenToHTMLString(children)}</div>`
-          },
-          audio({ node, children }) {
-            const src = node.attrs.src;
-            const controls = node.attrs.controls;
-
-            return `
-            <fl-audio-player
-            class="fl-audio-player"
-            id="fl-audio-player-${node.attrs.id}" 
-            src="${src}">
-            </fl-audio-player>`
-          }
-        }
-      }
-    });
-
-    return html;
-  }
-
   // Editor events
-
   function handleEditorBeforeCreate(e: any) {
     console.log("beforeCreate");
     console.log(e);
@@ -662,7 +530,7 @@
   function handleEditorCreate(e: any) {
     editor = e.editor;
     json = content
-    html = renderFromJSON(json);
+    html = renderHTMLFromJSON({json, customExtensions});
   }
 
   function handleEditorDestroy(e: any) {
@@ -673,7 +541,7 @@
   function handleEditorUpdate(e: any) {
     const { editor, html: editorHtml, json: editorJson } = e;
     json = editorJson;
-    html = renderFromJSON(json);
+    html = renderHTMLFromJSON({json, customExtensions});
 
     codeEditorJSON?.setOptions({ value: JSON.stringify(json, null, 2) });
     codeEditorHTML?.setOptions({ value: editorHtml });
