@@ -1,12 +1,4 @@
 <script lang="ts">
-  import { CustomTableHeader } from "./extensions/Table/CustomTableHeader";
-  import { CustomTableCell } from "./extensions/Table/CustomTableCell";
-  import { TableKit } from "@tiptap/extension-table";
-  import { CellSelection } from "prosemirror-tables";
-
-  import { NodeLineHeight } from "./extensions/NodeLineHeight";
-  import { MediaGridExtension } from "./extensions/MediaGrid/MediaGrid";
-  import { MediaGridItemExtension } from "./extensions/MediaGrid/MediaGridItem";
   import {
     Mathematics,
     migrateMathStrings,
@@ -20,15 +12,8 @@
 
   import { createEditor, Editor, EditorContent } from "svelte-tiptap";
 
-  import StarterKit from "@tiptap/starter-kit";
-  import Highlight from "@tiptap/extension-highlight";
-  import TextAlign from "@tiptap/extension-text-align";
-  import Image from "@tiptap/extension-image";
-  import { Audio } from "./extensions/Audio";
-  import { ListKit } from "@tiptap/extension-list";
-  import { TextStyleKit } from "@tiptap/extension-text-style";
-  import { EnhancedLink } from "./extensions/EnhancedLink";
   import { computePosition, offset, autoUpdate } from "@floating-ui/dom";
+  import { getRichTextExtensions } from "./getExtensions";
 
   declare interface Props {
     id?: string;
@@ -112,85 +97,123 @@
     ...(config ?? {}),
   });
 
-  const extensions = [
-    // Color.configure({ types: [TextStyle.name, ListItem.name] }),
-    Highlight.configure({ multicolor: true }),
-    TextStyleKit,
-    StarterKit.configure({
-      // Disable an included extension
-      trailingNode: false,
-      link: false,
-      bulletList: false,
-      listItem: false,
-      orderedList: false,
-      listKeymap: false,
-    }),
-    EnhancedLink,
-    Audio.configure({
-      HTMLAttributes: { class: "audio-player" },
-    }),
-    Image.configure({
-      inline: true,
-    }),
-    ListKit,
-    TextAlign.configure({
-      types: [
-        "heading",
-        "paragraph",
-        "bulletList",
-        "taskList",
-        "listItem",
-        "blockquote",
-      ],
-    }),
-    Mathematics.configure({
-      inlineOptions: {
-        onClick: (node, pos) => {
-          // you can do anything on click, e.g. open a dialog to edit the math node
-          // or just a prompt to edit the LaTeX code for a quick prototype
-          const katex = prompt(
-            "Update math LaTeX expression:",
-            node.attrs.latex
-          );
-          if (katex) {
-            $editor
-              .chain()
-              .setNodeSelection(pos)
-              .updateInlineMath({ latex: katex })
-              .focus()
-              .run();
-          }
+  // const extensions = [
+  //   // Color.configure({ types: [TextStyle.name, ListItem.name] }),
+  //   Highlight.configure({ multicolor: true }),
+  //   TextStyleKit,
+  //   StarterKit.configure({
+  //     // Disable an included extension
+  //     trailingNode: false,
+  //     link: false,
+  //     bulletList: false,
+  //     listItem: false,
+  //     orderedList: false,
+  //     listKeymap: false,
+  //   }),
+  //   EnhancedLink,
+  //   Audio.configure({
+  //     HTMLAttributes: { class: "audio-player" },
+  //   }),
+  //   Image.configure({
+  //     inline: true,
+  //   }),
+  //   ListKit,
+  //   TextAlign.configure({
+  //     types: [
+  //       "heading",
+  //       "paragraph",
+  //       "bulletList",
+  //       "taskList",
+  //       "listItem",
+  //       "blockquote",
+  //     ],
+  //   }),
+  //   Mathematics.configure({
+  //     inlineOptions: {
+  //       onClick: (node, pos) => {
+  //         // you can do anything on click, e.g. open a dialog to edit the math node
+  //         // or just a prompt to edit the LaTeX code for a quick prototype
+  //         const katex = prompt(
+  //           "Update math LaTeX expression:",
+  //           node.attrs.latex
+  //         );
+  //         if (katex) {
+  //           $editor
+  //             .chain()
+  //             .setNodeSelection(pos)
+  //             .updateInlineMath({ latex: katex })
+  //             .focus()
+  //             .run();
+  //         }
+  //       },
+  //     },
+  //     blockOptions: {
+  //       // optional options for the block math node
+  //     },
+  //     katexOptions: {
+  //       displayMode: false,
+  //       throwOnError: false,
+  //       macros: {
+  //         "\\RR": "\\mathbb{R}",
+  //         "\\ZZ": "\\mathbb{Z}",
+  //       },
+  //     },
+  //   }),
+  //   NodeLineHeight,
+  //   MediaGridExtension,
+  //   MediaGridItemExtension,
+  //   TableKit.configure({
+  //     table: {
+  //       HTMLAttributes: { class: "fl-table-editable" },
+  //       resizable: true,
+  //     },
+  //   }),
+  //   CustomTableCell.configure({
+  //     HTMLAttributes: { class: "fl-cell-editable" },
+  //   }),
+  //   CustomTableHeader.configure({
+  //     HTMLAttributes: { class: "fl-cell-editable" },
+  //   }),
+  //   ...customExtensions,
+  // ];
+  
+  const extensions = getRichTextExtensions({
+    editable: true, 
+    customExtensions: [
+      ...customExtensions, 
+      Mathematics.configure({
+        inlineOptions: {
+          onClick: (node, pos) => {
+            // you can do anything on click, e.g. open a dialog to edit the math node
+            // or just a prompt to edit the LaTeX code for a quick prototype
+            const katex = prompt(
+              "Update math LaTeX expression:",
+              node.attrs.latex
+            );
+            if (katex) {
+              $editor
+                .chain()
+                .setNodeSelection(pos)
+                .updateInlineMath({ latex: katex })
+                .focus()
+                .run();
+            }
+          },
         },
-      },
-      blockOptions: {
-        // optional options for the block math node
-      },
-      katexOptions: {
-        displayMode: false,
-        throwOnError: false,
-        macros: {
-          "\\RR": "\\mathbb{R}",
-          "\\ZZ": "\\mathbb{Z}",
+        blockOptions: {
+          // optional options for the block math node
         },
-      },
-    }),
-    NodeLineHeight,
-    MediaGridExtension,
-    MediaGridItemExtension,
-    TableKit.configure({
-      table: {
-        HTMLAttributes: { class: "fl-table-editable" },
-        resizable: true,
-      },
-    }),
-    CustomTableCell.configure({
-      HTMLAttributes: { class: "fl-cell-editable" },
-    }),
-    CustomTableHeader.configure({
-      HTMLAttributes: { class: "fl-cell-editable" },
-    }),
-    ...customExtensions,
-  ];
+        katexOptions: {
+          displayMode: false,
+          throwOnError: false,
+          macros: {
+            "\\RR": "\\mathbb{R}",
+            "\\ZZ": "\\mathbb{Z}",
+          },
+        },
+      })
+    ]
+  });
 
   let tooltipVisible = $state(false);
   let tooltipX = $state(0);
