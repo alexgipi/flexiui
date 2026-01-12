@@ -5,29 +5,23 @@ import { getRichTextExtensions } from "./getExtensions";
 interface RenderOptions {
     json: any;
     customExtensions?: any[];
+    customNodeMapping?: any;
 }
 
-export function renderHTMLFromJSON({json, customExtensions = []}: RenderOptions) {
-    const extensions = getRichTextExtensions({ customExtensions });
-    
-    const html = renderToHTMLString({
-        extensions: extensions, // using your extensions
-        content: json,
-        options: {
-            nodeMapping: {
-                // Aquí le dices cómo renderizar el nodo "mathematics"
-                inlineMath({ node }) {
-                    const latex = node.attrs.latex || ''
-                    // Devuelve el HTML que quieres que se genere
-                    return `<span class="math-inline">${katex.renderToString(latex, { throwOnError: false })}</span>`
-                },
-                MediaGridComponent({ node, children }) {
-                    const cols = node.attrs.cols || 2;
-                    const gap = node.attrs.gap || '1rem';
-                    const showIndicator = node.attrs.showIndicator || false;
-                    const indicatorType = node.attrs.indicatorType || 'numeric';
+const nodeMapping: any = {
+    // Aquí le dices cómo renderizar el nodo "mathematics"
+    inlineMath({ node }) {
+        const latex = node.attrs.latex || ''
+        // Devuelve el HTML que quieres que se genere
+        return `<span class="math-inline">${katex.renderToString(latex, { throwOnError: false })}</span>`
+    },
+    MediaGridComponent({ node, children }) {
+        const cols = node.attrs.cols || 2;
+        const gap = node.attrs.gap || '1rem';
+        const showIndicator = node.attrs.showIndicator || false;
+        const indicatorType = node.attrs.indicatorType || 'numeric';
 
-                    return `
+        return `
             <div 
             class="fl-media-grid" 
             data-cols="${cols}"
@@ -40,22 +34,57 @@ export function renderHTMLFromJSON({json, customExtensions = []}: RenderOptions)
             ">
               ${serializeChildrenToHTMLString(children)}
             </div>`
-                },
-                gridItem({ node, children }) {
-                    return `<div class="fl-grid-item">${serializeChildrenToHTMLString(children)}</div>`
-                },
-                audio({ node, children }) {
-                    const src = node.attrs.src;
-                    const controls = node.attrs.controls;
+    },
+    gridItem({ node, children }) {
+        return `<div class="fl-grid-item">${serializeChildrenToHTMLString(children)}</div>`
+    },
+    audio({ node, children }) {
+        const {
+            id,
+            src,
+            controls,
+            bgColor,
+            textColor,
+            borderRadius,
+            accentColor,
+            accentColorPaused,
+            maxWidth,
+            colorPlay
+        } = node.attrs;
 
-                    return `
-            <fl-audio-player
-            class="fl-audio-player"
-            id="fl-audio-player-${node.attrs.id}" 
-            src="${src}">
-            </fl-audio-player>`
-                }
-            }
+        return `
+        <fl-audio-player
+        class="fl-audio-player"
+        id="${id}" 
+        src="${src}"
+        controls="${controls}"
+        bgColor="${bgColor}"
+        textColor="${textColor}"
+        borderRadius="${borderRadius}"
+        accentColor="${accentColor}"
+        accentColorPaused="${accentColorPaused}"
+        maxWidth="${maxWidth}"
+        colorPlay="${colorPlay}"
+        >
+        </fl-audio-player>
+        `
+    },
+}
+
+
+export function renderHTMLFromJSON({ json, customExtensions = [], customNodeMapping = {} }: RenderOptions) {
+    const extensions = getRichTextExtensions({ customExtensions });
+
+    const finalNodeMapping: any = {
+        ...nodeMapping,
+        ...customNodeMapping,
+    }
+
+    const html = renderToHTMLString({
+        extensions: extensions, // using your extensions
+        content: json,
+        options: {
+            nodeMapping: finalNodeMapping,
         }
     });
 
