@@ -7,18 +7,27 @@
   import WaveSurfer from "wavesurfer.js";
   import { activeAudioId } from "./audioStore";
 
-  export let id: string = "audio-" + Math.random().toString(36).slice(2);
+  export let id: string;
   export let src: string;
+  export let controls: any
   export let showSeekbar: boolean = true;
   export let config: any = {};
-
   export let playerType: "waveform" | "seekbar" = "waveform";
+  export let bgColor: string;
+  export let textColor: string;
+  export let borderRadius: string;
+  export let accentColor: string;
+  export let accentColorPaused: string;
+  export let colorPlay: string;
+  export let maxWidth: string;
 
   let wavesurfer: WaveSurfer | null = null;
   let waveformEl: HTMLDivElement | null = null;
   let wavesurferReady: boolean = false;
   let loading: boolean = true;
-  let audio: any = null;
+  // let audio: any = null;
+  let audio: HTMLAudioElement | null = null;
+
   let playing: boolean = false;
   let mounted: boolean = false;
   let seekbarEl: HTMLDivElement | null = null;
@@ -30,6 +39,8 @@
 
   let audioDuration: number = 0;
   let audioCurrentTime: number = 0;
+
+  id = id + "-" + Math.random().toString(36).substring(2, 15);
 
   function formatTime(seconds: number) {
     if (isNaN(seconds) || seconds < 0) return "0:00";
@@ -152,10 +163,10 @@
     //   wavesurfer?.stop();
     // });
 
-    audio = new Audio(src);
+    // audio = new Audio(src);
+    // audio.load();
     audio.volume = volume;
     audio.preload = "auto";
-    audio.load();
 
     audio.addEventListener("loadedmetadata", () => {
       audioDuration = audio.duration;
@@ -171,6 +182,19 @@
       if (seekbarEl && progressEl) {
         progressEl.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
       }
+    });
+
+    audio.onended = () => {
+      playing = false;
+      console.log("Audio playback ended");
+    };
+
+    audio.addEventListener("play", () => {
+      playing = true;
+    });
+
+    audio.addEventListener("pause", () => {
+      playing = false;
     });
 
     setTimeout(() => {
@@ -262,7 +286,19 @@
   }
 </script>
 
-<div class="audio-player" {id} class:playing>
+<div 
+class="audio-player" 
+{id} 
+class:playing
+style={`
+  --player-bg-color: ${bgColor};
+  --player-play-btn-bg: ${colorPlay};
+  --player-primary-color: ${accentColor};
+  --player-progress-default-bg: ${accentColorPaused};
+  --player-text-color: ${textColor};
+  --player-border-radius: ${borderRadius};
+`}
+>
   <button
     onclick={() => togglePlayPause()}
     type="button"
@@ -441,11 +477,12 @@
     </div>
   </div>
 
-  <!-- {#if mounted && !wavesurferReady}
-        <div class="audio-player-time">
-            0:51
-        </div>
-    {/if} -->
+  <!-- Reproductor de audo nativo -->
+  <audio
+    bind:this={audio}
+    src={src}
+    id={'native-audio-' + id}
+  ></audio>
 </div>
 
 <style>
@@ -456,13 +493,14 @@
 
   .audio-player {
     --player-primary-color: #5e17eb;
-    --player-bg-color: #455f7414;
+    --player-bg-color: #8c8c8c45;
     --player-border-radius: 18px;
     --player-seekbar-bg: #8d8d8d3a;
     --player-seekbar-height: 6px;
     --player-progress-default-bg: #f5f5f5;
     --player-play-btn-bg: #8d8d8d26;
     --player-play-btn-color: #fff;
+    --player-text-color: currentColor;
 
     display: flex;
     align-items: center;
@@ -472,6 +510,7 @@
     padding: 12px;
     width: 100%;
     box-sizing: border-box;
+    color: var(--player-text-color);
 
     &.playing {
       .audio-player-wave {
@@ -496,6 +535,16 @@
     border-radius: 100%;
     outline-offset: 4px;
     outline-color: var(--player-play-btn-bg);
+    cursor: pointer;
+    transition: filter 0.3s ease, transform 0.3s ease, background 0.3s ease;
+
+    &:hover {
+      /* background: var(--player-primary-color); */
+      &:not(.playing) {
+        filter: brightness(1.2);
+      }
+      transform: scale(1.06);
+    }
 
     svg {
       width: 20px;
@@ -587,7 +636,7 @@
     margin-right: 4px;
 
     &:hover {
-      background: #0d121612;
+      background: #7a7a7a17;
     }
 
     &:hover .audio-player-seekbar,
@@ -621,6 +670,7 @@
     border: none;
     padding: 4px;
     background: #0d121600;
+    color: currentColor;
     border-radius: 100%;
     height: 36px;
     width: 36px;
