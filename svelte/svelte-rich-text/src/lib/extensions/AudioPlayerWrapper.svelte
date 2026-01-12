@@ -62,12 +62,8 @@
 <NodeViewWrapper class="fl-audio-player-wrapper">
   <div
     bind:this={targetElement}
-    class="fl-audio-player"
+    class="fl-audio-player-container"
     class:selected={selected}
-    style="
-      --color-play: {attrs.colorPlay};
-      --color-bar: {attrs.colorBar};
-    "
   >
     <!-- <audio
       src={attrs.src}
@@ -76,7 +72,18 @@
       loop={attrs.loop}
     ></audio> -->
 
-    <AudioPlayer src={attrs.src}></AudioPlayer>
+    <AudioPlayer 
+    id={attrs.id}
+    controls={true}
+    src={attrs.src}
+    bgColor={attrs.bgColor}
+    textColor={attrs.textColor}
+    borderRadius={attrs.borderRadius}
+    accentColor={attrs.accentColor}
+    accentColorPaused={attrs.accentColorPaused}
+    colorPlay={attrs.colorPlay}
+    maxWidth={attrs.maxWidth}
+    ></AudioPlayer>
 
     {#if selected}
         <span
@@ -93,7 +100,7 @@
 </NodeViewWrapper>
 
 <style>
-  .fl-audio-player {
+  .fl-audio-player-container {
     display: flex;
     align-items: center;
     position: relative;
