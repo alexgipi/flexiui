@@ -9,10 +9,8 @@ interface RenderOptions {
 }
 
 const nodeMapping: any = {
-    // Aquí le dices cómo renderizar el nodo "mathematics"
     inlineMath({ node }) {
         const latex = node.attrs.latex || ''
-        // Devuelve el HTML que quieres que se genere
         return `<span class="math-inline">${katex.renderToString(latex, { throwOnError: false })}</span>`
     },
     MediaGridComponent({ node, children }) {
