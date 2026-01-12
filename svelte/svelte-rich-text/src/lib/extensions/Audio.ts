@@ -76,60 +76,76 @@ export const Audio = Node.create<AudioOptions>({
         parseHTML: el => el.hasAttribute('loop'),
         renderHTML: attrs => (attrs.loop ? { loop: true } : {}),
       },
-      colorPlay: {
-        default: '#333',
-        parseHTML: el => el.getAttribute('data-color-play') || '#333',
-        renderHTML: attrs => ({
-          'data-color-play': attrs.colorPlay,
-        }),
-      },
-      colorBar: {
-        default: '#888',
-        parseHTML: el => el.getAttribute('data-color-bar') || '#888',
-        renderHTML: attrs => ({
-          'data-color-bar': attrs.colorBar,
-        }),
-      },
-      maxWidth: {
-        default: '100%',
-        parseHTML: el => el.getAttribute('data-max-width') || '100%',
-        renderHTML: attrs => ({
-          'data-max-width': attrs.maxWidth,
-        }),
-      },
       id: {
-        default: "fl-audio-" + Math.random().toString(36).slice(2),
+        default: `fl-audio-player-${Math.random().toString(36).substring(2, 15)}`,
         parseHTML: el => el.getAttribute('data-id') || null,
         renderHTML: attrs => ({
           'data-id': attrs.id,
         }),
-      }
+      },
+      bgColor: {
+        default: '#8c8c8c45',
+        parseHTML: el => el.getAttribute('data-bg-color'),
+        renderHTML: attrs => ({
+          'data-bg-color': attrs.bgColor,
+        }),
+      },
+      textColor: {
+        default: 'currentColor',
+        parseHTML: el => el.getAttribute('data-text-color'),
+        renderHTML: attrs => ({
+          'data-text-color': attrs.textColor,
+        }),
+      },
+      borderRadius: {
+        default: '18px',
+        parseHTML: el => el.getAttribute('data-border-radius'),
+        renderHTML: attrs => ({
+          'data-border-radius': attrs.borderRadius,
+        }),
+      },
+      accentColor: {
+        default: '#5e17eb',
+        parseHTML: el => el.getAttribute('data-accent-color'),
+        renderHTML: attrs => ({
+          'data-accent-color': attrs.accentColor,
+        }),
+      },
+      accentColorPaused:{
+        default: '#fff',
+        parseHTML: el => el.getAttribute('data-accent-color-paused'),
+        renderHTML: attrs => ({
+          'data-accent-color-paused': attrs.accentColorPaused,
+        }),
+      },
+      colorPlay: {
+        default: '#5d5d5dc9',
+        parseHTML: el => el.getAttribute('data-color-play'),
+        renderHTML: attrs => ({
+          'data-color-play': attrs.colorPlay,
+        }),
+      },
+      maxWidth: {
+        default: '100%',
+        parseHTML: el => el.getAttribute('data-max-width'),
+        renderHTML: attrs => ({
+          'data-max-width': attrs.maxWidth,
+        }),
+      },
     }
   },
 
   parseHTML() {
     return [
       {
-        tag: 'audio-player',
-        getAttrs: el => {
-          if (!(el instanceof HTMLElement)) return false
-          return {
-            src: el.getAttribute('src'),
-            controls: el.hasAttribute('controls'),
-            autoplay: el.hasAttribute('autoplay'),
-            loop: el.hasAttribute('loop'),
-            colorPlay: el.getAttribute('data-color-play') || '#333',
-            colorBar: el.getAttribute('data-color-bar') || '#888',
-            maxWidth: el.getAttribute('data-max-width') || '100%',
-          }
-        },
+        tag: 'fl-audio-player',
       },
     ]
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
-      'audio-player',
+      'fl-audio-player',
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
     ]
   },
