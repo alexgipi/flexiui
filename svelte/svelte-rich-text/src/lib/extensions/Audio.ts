@@ -118,6 +118,13 @@ export const Audio = Node.create<AudioOptions>({
           'data-accent-color-paused': attrs.accentColorPaused,
         }),
       },
+      seekBarBgColor: {
+        default: '#8d8d8d3a',
+        parseHTML: el => el.getAttribute('data-seek-bar-bg-color'),
+        renderHTML: attrs => ({
+          'data-seek-bar-bg-color': attrs.seekBarBgColor,
+        }),
+      },
       colorPlay: {
         default: '#5d5d5dc9',
         parseHTML: el => el.getAttribute('data-color-play'),
