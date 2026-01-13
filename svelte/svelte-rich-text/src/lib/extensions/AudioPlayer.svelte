@@ -504,7 +504,7 @@ style={styleVars}
     --player-seekbar-height: 6px;
     --player-progress-default-bg: #f5f5f5;
     --player-play-btn-bg: #8d8d8d26;
-    --player-play-btn-color: #fff;
+    --player-play-btn-color: currentColor;
     --player-text-color: currentColor;
 
     display: flex;
