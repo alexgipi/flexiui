@@ -286,21 +286,23 @@
     window.removeEventListener("mousemove", onVolumeGrabMouseMove);
     window.removeEventListener("mouseup", onVolumeGrabMouseUp);
   }
+
+const styleVars = [
+  bgColor && `--player-bg-color: ${bgColor};`,
+  playBtnBgColor && `--player-play-btn-bg: ${playBtnBgColor};`,
+  playBtnTextColor && `--player-play-btn-color: ${playBtnTextColor};`,
+  accentColor && `--player-primary-color: ${accentColor};`,
+  accentColorPaused && `--player-progress-default-bg: ${accentColorPaused};`,
+  textColor && `--player-text-color: ${textColor};`,
+  borderRadius && `--player-border-radius: ${borderRadius};`,
+].filter(Boolean).join('\n');
 </script>
 
 <div 
 class="audio-player" 
 {id} 
 class:playing
-style={`
-  --player-bg-color: ${bgColor};
-  --player-play-btn-bg: ${playBtnBgColor};
-  --player-play-btn-color: ${playBtnTextColor};
-  --player-primary-color: ${accentColor};
-  --player-progress-default-bg: ${accentColorPaused};
-  --player-text-color: ${textColor};
-  --player-border-radius: ${borderRadius};
-`}
+style={styleVars}
 >
   <button
     onclick={() => togglePlayPause()}
