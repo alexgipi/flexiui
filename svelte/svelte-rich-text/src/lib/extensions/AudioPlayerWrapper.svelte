@@ -81,6 +81,8 @@
     borderRadius={attrs.borderRadius}
     accentColor={attrs.accentColor}
     accentColorPaused={attrs.accentColorPaused}
+    playBtnBgColor={attrs.playBtnBgColor}
+    playBtnTextColor={attrs.playBtnTextColor}
     colorPlay={attrs.colorPlay}
     maxWidth={attrs.maxWidth}
     ></AudioPlayer>

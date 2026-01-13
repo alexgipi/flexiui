@@ -125,6 +125,20 @@ export const Audio = Node.create<AudioOptions>({
           'data-seek-bar-bg-color': attrs.seekBarBgColor,
         }),
       },
+      playBtnBgColor: {
+        default: '#8d8d8d26',
+        parseHTML: el => el.getAttribute('data-play-btn-bg-color'),
+        renderHTML: attrs => ({
+          'data-play-btn-bg-color': attrs.playBtnBgColor,
+        }),
+      },
+      playBtnTextColor: {
+        default: 'currentColor',
+        parseHTML: el => el.getAttribute('data-play-btn-text-color'),
+        renderHTML: attrs => ({
+          'data-play-btn-text-color': attrs.playBtnTextColor,
+        }),
+      },
       colorPlay: {
         default: '#5d5d5dc9',
         parseHTML: el => el.getAttribute('data-color-play'),

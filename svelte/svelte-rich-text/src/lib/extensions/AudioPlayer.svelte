@@ -18,6 +18,8 @@
   export let borderRadius: string;
   export let accentColor: string;
   export let accentColorPaused: string;
+  export let playBtnBgColor: string;
+  export let playBtnTextColor: string;
   export let colorPlay: string;
   export let maxWidth: string;
 
@@ -292,7 +294,8 @@ class="audio-player"
 class:playing
 style={`
   --player-bg-color: ${bgColor};
-  --player-play-btn-bg: ${colorPlay};
+  --player-play-btn-bg: ${playBtnBgColor};
+  --player-play-btn-color: ${playBtnTextColor};
   --player-primary-color: ${accentColor};
   --player-progress-default-bg: ${accentColorPaused};
   --player-text-color: ${textColor};
