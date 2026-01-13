@@ -404,10 +404,16 @@
           "controls": true,
           "autoplay": false,
           "loop": false,
-          "colorPlay": "#333",
-          "colorBar": "#888",
-          "maxWidth": "100%",
-          "id": "fl-audio-2"
+          "id": "fl-audio-2",
+          "bgColor": "#8c8c8c45",
+          "textColor": "currentColor",
+          "borderRadius": "18px",
+          "accentColor": "#5e17eb",
+          "accentColorPaused": "#fff",
+          "playBtnBgColor": "#8d8d8d26",
+          "playBtnTextColor": "currentColor",
+          "colorPlay": "#5d5d5dc9",
+          "maxWidth": "100%"
         }
       },
       {
@@ -496,10 +502,16 @@
           "controls": true,
           "autoplay": false,
           "loop": false,
-          "colorPlay": "#333",
-          "colorBar": "#888",
-          "maxWidth": "100%",
-          "id": "fl-audio-1"
+          "id": "fl-audio-1",
+          "bgColor": "#8c8c8c45",
+          "textColor": "currentColor",
+          "borderRadius": "18px",
+          "accentColor": "#5e17eb",
+          "accentColorPaused": "#fff",
+          "playBtnBgColor": "#8d8d8d26",
+          "playBtnTextColor": "currentColor",
+          "colorPlay": "#5d5d5dc9",
+          "maxWidth": "100%"
         }
       },
       {
@@ -521,6 +533,44 @@
     ]
   }
 
+  const customNodeMapping = {
+    audio({ node, children }) {
+      const {
+          id,
+          src,
+          controls,
+          bgColor,
+          textColor,
+          borderRadius,
+          accentColor,
+          accentColorPaused,
+          playBtnBgColor,
+          playBtnTextColor,
+          maxWidth,
+          colorPlay
+      } = node.attrs;
+
+      return `
+      <fl-audio-player
+      class="fl-audio-player"
+      id="${id}" 
+      src="${src}"
+      controls="${controls}"
+      bgColor="${bgColor}"
+      textColor="${textColor}"
+      borderRadius="${borderRadius}"
+      accentColor="${accentColor}"
+      accentColorPaused="${accentColorPaused}"
+      playBtnBgColor="${playBtnBgColor}"
+      playBtnTextColor="${playBtnTextColor}"
+      maxWidth="${maxWidth}"
+      colorPlay="${colorPlay}"
+      >
+      </fl-audio-player>
+      `
+    },
+  }
+
   // Editor events
   function handleEditorBeforeCreate(e: any) {
     console.log("beforeCreate");
@@ -530,7 +580,7 @@
   function handleEditorCreate(e: any) {
     editor = e.editor;
     json = content
-    html = renderHTMLFromJSON({json, customExtensions});
+    html = renderHTMLFromJSON({json, customExtensions, customNodeMapping});
   }
 
   function handleEditorDestroy(e: any) {
@@ -541,7 +591,7 @@
   function handleEditorUpdate(e: any) {
     const { editor, html: editorHtml, json: editorJson } = e;
     json = editorJson;
-    html = renderHTMLFromJSON({json, customExtensions});
+    html = renderHTMLFromJSON({json, customExtensions, customNodeMapping});
 
     codeEditorJSON?.setOptions({ value: JSON.stringify(json, null, 2) });
     codeEditorHTML?.setOptions({ value: editorHtml });
