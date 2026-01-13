@@ -46,6 +46,8 @@ const nodeMapping: any = {
             borderRadius,
             accentColor,
             accentColorPaused,
+            playBtnBgColor,
+            playBtnTextColor,
             maxWidth,
             colorPlay
         } = node.attrs;
@@ -61,6 +63,8 @@ const nodeMapping: any = {
         borderRadius="${borderRadius}"
         accentColor="${accentColor}"
         accentColorPaused="${accentColorPaused}"
+        playBtnBgColor="${playBtnBgColor}"
+        playBtnTextColor="${playBtnTextColor}"
         maxWidth="${maxWidth}"
         colorPlay="${colorPlay}"
         >
