@@ -106,6 +106,12 @@
     display: flex;
     align-items: center;
     position: relative;
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    :global(.audio-player) {
+      margin: 0
+    }
   }
 
   .resize-grab {

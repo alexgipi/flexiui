@@ -498,7 +498,7 @@ style={styleVars}
 
   .audio-player {
     --player-primary-color: #5e17eb;
-    --player-bg-color: #8c8c8c45;
+    --player-bg-color: #8989891f;
     --player-border-radius: 18px;
     --player-seekbar-bg: #8d8d8d3a;
     --player-seekbar-height: 6px;
@@ -516,6 +516,7 @@ style={styleVars}
     width: 100%;
     box-sizing: border-box;
     color: var(--player-text-color);
+    margin-block: 1em;
 
     &.playing {
       .audio-player-wave {
