@@ -15,7 +15,6 @@ import { MediaGridItemExtension } from "./extensions/MediaGrid/MediaGridItem";
 import { CustomTableCell } from "./extensions/Table/CustomTableCell";
 import { CustomTableHeader } from "./extensions/Table/CustomTableHeader";
 import { EnhancedLink } from "./extensions/EnhancedLink";
-import { Placeholder } from "./extensions/Placeholder";
 import { Heading } from "@tiptap/extension-heading";
 
   const DocHeading = Heading.extend({
