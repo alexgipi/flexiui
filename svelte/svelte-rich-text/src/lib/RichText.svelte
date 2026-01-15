@@ -3,6 +3,7 @@
     Mathematics,
     migrateMathStrings,
   } from "@tiptap/extension-mathematics";
+
   import { HEADINGS, rgbToHex } from "./utils";
   import "./styles.css";
   import "katex/dist/katex.min.css";
@@ -97,90 +98,9 @@
     ...(config ?? {}),
   });
 
-  // const extensions = [
-  //   // Color.configure({ types: [TextStyle.name, ListItem.name] }),
-  //   Highlight.configure({ multicolor: true }),
-  //   TextStyleKit,
-  //   StarterKit.configure({
-  //     // Disable an included extension
-  //     trailingNode: false,
-  //     link: false,
-  //     bulletList: false,
-  //     listItem: false,
-  //     orderedList: false,
-  //     listKeymap: false,
-  //   }),
-  //   EnhancedLink,
-  //   Audio.configure({
-  //     HTMLAttributes: { class: "audio-player" },
-  //   }),
-  //   Image.configure({
-  //     inline: true,
-  //   }),
-  //   ListKit,
-  //   TextAlign.configure({
-  //     types: [
-  //       "heading",
-  //       "paragraph",
-  //       "bulletList",
-  //       "taskList",
-  //       "listItem",
-  //       "blockquote",
-  //     ],
-  //   }),
-  //   Mathematics.configure({
-  //     inlineOptions: {
-  //       onClick: (node, pos) => {
-  //         // you can do anything on click, e.g. open a dialog to edit the math node
-  //         // or just a prompt to edit the LaTeX code for a quick prototype
-  //         const katex = prompt(
-  //           "Update math LaTeX expression:",
-  //           node.attrs.latex
-  //         );
-  //         if (katex) {
-  //           $editor
-  //             .chain()
-  //             .setNodeSelection(pos)
-  //             .updateInlineMath({ latex: katex })
-  //             .focus()
-  //             .run();
-  //         }
-  //       },
-  //     },
-  //     blockOptions: {
-  //       // optional options for the block math node
-  //     },
-  //     katexOptions: {
-  //       displayMode: false,
-  //       throwOnError: false,
-  //       macros: {
-  //         "\\RR": "\\mathbb{R}",
-  //         "\\ZZ": "\\mathbb{Z}",
-  //       },
-  //     },
-  //   }),
-  //   NodeLineHeight,
-  //   MediaGridExtension,
-  //   MediaGridItemExtension,
-  //   TableKit.configure({
-  //     table: {
-  //       HTMLAttributes: { class: "fl-table-editable" },
-  //       resizable: true,
-  //     },
-  //   }),
-  //   CustomTableCell.configure({
-  //     HTMLAttributes: { class: "fl-cell-editable" },
-  //   }),
-  //   CustomTableHeader.configure({
-  //     HTMLAttributes: { class: "fl-cell-editable" },
-  //   }),
-  //   ...customExtensions,
-  // ];
-  
   const extensions = getRichTextExtensions({
     editable: true, 
     customExtensions: [
-      ...customExtensions, 
       Mathematics.configure({
         inlineOptions: {
           onClick: (node, pos) => {
@@ -211,7 +131,8 @@
             "\\ZZ": "\\mathbb{Z}",
           },
         },
-      })
+      }),
+      ...customExtensions, 
     ]
   });
 
@@ -674,16 +595,22 @@
         <button
           type="button"
           onclick={(e) => toogleDropdown(e.currentTarget, "headings-dropdown")}
-          class:is-active={$editor.isActive("heading")}
+          class:is-active={$editor.isActive("heading") || $editor.isActive("h1")}
           aria-label="Heading"
         >
-          {#each HEADINGS as heading}
-            {#if $editor.isActive("heading", { level: Number(heading.level) })}
-              {@html heading.icon}
-            {/if}
-          {/each}
 
-          {#if !$editor.isActive("heading")}
+
+          {#if $editor.isActive("heading")}
+              {#each HEADINGS as heading}
+                {#if $editor.isActive("heading", { level: Number(heading.level) })}
+                  {@html heading.icon}
+                {/if}
+              {/each}
+          {:else if $editor.isActive("h1")}
+             {@html HEADINGS[0].icon}
+          {/if}
+
+          {#if !$editor.isActive("heading") && !$editor.isActive("h1")}
             <svg
               width="24"
               height="24"
@@ -1365,7 +1292,7 @@
           aria-label="Audio"
           class:is-active={$editor.isActive("audio")}
         >
-          Audio
+          <svg style="transform: scale(1.1);" fill="#e8eaed" width="24px" viewBox="0 -960 960 960" height="24px" xmlns="http://www.w3.org/2000/svg"><path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z"></path></svg>
         </button>
       </div>
 
@@ -1542,8 +1469,9 @@
         type="button"
         onclick={() =>
           $editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        class={$editor.isActive("heading", { level: 1 }) ? "is-active" : ""}
+        class={($editor.isActive("heading", { level: 1 }) || $editor.isActive("h1")) ? "is-active" : ""}
         aria-label="H1"
+        disabled={!$editor.isActive("h1")}
       >
         <svg
           width="24"
@@ -1563,6 +1491,7 @@
           $editor.chain().focus().toggleHeading({ level: 2 }).run()}
         class={$editor.isActive("heading", { level: 2 }) ? "is-active" : ""}
         aria-label="H2"
+        disabled={$editor.isActive("h1")}
       >
         <svg
           width="16"
@@ -1582,6 +1511,7 @@
           $editor.chain().focus().toggleHeading({ level: 3 }).run()}
         class={$editor.isActive("heading", { level: 3 }) ? "is-active" : ""}
         aria-label="H3"
+        disabled={$editor.isActive("h1")}
       >
         <svg
           width="16"
@@ -1601,6 +1531,7 @@
           $editor.chain().focus().toggleHeading({ level: 4 }).run()}
         class={$editor.isActive("heading", { level: 4 }) ? "is-active" : ""}
         aria-label="H4"
+        disabled={$editor.isActive("h1")}
       >
         <svg
           width="16"
@@ -1620,6 +1551,7 @@
           $editor.chain().focus().toggleHeading({ level: 5 }).run()}
         class={$editor.isActive("heading", { level: 5 }) ? "is-active" : ""}
         aria-label="H5"
+        disabled={$editor.isActive("h1")}
       >
         <svg
           width="16"
@@ -1639,6 +1571,7 @@
           $editor.chain().focus().toggleHeading({ level: 6 }).run()}
         class={$editor.isActive("heading", { level: 6 }) ? "is-active" : ""}
         aria-label="H6"
+        disabled={$editor.isActive("h1")}
       >
         <svg
           width="16"
