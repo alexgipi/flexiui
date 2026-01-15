@@ -15,6 +15,14 @@ import { MediaGridItemExtension } from "./extensions/MediaGrid/MediaGridItem";
 import { CustomTableCell } from "./extensions/Table/CustomTableCell";
 import { CustomTableHeader } from "./extensions/Table/CustomTableHeader";
 import { EnhancedLink } from "./extensions/EnhancedLink";
+import { Placeholder } from "./extensions/Placeholder";
+import { Heading } from "@tiptap/extension-heading";
+
+  const DocHeading = Heading.extend({
+    name: "h1",
+    group: "none", // <- prevent it from being considered as a `block` in the body of the document
+  }).configure({ levels: [1] });
+
 
 export function getRichTextExtensions(options?: {
   editable?: boolean;
@@ -23,6 +31,8 @@ export function getRichTextExtensions(options?: {
   const { editable = false, customExtensions = [] } = options ?? {};
 
   return [
+    DocHeading,
+    Heading.configure({ levels: [2, 3, 4, 5, 6] }),
     Highlight.configure({ multicolor: true }),
     TextStyleKit,
     StarterKit.configure({
@@ -41,6 +51,7 @@ export function getRichTextExtensions(options?: {
     ListKit,
     TextAlign.configure({
       types: [
+        "h1",
         "heading",
         "paragraph",
         "bulletList",
