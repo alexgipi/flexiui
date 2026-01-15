@@ -47,14 +47,13 @@
     }
 
     editor.on("update", ({ transaction }) => {
-      console.log({ NODETYPE: node.type.name });
-      if (node.type.name !== "tableCell" && node.type.name !== "tableHeader")
+      if (node?.type?.name !== "tableCell" && node?.type?.name !== "tableHeader")
         return;
 
       const nodeEl = editor.view.nodeDOM(getPos());
-      console.log(nodeEl);
+      // console.log(nodeEl);
 
-      console.log("update", transaction);
+      // console.log("update", transaction);
 
       const attrs = node.attrs;
       const { colspan, rowspan, colwidth } = attrs;
@@ -510,7 +509,7 @@
     justify-content: center;
     padding: 0;
     color: #ffffff;
-    background: #3c3c3c;
+    background: #8989891f;
     border: none;
     outline: 1px solid #6e6e6e;
     z-index: 5;
@@ -539,7 +538,7 @@
     letter-spacing: 2px;
     padding: 0;
     color: #ffffff;
-    background: #3c3c3c;
+    background: #8989891f;
     border: none;
     outline: 1px solid #6e6e6e;
     z-index: 5;
