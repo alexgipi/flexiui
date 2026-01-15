@@ -1,9 +1,11 @@
 <script lang="ts">
   import { SpecialBox } from "./lib/extensions/SpecialBox";
   import { PrismCodeEditor } from "@flexiui/svelte-prism-code-editor";
+  import { Document } from "@tiptap/extension-document";
   import RichText from "./lib/RichText.svelte";
   import packageJson from "../package.json";
   import { renderHTMLFromJSON } from "./lib/renderRichText";
+  import { AudioExt, PlaceholderExt } from "./lib/index";
 
   let name = packageJson.name;
   let description = packageJson.description;
@@ -14,540 +16,566 @@
   let html = $state(null);
   let json = $state(null);
 
-  let customExtensions = [SpecialBox];
+  const CustomDocument = Document.extend({
+    content: "h1 block*",
+  });
+
+  let customExtensions = [
+    CustomDocument,
+    SpecialBox,
+    PlaceholderExt.configure({
+      placeholder: ({ node }) => {
+        if (node.type.name === "h1") {
+          return "Introduce un título";
+        }
+
+        return "Escribe algo...";
+      },
+      showOnlyCurrent: ({ node }) => {
+        if (node.type.name === "h1") {
+          return false;
+        }
+
+        return true;
+      },
+    }),
+    AudioExt.configure({
+      HTMLAttributes: { class: "audio-player" },
+      bgColor: "#111827",
+      accentColor: "#22c55e",
+      textColor: "#e5e7eb",
+      borderRadius: "12px",
+    }),
+  ];
 
   let content = {
-    "type": "doc",
-    "content": [
+    type: "doc",
+    content: [
       {
-        "type": "paragraph",
-        "attrs": {
-          "textAlign": null,
-          "lineHeight": null
+        type: "h1",
+        attrs: {
+          textAlign: null,
+          lineHeight: null,
         },
-        "content": [
+        content: [
           {
-            "type": "text",
-            "text": "This is a simple and flexible \"Quote\" component designed to highlight phrases or important content. It allows easy customization of styles, icons, colors, and more. Additionally, it includes an editable mode for use in forms, block editors, etc."
-          }
-        ]
+            type: "text",
+            text: 'This is a simple and flexible "Quote" component designed to highlight phrases or important content. It allows easy customization of styles, icons, colors, and more. Additionally, it includes an editable mode for use in forms, block editors, etc.',
+          },
+        ],
       },
       {
-        "type": "paragraph",
-        "attrs": {
-          "textAlign": null,
-          "lineHeight": null
+        type: "paragraph",
+        attrs: {
+          textAlign: null,
+          lineHeight: null,
         },
-        "content": [
+        content: [
           {
-            "type": "text",
-            "text": "This is a old "
+            type: "text",
+            text: 'This is a simple and flexible "Quote" component designed to highlight phrases or important content. It allows easy customization of styles, icons, colors, and more. Additionally, it includes an editable mode for use in forms, block editors, etc.',
           },
-          {
-            "type": "inlineMath",
-            "attrs": {
-              "latex": "\\LaTeX"
-            }
-          },
-          {
-            "type": "text",
-            "text": " calculation string with "
-          },
-          {
-            "type": "inlineMath",
-            "attrs": {
-              "latex": "3*5=15"
-            }
-          },
-          {
-            "type": "text",
-            "text": " calculations."
-          }
-        ]
+        ],
       },
       {
-        "type": "table",
-        "content": [
-          {
-            "type": "tableRow",
-            "content": [
-              {
-                "type": "tableHeader",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    121
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    },
-                    "content": [
-                      {
-                        "type": "text",
-                        "text": "Header 1"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "tableHeader",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    323
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    },
-                    "content": [
-                      {
-                        "type": "text",
-                        "text": "Header 2"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "tableHeader",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    375
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    },
-                    "content": [
-                      {
-                        "type": "text",
-                        "text": "Header 3"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "tableHeader",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": null
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    },
-                    "content": [
-                      {
-                        "type": "text",
-                        "text": "Header 4"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "tableRow",
-            "content": [
-              {
-                "type": "tableCell",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    121
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    },
-                    "content": [
-                      {
-                        "type": "text",
-                        "text": "Celda 1"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "tableCell",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    323
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    },
-                    "content": [
-                      {
-                        "type": "text",
-                        "text": "Celda 2"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "tableCell",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    375
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    },
-                    "content": [
-                      {
-                        "type": "text",
-                        "text": "Celda 3"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "type": "tableCell",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": null
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    },
-                    "content": [
-                      {
-                        "type": "text",
-                        "text": "Celda 4"
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "tableRow",
-            "content": [
-              {
-                "type": "tableCell",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    121
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    }
-                  }
-                ]
-              },
-              {
-                "type": "tableCell",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    323
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    }
-                  }
-                ]
-              },
-              {
-                "type": "tableCell",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": [
-                    375
-                  ]
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    }
-                  }
-                ]
-              },
-              {
-                "type": "tableCell",
-                "attrs": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "colwidth": null
-                },
-                "content": [
-                  {
-                    "type": "paragraph",
-                    "attrs": {
-                      "textAlign": null,
-                      "lineHeight": null
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "MediaGridComponent",
-        "attrs": {
-          "class": "fl-media-grid",
-          "cols": 3,
-          "gap": "1rem",
-          "showIndicator": false,
-          "indicatorType": "numeric"
+        type: "paragraph",
+        attrs: {
+          textAlign: null,
+          lineHeight: null,
         },
-        "content": [
+        content: [
           {
-            "type": "gridItem",
-            "content": [
-              {
-                "type": "image",
-                "attrs": {
-                  "src": "https://img2.rtve.es/n/16848600?w=1600",
-                  "alt": null,
-                  "title": null,
-                  "width": null,
-                  "height": null
-                }
-              }
-            ]
+            type: "text",
+            text: "This is a old ",
           },
           {
-            "type": "gridItem",
-            "content": [
-              {
-                "type": "image",
-                "attrs": {
-                  "src": "https://img2.rtve.es/n/16848600?w=1600",
-                  "alt": null,
-                  "title": null,
-                  "width": null,
-                  "height": null
-                }
-              }
-            ]
-          }
-        ]
+            type: "inlineMath",
+            attrs: {
+              latex: "\\LaTeX",
+            },
+          },
+          {
+            type: "text",
+            text: " calculation string with ",
+          },
+          {
+            type: "inlineMath",
+            attrs: {
+              latex: "3*5=15",
+            },
+          },
+          {
+            type: "text",
+            text: " calculations.",
+          },
+        ],
       },
       {
-        "type": "audio",
-        "attrs": {
-          "src": "https://www.gencat.cat/llengua/dictats/arxius/B1bv06parella_lent.mp3",
-          "controls": true,
-          "autoplay": false,
-          "loop": false,
-          "id": "fl-audio-2",
-          "bgColor": "#8c8c8c45",
-          "textColor": "currentColor",
-          "borderRadius": "18px",
-          "accentColor": "#5e17eb",
-          "accentColorPaused": "#fff",
-          "playBtnBgColor": "#8d8d8d26",
-          "playBtnTextColor": "currentColor",
-          "colorPlay": "#5d5d5dc9",
-          "maxWidth": "100%"
-        }
-      },
-      {
-        "type": "paragraph",
-        "attrs": {
-          "textAlign": null,
-          "lineHeight": "2.85"
-        },
-        "content": [
+        type: "table",
+        content: [
           {
-            "type": "text",
-            "text": "Did you know that "
-          },
-          {
-            "type": "inlineMath",
-            "attrs": {
-              "latex": "3 * 3 = 9"
-            }
-          },
-          {
-            "type": "text",
-            "text": "? Isn't that crazy? Also Pythagoras' theorem is "
-          },
-          {
-            "type": "inlineMath",
-            "attrs": {
-              "latex": "a^2 + b^2 = c^2"
-            }
-          },
-          {
-            "type": "text",
-            "text": "."
-          },
-          {
-            "type": "hardBreak"
-          },
-          {
-            "type": "text",
-            "text": "Also the square root of 2 is "
-          },
-          {
-            "type": "inlineMath",
-            "attrs": {
-              "latex": "\\sqrt{2}"
-            }
-          },
-          {
-            "type": "text",
-            "text": ". If you want to know more about "
-          },
-          {
-            "type": "inlineMath",
-            "attrs": {
-              "latex": "\\LaTeX"
-            }
-          },
-          {
-            "type": "text",
-            "text": " visit "
-          },
-          {
-            "type": "text",
-            "marks": [
+            type: "tableRow",
+            content: [
               {
-                "type": "link",
-                "attrs": {
-                  "href": "https://katex.org/docs/supported.html",
-                  "target": "_blank",
-                  "rel": "noopener noreferrer nofollow",
-                  "class": null
-                }
-              }
+                type: "tableHeader",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [121],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                    content: [
+                      {
+                        type: "text",
+                        text: "Header 1",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "tableHeader",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [323],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                    content: [
+                      {
+                        type: "text",
+                        text: "Header 2",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "tableHeader",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [375],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                    content: [
+                      {
+                        type: "text",
+                        text: "Header 3",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "tableHeader",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: null,
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                    content: [
+                      {
+                        type: "text",
+                        text: "Header 4",
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
-            "text": "katex.org"
           },
           {
-            "type": "text",
-            "text": "."
-          }
-        ]
-      },
-      {
-        "type": "audio",
-        "attrs": {
-          "src": "https://www.gencat.cat/llengua/dictats/arxius/B1bv06parella_lent.mp3",
-          "controls": true,
-          "autoplay": false,
-          "loop": false,
-          "id": "fl-audio-1",
-          "bgColor": "#8c8c8c45",
-          "textColor": "currentColor",
-          "borderRadius": "18px",
-          "accentColor": "#5e17eb",
-          "accentColorPaused": "#fff",
-          "playBtnBgColor": "#8d8d8d26",
-          "playBtnTextColor": "currentColor",
-          "colorPlay": "#5d5d5dc9",
-          "maxWidth": "100%"
-        }
-      },
-      {
-        "type": "heading",
-        "attrs": {
-          "textAlign": null,
-          "lineHeight": null,
-          "level": 1
-        },
-        "content": [
+            type: "tableRow",
+            content: [
+              {
+                type: "tableCell",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [121],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                    content: [
+                      {
+                        type: "text",
+                        text: "Celda 1",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "tableCell",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [323],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                    content: [
+                      {
+                        type: "text",
+                        text: "Celda 2",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "tableCell",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [375],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                    content: [
+                      {
+                        type: "text",
+                        text: "Celda 3",
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "tableCell",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: null,
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                    content: [
+                      {
+                        type: "text",
+                        text: "Celda 4",
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
           {
-            "type": "inlineMath",
-            "attrs": {
-              "latex": "\\frac{d}{dx} \\left( \\sin x \\cdot e^x \\right) = \\cos x \\cdot e^x + \\sin x \\cdot e^x"
-            }
-          }
-        ]
-      }
-    ]
-  }
+            type: "tableRow",
+            content: [
+              {
+                type: "tableCell",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [121],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                  },
+                ],
+              },
+              {
+                type: "tableCell",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [323],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                  },
+                ],
+              },
+              {
+                type: "tableCell",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: [375],
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                  },
+                ],
+              },
+              {
+                type: "tableCell",
+                attrs: {
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: null,
+                },
+                content: [
+                  {
+                    type: "paragraph",
+                    attrs: {
+                      textAlign: null,
+                      lineHeight: null,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "MediaGridComponent",
+        attrs: {
+          class: "fl-media-grid",
+          cols: 3,
+          gap: "1rem",
+          showIndicator: false,
+          indicatorType: "numeric",
+        },
+        content: [
+          {
+            type: "gridItem",
+            content: [
+              {
+                type: "image",
+                attrs: {
+                  src: "https://img2.rtve.es/n/16848600?w=1600",
+                  alt: null,
+                  title: null,
+                  width: null,
+                  height: null,
+                },
+              },
+            ],
+          },
+          {
+            type: "gridItem",
+            content: [
+              {
+                type: "image",
+                attrs: {
+                  src: "https://img2.rtve.es/n/16848600?w=1600",
+                  alt: null,
+                  title: null,
+                  width: null,
+                  height: null,
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: "audio",
+        attrs: {
+          src: "https://www.gencat.cat/llengua/dictats/arxius/B1bv06parella_lent.mp3",
+          controls: true,
+          autoplay: false,
+          loop: false,
+          id: "fl-audio-2",
+          bgColor: "#8989891f",
+          textColor: "currentColor",
+          borderRadius: "18px",
+          accentColor: "#5e17eb",
+          accentColorPaused: "#fff",
+          playBtnBgColor: "#8d8d8d26",
+          playBtnTextColor: "currentColor",
+          colorPlay: "#5d5d5dc9",
+          maxWidth: "100%",
+        },
+      },
+      {
+        type: "paragraph",
+        attrs: {
+          textAlign: null,
+          lineHeight: "2.85",
+        },
+        content: [
+          {
+            type: "text",
+            text: "Did you know that ",
+          },
+          {
+            type: "inlineMath",
+            attrs: {
+              latex: "3 * 3 = 9",
+            },
+          },
+          {
+            type: "text",
+            text: "? Isn't that crazy? Also Pythagoras' theorem is ",
+          },
+          {
+            type: "inlineMath",
+            attrs: {
+              latex: "a^2 + b^2 = c^2",
+            },
+          },
+          {
+            type: "text",
+            text: ".",
+          },
+          {
+            type: "hardBreak",
+          },
+          {
+            type: "text",
+            text: "Also the square root of 2 is ",
+          },
+          {
+            type: "inlineMath",
+            attrs: {
+              latex: "\\sqrt{2}",
+            },
+          },
+          {
+            type: "text",
+            text: ". If you want to know more about ",
+          },
+          {
+            type: "inlineMath",
+            attrs: {
+              latex: "\\LaTeX",
+            },
+          },
+          {
+            type: "text",
+            text: " visit ",
+          },
+          {
+            type: "text",
+            marks: [
+              {
+                type: "link",
+                attrs: {
+                  href: "https://katex.org/docs/supported.html",
+                  target: "_blank",
+                  rel: "noopener noreferrer nofollow",
+                  class: null,
+                },
+              },
+            ],
+            text: "katex.org",
+          },
+          {
+            type: "text",
+            text: ".",
+          },
+        ],
+      },
+      {
+        type: "audio",
+        attrs: {
+          src: "https://www.gencat.cat/llengua/dictats/arxius/B1bv06parella_lent.mp3",
+          controls: true,
+          autoplay: false,
+          loop: false,
+          id: "fl-audio-1",
+          bgColor: "#8989891f",
+          textColor: "currentColor",
+          borderRadius: "18px",
+          accentColor: "#5e17eb",
+          accentColorPaused: "#fff",
+          playBtnBgColor: "#8d8d8d26",
+          playBtnTextColor: "currentColor",
+          colorPlay: "#5d5d5dc9",
+          maxWidth: "100%",
+        },
+      },
+      {
+        type: "heading",
+        attrs: {
+          textAlign: null,
+          lineHeight: null,
+          level: 1,
+        },
+        content: [
+          {
+            type: "inlineMath",
+            attrs: {
+              latex:
+                "\\frac{d}{dx} \\left( \\sin x \\cdot e^x \\right) = \\cos x \\cdot e^x + \\sin x \\cdot e^x",
+            },
+          },
+        ],
+      },
+    ],
+  };
 
   const customNodeMapping = {
     audio({ node, children }) {
       const {
-          id,
-          src,
-          controls,
-          bgColor,
-          textColor,
-          borderRadius,
-          accentColor,
-          accentColorPaused,
-          playBtnBgColor,
-          playBtnTextColor,
-          maxWidth,
-          colorPlay
+        id,
+        src,
+        controls,
+        bgColor,
+        textColor,
+        borderRadius,
+        accentColor,
+        accentColorPaused,
+        playBtnBgColor,
+        playBtnTextColor,
+        maxWidth,
+        colorPlay,
       } = node.attrs;
 
       return `
@@ -567,9 +595,9 @@
       colorPlay="${colorPlay}"
       >
       </fl-audio-player>
-      `
+      `;
     },
-  }
+  };
 
   // Editor events
   function handleEditorBeforeCreate(e: any) {
@@ -579,8 +607,8 @@
 
   function handleEditorCreate(e: any) {
     editor = e.editor;
-    json = content
-    html = renderHTMLFromJSON({json, customExtensions, customNodeMapping});
+    json = content;
+    html = renderHTMLFromJSON({ json, customExtensions, customNodeMapping });
   }
 
   function handleEditorDestroy(e: any) {
@@ -591,7 +619,7 @@
   function handleEditorUpdate(e: any) {
     const { editor, html: editorHtml, json: editorJson } = e;
     json = editorJson;
-    html = renderHTMLFromJSON({json, customExtensions, customNodeMapping});
+    html = renderHTMLFromJSON({ json, customExtensions, customNodeMapping });
 
     codeEditorJSON?.setOptions({ value: JSON.stringify(json, null, 2) });
     codeEditorHTML?.setOptions({ value: editorHtml });
@@ -649,11 +677,10 @@
   <p class="package-desc">{description}</p>
 
   <div class="card">
-    
     <RichText
       config={{
         // docBg: '#202020',
-        editorBgColor: '#242424',
+        editorBgColor: "#242424",
         toolbarStickyPosition: 0,
         toolbarZIndex: 10,
         // docMarginBlock: "0"
@@ -681,7 +708,7 @@
     <RichText
       config={{
         // docBg: '#202020',
-        editorBgColor: '#242424',
+        editorBgColor: "#242424",
         toolbarStickyPosition: 0,
         toolbarZIndex: 10,
         // docMarginBlock: "0"
@@ -712,24 +739,24 @@
     {@html html}
 
     <h2>JSON output</h2>
-    <PrismCodeEditor 
+    <PrismCodeEditor
       bind:editor={codeEditorJSON}
       language="javascript"
       readOnly={true}
-      id="example-code-editor-json" 
+      id="example-code-editor-json"
       value={JSON.stringify(json, null, 2)}
-      className='no-drag'
-      /> 
+      className="no-drag"
+    />
 
     <h2>HTML output</h2>
-    <PrismCodeEditor 
+    <PrismCodeEditor
       bind:editor={codeEditorHTML}
       language="html"
       readOnly={true}
-      id="example-code-editor-html" 
+      id="example-code-editor-html"
       bind:value={html}
-      className='no-drag'
-      />
+      className="no-drag"
+    />
   </div>
 
   <div class="tecnology-tags">
@@ -920,11 +947,11 @@
     padding-left: 1rem;
   }
 
-  :global(pre){
+  :global(pre) {
     background: #ffffff0f;
     border-radius: 0.5rem;
     color: var(--white);
-    font-family: 'JetBrainsMono', monospace;
+    font-family: "JetBrainsMono", monospace;
     margin: 1.5rem 0;
     padding: 0.75rem 1rem;
   }
