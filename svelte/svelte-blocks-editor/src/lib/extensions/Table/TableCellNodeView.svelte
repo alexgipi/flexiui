@@ -510,7 +510,7 @@
     justify-content: center;
     padding: 0;
     color: #ffffff;
-    background: #3c3c3c;
+    background: #8989891f;
     border: none;
     outline: 1px solid #6e6e6e;
     z-index: 5;
@@ -539,7 +539,7 @@
     letter-spacing: 2px;
     padding: 0;
     color: #ffffff;
-    background: #3c3c3c;
+    background: #8989891f;
     border: none;
     outline: 1px solid #6e6e6e;
     z-index: 5;
