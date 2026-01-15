@@ -1,11 +1,28 @@
-import { Node, mergeAttributes, nodeInputRule } from '@tiptap/core'
-import { SvelteNodeViewRenderer } from 'svelte-tiptap';
+import {
+  Node,
+  mergeAttributes,
+  nodeInputRule,
+} from '@tiptap/core'
+import { Plugin } from '@tiptap/pm/state'
+import { SvelteNodeViewRenderer } from 'svelte-tiptap'
 import AudioPlayer from './AudioPlayerWrapper.svelte'
 
 export interface AudioOptions {
   inline: boolean
   allowBase64: boolean
   HTMLAttributes: Record<string, any>
+
+  // 🎨 defaults configurables
+  bgColor: string
+  textColor: string
+  borderRadius: string
+  accentColor: string
+  accentColorPaused: string
+  seekBarBgColor: string
+  playBtnBgColor: string
+  playBtnTextColor: string
+  colorPlay: string
+  maxWidth: string
 }
 
 export interface SetAudioOptions {
@@ -13,26 +30,32 @@ export interface SetAudioOptions {
   controls?: boolean
   autoplay?: boolean
   loop?: boolean
+
+  bgColor?: string
+  textColor?: string
+  borderRadius?: string
+  accentColor?: string
+  accentColorPaused?: string
+  seekBarBgColor?: string
+  playBtnBgColor?: string
+  playBtnTextColor?: string
   colorPlay?: string
-  colorBar?: string
   maxWidth?: string
 }
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     audio: {
-      /**
-       * Añade un elemento de audio personalizado
-       * @example
-       * editor.commands.setAudio({ src: '/audio.mp3', controls: true })
-       */
       setAudio: (options: SetAudioOptions) => ReturnType
     }
   }
 }
 
-export const inputRegex =
-  /(?:^|\s)(!\[(.+|:?)]\((\S+)(?:(?:\s+)["'](\S+)["'])?\))$/
+/**
+ * Solo acepta: ![audio](url)
+ */
+export const audioInputRegex =
+  /(?:^|\s)(!\[audio\]\((\S+?)\))$/
 
 export const Audio = Node.create<AudioOptions>({
   name: 'audio',
@@ -42,6 +65,18 @@ export const Audio = Node.create<AudioOptions>({
       inline: false,
       allowBase64: false,
       HTMLAttributes: {},
+
+      // 🎨 Defaults configurables para configure()
+      bgColor: '#8989891f',
+      textColor: 'currentColor',
+      borderRadius: '18px',
+      accentColor: '#5e17eb',
+      accentColorPaused: '#fff',
+      seekBarBgColor: '#8d8d8d3a',
+      playBtnBgColor: '#8d8d8d26',
+      playBtnTextColor: 'currentColor',
+      colorPlay: '#5d5d5dc9',
+      maxWidth: '100%',
     }
   },
 
@@ -58,110 +93,70 @@ export const Audio = Node.create<AudioOptions>({
 
   addAttributes() {
     return {
-      src: {
-        default: null,
-      },
-      controls: {
-        default: true,
-        parseHTML: el => el.hasAttribute('controls'),
-        renderHTML: attrs => (attrs.controls ? { controls: true } : {}),
-      },
-      autoplay: {
-        default: false,
-        parseHTML: el => el.hasAttribute('autoplay'),
-        renderHTML: attrs => (attrs.autoplay ? { autoplay: true } : {}),
-      },
-      loop: {
-        default: false,
-        parseHTML: el => el.hasAttribute('loop'),
-        renderHTML: attrs => (attrs.loop ? { loop: true } : {}),
-      },
+      src: { default: null },
+      controls: { default: true },
+      autoplay: { default: false },
+      loop: { default: false },
+
       id: {
-        default: `fl-audio-player-${Math.random().toString(36).substring(2, 15)}`,
-        parseHTML: el => el.getAttribute('data-id') || null,
-        renderHTML: attrs => ({
-          'data-id': attrs.id,
-        }),
+        default: `fl-audio-player-${Math.random().toString(36).slice(2)}`,
+        renderHTML: attrs => ({ 'data-id': attrs.id }),
       },
+
       bgColor: {
-        default: '#8c8c8c45',
-        parseHTML: el => el.getAttribute('data-bg-color'),
-        renderHTML: attrs => ({
-          'data-bg-color': attrs.bgColor,
-        }),
+        default: this.options.bgColor,
+        renderHTML: a => ({ 'data-bg-color': a.bgColor }),
       },
+
       textColor: {
-        default: 'currentColor',
-        parseHTML: el => el.getAttribute('data-text-color'),
-        renderHTML: attrs => ({
-          'data-text-color': attrs.textColor,
-        }),
+        default: this.options.textColor,
+        renderHTML: a => ({ 'data-text-color': a.textColor }),
       },
+
       borderRadius: {
-        default: '18px',
-        parseHTML: el => el.getAttribute('data-border-radius'),
-        renderHTML: attrs => ({
-          'data-border-radius': attrs.borderRadius,
-        }),
+        default: this.options.borderRadius,
+        renderHTML: a => ({ 'data-border-radius': a.borderRadius }),
       },
+
       accentColor: {
-        default: '#5e17eb',
-        parseHTML: el => el.getAttribute('data-accent-color'),
-        renderHTML: attrs => ({
-          'data-accent-color': attrs.accentColor,
-        }),
+        default: this.options.accentColor,
+        renderHTML: a => ({ 'data-accent-color': a.accentColor }),
       },
-      accentColorPaused:{
-        default: '#fff',
-        parseHTML: el => el.getAttribute('data-accent-color-paused'),
-        renderHTML: attrs => ({
-          'data-accent-color-paused': attrs.accentColorPaused,
-        }),
+
+      accentColorPaused: {
+        default: this.options.accentColorPaused,
+        renderHTML: a => ({ 'data-accent-color-paused': a.accentColorPaused }),
       },
+
       seekBarBgColor: {
-        default: '#8d8d8d3a',
-        parseHTML: el => el.getAttribute('data-seek-bar-bg-color'),
-        renderHTML: attrs => ({
-          'data-seek-bar-bg-color': attrs.seekBarBgColor,
-        }),
+        default: this.options.seekBarBgColor,
+        renderHTML: a => ({ 'data-seek-bar-bg-color': a.seekBarBgColor }),
       },
+
       playBtnBgColor: {
-        default: '#8d8d8d26',
-        parseHTML: el => el.getAttribute('data-play-btn-bg-color'),
-        renderHTML: attrs => ({
-          'data-play-btn-bg-color': attrs.playBtnBgColor,
-        }),
+        default: this.options.playBtnBgColor,
+        renderHTML: a => ({ 'data-play-btn-bg-color': a.playBtnBgColor }),
       },
+
       playBtnTextColor: {
-        default: 'currentColor',
-        parseHTML: el => el.getAttribute('data-play-btn-text-color'),
-        renderHTML: attrs => ({
-          'data-play-btn-text-color': attrs.playBtnTextColor,
-        }),
+        default: this.options.playBtnTextColor,
+        renderHTML: a => ({ 'data-play-btn-text-color': a.playBtnTextColor }),
       },
+
       colorPlay: {
-        default: '#5d5d5dc9',
-        parseHTML: el => el.getAttribute('data-color-play'),
-        renderHTML: attrs => ({
-          'data-color-play': attrs.colorPlay,
-        }),
+        default: this.options.colorPlay,
+        renderHTML: a => ({ 'data-color-play': a.colorPlay }),
       },
+
       maxWidth: {
-        default: '100%',
-        parseHTML: el => el.getAttribute('data-max-width'),
-        renderHTML: attrs => ({
-          'data-max-width': attrs.maxWidth,
-        }),
+        default: this.options.maxWidth,
+        renderHTML: a => ({ 'data-max-width': a.maxWidth }),
       },
     }
   },
 
   parseHTML() {
-    return [
-      {
-        tag: 'fl-audio-player',
-      },
-    ]
+    return [{ tag: 'fl-audio-player' }]
   },
 
   renderHTML({ HTMLAttributes }) {
@@ -179,23 +174,61 @@ export const Audio = Node.create<AudioOptions>({
     return {
       setAudio:
         options =>
-          ({ commands }) => {
-            return commands.insertContent({
-              type: this.name,
-              attrs: options,
-            })
-          },
+        ({ commands }) =>
+          commands.insertContent({
+            type: this.name,
+            attrs: options,
+          }),
     }
   },
 
+  /**
+   * ✍️ Al escribir: ![audio](url)
+   */
   addInputRules() {
     return [
       nodeInputRule({
-        find: inputRegex,
+        find: audioInputRegex,
         type: this.type,
         getAttributes: match => {
-          const [, , , src] = match
+          const [, , src] = match
           return { src, controls: true }
+        },
+      }),
+    ]
+  },
+
+  /**
+   * 📋 Al pegar: ![audio](url)
+   */
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        props: {
+          handlePaste: (view, event) => {
+            const text = event.clipboardData?.getData('text/plain')
+            if (!text) return false
+
+            const match = text.match(/!\[audio\]\((\S+?)\)/)
+            if (!match) return false
+
+            const [, src] = match
+            const { state, dispatch } = view
+            const { from, to } = state.selection
+
+            dispatch(
+              state.tr.replaceRangeWith(
+                from,
+                to,
+                this.type.create({
+                  src,
+                  controls: true,
+                }),
+              ),
+            )
+
+            return true
+          },
         },
       }),
     ]
