@@ -229,7 +229,7 @@
       content,
       editorProps: {
         attributes: {
-          class: "fl-rich-text-content-doc",
+          class: "fl-rich-text-doc",
         },
         handleKeyDown: (view, event) => {
           if (event.key === "Enter" && !event.ctrlKey) {
