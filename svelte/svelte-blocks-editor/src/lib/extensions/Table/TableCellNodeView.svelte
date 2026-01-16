@@ -509,11 +509,12 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    color: #ffffff;
+    color: currentColor;
     background: #8989891f;
     border: none;
     outline: 1px solid #6e6e6e;
     z-index: 5;
+    cursor: pointer;
 
     &:after {
       content: "";
@@ -538,11 +539,12 @@
     font-size: 9px;
     letter-spacing: 2px;
     padding: 0;
-    color: #ffffff;
+    color: currentColor;
     background: #8989891f;
     border: none;
     outline: 1px solid #6e6e6e;
     z-index: 5;
+    cursor: pointer;
 
     &:after {
       content: "";
