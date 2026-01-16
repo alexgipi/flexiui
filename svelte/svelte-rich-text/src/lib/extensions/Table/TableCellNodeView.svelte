@@ -513,6 +513,7 @@
     border: none;
     outline: 1px solid #6e6e6e;
     z-index: 5;
+    cursor: pointer;
 
     &:after {
       content: "";
@@ -542,6 +543,7 @@
     border: none;
     outline: 1px solid #6e6e6e;
     z-index: 5;
+    cursor: pointer;
 
     &:after {
       content: "";
