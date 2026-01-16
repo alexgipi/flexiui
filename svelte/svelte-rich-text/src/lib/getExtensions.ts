@@ -66,6 +66,7 @@ export function getRichTextExtensions(options?: {
       table: {
         HTMLAttributes: { class: "fl-table-editable" },
         resizable: true,
+        renderWrapper: true
       },
       tableCell: false,
       tableHeader: false,
