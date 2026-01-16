@@ -27,16 +27,18 @@
       placeholder: ({ node }) => {
         if (node.type.name === "h1") {
           return "Introduce un título";
+        } else if (node.type.name === "paragraph") {
+          return "Escribe algo...";
         }
-
-        return "Escribe algo...";
+        
       },
       showOnlyCurrent: ({ node }) => {
-        if (node.type.name === "h1") {
+        const allowedTypes = ["h1", "paragraph"];
+        if (allowedTypes.includes(node.type.name)) {
           return false;
+        } else {
+          return true;  
         }
-
-        return true;
       },
     }),
     AudioExt.configure({
