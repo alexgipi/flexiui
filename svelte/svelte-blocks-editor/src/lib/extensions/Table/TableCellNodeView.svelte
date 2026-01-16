@@ -189,7 +189,6 @@
         aria-label="Row options"
         type="button"
         onclick={(e) => {
-            editor.commands.deleteSelection();
             editor?.chain().focus().selectRow(getPos()).run();
             showTooltip(e.target as HTMLElement, "row-dropdown");
         }}
@@ -203,7 +202,6 @@
         aria-label="Column options"
         type="button"
          onclick={(e) => {
-            editor.commands.deleteSelection();
             editor?.chain().focus().selectColumn(getPos()).run();
             showTooltip(e.target as HTMLElement, "column-dropdown");
         }}
