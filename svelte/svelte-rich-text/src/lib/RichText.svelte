@@ -26,7 +26,7 @@
     id?: string;
     className?: string;
     editable?: boolean;
-    content?: any;
+    content?: string | {type: string, content: any[]} | null;
     customExtensions?: any[];
     editorEvents?: {
       onTransaction?: (params: any) => void;
@@ -49,6 +49,7 @@
       toolbarStickyPosition?: number;
       toolbarZIndex?: number;
       toolbarBgColor?: string;
+      toolbarTextColor?: string;
       toolbarPadding?: string;
       toolbarGap?: string;
       docMaxWidth?: string;
@@ -57,6 +58,7 @@
       docMarginInline?: string;
       docMarginBlock?: string;
       docRadius?: string;
+      docTextColor?: string;
       buttonStyle?: "accent-soft" | "accent-solid";
     };
   }
@@ -91,6 +93,7 @@
     editorRadius: "12px",
     toolbarStickyPosition: 0,
     toolbarBgColor: "#242424",
+    toolbarTextColor: "currentColor",
     toolbarZIndex: 10,
     toolbarPadding: "8px",
     toolbarGap: "5px",
@@ -100,6 +103,7 @@
     docMarginInline: "auto",
     docMarginBlock: "2rem",
     docRadius: "0",
+    docTextColor: "currentColor",
     buttonStyle: "accent-solid",
   };
 
@@ -555,12 +559,14 @@
   --fl-toolbar-padding: {editorConfig.toolbarPadding};
   --fl-toolbar-gap: {editorConfig.toolbarGap};
   --fl-toolbar-bg: {editorConfig.toolbarBgColor};
+  --fl-toolbar-text-color: {editorConfig.toolbarTextColor};
   --fl-doc-max-width: {editorConfig.docMaxWidth};
   --fl-doc-padding: {editorConfig.docPadding};
   --fl-doc-bg: {editorConfig.docBg};
   --fl-doc-margin-inline: {editorConfig.docMarginInline};
   --fl-doc-margin-block: {editorConfig.docMarginBlock};
   --fl-doc-radius: {editorConfig.docRadius};
+  --fl-doc-text-color: {editorConfig.docTextColor};
 "
 >
   {#if editor}

@@ -14,6 +14,7 @@
   --fl-toolbar-padding: 6px;
   --fl-toolbar-gap: 5px;
   --fl-toolbar-bg: #242424;
+  --fl-toolbar-text-color: currentColor;
 
   --fl-doc-max-width: 1024px;
   --fl-doc-padding: 2rem;
@@ -21,6 +22,8 @@
   --fl-doc-margin-inline: auto;
   --fl-doc-margin-block: 2rem;
   --fl-doc-radius: 0;
+  --fl-doc-text-color: currentColor;
+
 }
 
 /* Basic editor styles */
@@ -39,6 +42,7 @@
 .fl-rich-text-doc {
   padding: var(--fl-doc-padding, 2rem);
   background: var(--fl-doc-bg, transparent);
+  color: var(--fl-doc-text-color, currentColor);
   border-radius: var(--fl-doc-radius, 12px);
   width: 100%;
   max-width: var(--fl-doc-max-width, 1024px);
@@ -86,7 +90,6 @@
   height: 100%;
   min-height: 56px;
   background-color: var(--fl-editor-bg, #242424);
-  color: var(--text-color);
   box-sizing: border-box;
   border-radius: var(--fl-editor-radius);
 
@@ -177,6 +180,7 @@
   top: var(--fl-toolbar-sticky-position, 0);
   z-index: var(--fl-toolbar-z-index, 10);
   background: var(--fl-toolbar-bg, #242424);
+  color: var(--fl-toolbar-text-color);
   border-radius: var(--fl-editor-radius);
 }
 
@@ -191,7 +195,7 @@
     border: none;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    color: var(--text-color);
+    color: currentColor;
     font-size: 14px;
     display: flex;
     align-items: center;
