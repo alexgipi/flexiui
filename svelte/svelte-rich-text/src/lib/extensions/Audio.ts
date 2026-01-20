@@ -23,6 +23,7 @@ export interface AudioOptions {
   playBtnTextColor: string
   colorPlay: string
   maxWidth: string
+  rewriteStyles: boolean
 }
 
 export interface SetAudioOptions {
@@ -41,6 +42,8 @@ export interface SetAudioOptions {
   playBtnTextColor?: string
   colorPlay?: string
   maxWidth?: string
+
+  rewriteStyles?: boolean
 }
 
 declare module '@tiptap/core' {
@@ -77,6 +80,7 @@ export const Audio = Node.create<AudioOptions>({
       playBtnTextColor: 'currentColor',
       colorPlay: '#5d5d5dc9',
       maxWidth: '100%',
+      rewriteStyles: false,
     }
   },
 
@@ -151,6 +155,11 @@ export const Audio = Node.create<AudioOptions>({
       maxWidth: {
         default: this.options.maxWidth,
         renderHTML: a => ({ 'data-max-width': a.maxWidth }),
+      },
+
+      rewriteStyles: {
+        default: this.options.rewriteStyles,
+        renderHTML: a => ({ 'data-rewrite-styles': a.rewriteStyles }),
       },
     }
   },

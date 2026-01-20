@@ -85,6 +85,7 @@
     playBtnTextColor={attrs.playBtnTextColor}
     colorPlay={attrs.colorPlay}
     maxWidth={attrs.maxWidth}
+    rewriteStyles={attrs.rewriteStyles}
     ></AudioPlayer>
 
     {#if selected}

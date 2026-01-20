@@ -5,7 +5,7 @@
 <script lang="ts">
   import { onMount, tick } from "svelte";
   import WaveSurfer from "wavesurfer.js";
-  import { activeAudioId } from "./audioStore";
+  import { activeAudioId, audioAttributes } from "./audioStore";
 
   export let id: string;
   export let src: string;
@@ -22,6 +22,7 @@
   export let playBtnTextColor: string;
   export let colorPlay: string;
   export let maxWidth: string;
+  export let rewriteStyles: boolean | string = false;
 
   let wavesurfer: WaveSurfer | null = null;
   let waveformEl: HTMLDivElement | null = null;
@@ -43,6 +44,18 @@
   let audioCurrentTime: number = 0;
 
   id = id + "-" + Math.random().toString(36).substring(2, 15);
+
+  audioAttributes.set({
+    bgColor,
+    textColor,
+    borderRadius,
+    accentColor,
+    accentColorPaused,
+    playBtnBgColor,
+    playBtnTextColor,
+    colorPlay,
+    maxWidth,
+  });
 
   function formatTime(seconds: number) {
     if (isNaN(seconds) || seconds < 0) return "0:00";
@@ -287,22 +300,22 @@
     window.removeEventListener("mouseup", onVolumeGrabMouseUp);
   }
 
-const styleVars = [
-  bgColor && `--player-bg-color: ${bgColor};`,
-  playBtnBgColor && `--player-play-btn-bg: ${playBtnBgColor};`,
-  playBtnTextColor && `--player-play-btn-color: ${playBtnTextColor};`,
-  accentColor && `--player-primary-color: ${accentColor};`,
-  accentColorPaused && `--player-progress-default-bg: ${accentColorPaused};`,
-  textColor && `--player-text-color: ${textColor};`,
-  borderRadius && `--player-border-radius: ${borderRadius};`,
-].filter(Boolean).join('\n');
+  const rewrite = rewriteStyles === true || rewriteStyles === 'true';
 </script>
 
 <div 
 class="audio-player" 
 {id} 
 class:playing
-style={styleVars}
+style={`
+  ${(bgColor || $audioAttributes.bgColor) && `--player-bg-color: ${rewrite ? bgColor : $audioAttributes.bgColor};`}
+  ${playBtnBgColor && `--player-play-btn-bg: ${playBtnBgColor};`}
+  ${playBtnTextColor && `--player-play-btn-color: ${playBtnTextColor};`}
+  ${`--player-primary-color: ${rewrite ? accentColor : $audioAttributes.accentColor};`}
+  ${accentColorPaused && `--player-progress-default-bg: ${accentColorPaused};`}
+  ${textColor && `--player-text-color: ${textColor};`}
+  ${borderRadius && `--player-border-radius: ${borderRadius};`}
+`}
 >
   <button
     onclick={() => togglePlayPause()}
@@ -539,10 +552,14 @@ style={styleVars}
     color: var(--player-play-btn-color);
     border: 2px solid transparent;
     border-radius: 100%;
-    outline-offset: 4px;
-    outline-color: var(--player-play-btn-bg);
+    outline: none;
     cursor: pointer;
     transition: filter 0.3s ease, transform 0.3s ease, background 0.3s ease;
+
+    &:focus-visible {
+      outline-offset: 4px;
+      outline-color: var(--player-play-btn-bg);
+    }
 
     &:hover {
       /* background: var(--player-primary-color); */

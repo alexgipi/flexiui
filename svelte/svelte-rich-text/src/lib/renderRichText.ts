@@ -49,7 +49,8 @@ const nodeMapping: any = {
             playBtnBgColor,
             playBtnTextColor,
             maxWidth,
-            colorPlay
+            colorPlay,
+            rewriteStyles,
         } = node.attrs;
 
         return `
@@ -67,6 +68,7 @@ const nodeMapping: any = {
         playBtnTextColor="${playBtnTextColor}"
         maxWidth="${maxWidth}"
         colorPlay="${colorPlay}"
+        rewriteStyles="${rewriteStyles}"
         >
         </fl-audio-player>
         `

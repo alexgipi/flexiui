@@ -11,10 +11,16 @@
   import { onMount, onDestroy } from "svelte";
   import type { Readable } from "svelte/store";
 
-  import { createEditor, Editor, EditorContent } from "svelte-tiptap";
+  import {
+    createEditor,
+    Editor,
+    EditorContent,
+    BubbleMenu,
+  } from "svelte-tiptap";
 
   import { computePosition, offset, autoUpdate } from "@floating-ui/dom";
   import { getRichTextExtensions } from "./getExtensions";
+  import { CellSelection } from "prosemirror-tables";
 
   declare interface Props {
     id?: string;
@@ -37,6 +43,7 @@
       onPaste?: (params: any) => void;
     };
     config?: {
+      editorAccentColor?: string;
       editorBgColor?: string;
       editorRadius?: string;
       toolbarStickyPosition?: number;
@@ -50,6 +57,7 @@
       docMarginInline?: string;
       docMarginBlock?: string;
       docRadius?: string;
+      buttonStyle?: "accent-soft" | "accent-solid";
     };
   }
 
@@ -78,6 +86,7 @@
 
   let editor = $state() as Readable<Editor>;
   const defaultEditorConfig = {
+    editorAccentColor: "var(--purple)",
     editorBgColor: "transparent",
     editorRadius: "12px",
     toolbarStickyPosition: 0,
@@ -91,6 +100,7 @@
     docMarginInline: "auto",
     docMarginBlock: "2rem",
     docRadius: "0",
+    buttonStyle: "accent-solid",
   };
 
   let editorConfig = $state({
@@ -98,8 +108,13 @@
     ...(config ?? {}),
   });
 
+  let bubbleOffset =
+    $editor?.storage.tableCell.customTableSelection === "column" ? 18 : 8;
+  let imageUrlInputEl: HTMLInputElement = $state(null) as HTMLInputElement;
+  let imageUrlInputValue: string = $state(null);
+
   const extensions = getRichTextExtensions({
-    editable: true, 
+    editable: true,
     customExtensions: [
       Mathematics.configure({
         inlineOptions: {
@@ -132,8 +147,8 @@
           },
         },
       }),
-      ...customExtensions, 
-    ]
+      ...customExtensions,
+    ],
   });
 
   let tooltipVisible = $state(false);
@@ -142,13 +157,16 @@
   let tooltip: HTMLDivElement = null as HTMLDivElement;
   let cleanup: () => void;
   let currentTriggerEl: HTMLElement | null = null;
+  let textColorDropdownTriggerEl: HTMLElement | null = $state(
+    null
+  ) as HTMLElement;
   let activeDropdownType = $state(null);
   let enterPressed = $state(false);
   let fontSize = $state(16) as number;
   let lineHeight = $state(null) as number;
 
   const TEXT_COLOR_PALETTE = [
-    "rgb(94, 23, 235)",
+    editorConfig.editorAccentColor,
     "rgb(183, 147, 255)",
     "rgb(255, 147, 223)",
     // "rgb(251, 109, 250)",
@@ -162,7 +180,7 @@
   ];
 
   const HIGHLIGHT_COLOR_PALETTE = [
-    "rgb(94, 23, 235)",
+    editorConfig.editorAccentColor,
     "rgb(183, 147, 255)",
     "rgb(255, 147, 223)",
     // "rgb(251, 109, 250)",
@@ -222,6 +240,10 @@
       tooltipY = y;
     });
   }
+
+  // función para saber si hay una selección de celdas
+  const isCellSelection = () =>
+    $editor && $editor.state.selection instanceof CellSelection;
 
   onMount(() => {
     editor = createEditor({
@@ -525,6 +547,7 @@
   class="fl-rich-text {className}"
   class:editable
   style="
+  --fl-editor-accent-color: {editorConfig.editorAccentColor};
   --fl-editor-radius: {editorConfig.editorRadius};
   --fl-editor-bg: {editorConfig.editorBgColor};
   --fl-toolbar-sticky-position: {editorConfig.toolbarStickyPosition}px;
@@ -542,6 +565,7 @@
 >
   {#if editor}
     <header class="fl-rich-text-toolbar">
+
       <!-- Undo/Redo -->
       <div role="group" class="fl-rich-text-toolbar-group">
         <button
@@ -595,19 +619,19 @@
         <button
           type="button"
           onclick={(e) => toogleDropdown(e.currentTarget, "headings-dropdown")}
-          class:is-active={$editor.isActive("heading") || $editor.isActive("h1")}
+          class:is-active={$editor.isActive("heading") ||
+            $editor.isActive("h1")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
           aria-label="Heading"
         >
-
-
           {#if $editor.isActive("heading")}
-              {#each HEADINGS as heading}
-                {#if $editor.isActive("heading", { level: Number(heading.level) })}
-                  {@html heading.icon}
-                {/if}
-              {/each}
+            {#each HEADINGS as heading}
+              {#if $editor.isActive( "heading", { level: Number(heading.level) } )}
+                {@html heading.icon}
+              {/if}
+            {/each}
           {:else if $editor.isActive("h1")}
-             {@html HEADINGS[0].icon}
+            {@html HEADINGS[0].icon}
           {/if}
 
           {#if !$editor.isActive("heading") && !$editor.isActive("h1")}
@@ -630,8 +654,19 @@
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
-            viewBox="0 0 10 6"
+            viewBox="0 0 20 12"
           >
+            <defs>
+              <symbol id="dropdown-arrow" viewBox="0 0 10 6" fill="none">
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m1 1 4 4 4-4"
+                ></path>
+              </symbol>
+            </defs>
             <use href="#dropdown-arrow"></use>
           </svg>
         </button>
@@ -644,6 +679,7 @@
           class:is-active={$editor.isActive("bulletList") ||
             $editor.isActive("orderedList") ||
             $editor.isActive("taskList")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         >
           {#if $editor.isActive("bulletList")}
             <svg
@@ -822,6 +858,7 @@
           type="button"
           onclick={() => $editor.chain().focus().toggleCodeBlock().run()}
           class={$editor.isActive("codeBlock") ? "is-active" : ""}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         >
           <svg
             width="24"
@@ -855,6 +892,7 @@
           type="button"
           onclick={() => $editor.chain().focus().toggleBlockquote().run()}
           class={$editor.isActive("blockquote") ? "is-active" : ""}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         >
           <svg
             width="15"
@@ -962,8 +1000,8 @@
         </button>
       </div>
 
-      <!-- Bold, Italic, Underline, etc. -->
-      <div role="group" class="fl-rich-text-toolbar-group">
+      <!-- Bold, Italic, Underline, Strike, Code, Link -->
+      <!-- <div role="group" class="fl-rich-text-toolbar-group">
         <button
           type="button"
           onclick={() => $editor.chain().focus().toggleBold().run()}
@@ -1011,7 +1049,7 @@
         <button
           type="button"
           onclick={() => $editor.chain().focus().toggleUnderline().run()}
-          disabled={!$editor.can().chain().focus().toggleStrike().run()}
+          disabled={!$editor.can().chain().focus().toggleUnderline().run()}
           class={$editor.isActive("underline") ? "is-active" : ""}
           aria-label="Underline"
         >
@@ -1081,11 +1119,7 @@
             ></path></svg
           >
         </button>
-      </div>
 
-      <!-- Link, special box, horizontal rule, etc. -->
-      <div role="group" class="fl-rich-text-toolbar-group">
-        <!-- Link -->
         <button
           type="button"
           onclick={() => setLink()}
@@ -1109,11 +1143,15 @@
             ></path></svg
           >
         </button>
+      </div> -->
 
+      <!-- Special box, horizontal rule, Hard break -->
+      <div role="group" class="fl-rich-text-toolbar-group">
         <!-- Special box -->
         <button
           class="fl-bubble-menu-mark-button"
           class:is-active={$editor?.isActive("specialBox")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
           onclick={toggleSpecialBox}
           type="button"
           aria-label="Special Box"
@@ -1164,8 +1202,10 @@
             ></path></svg
           >
         </button>
+      </div>
 
-        <!-- Text color dropdown -->
+      <!-- Text color & highlight -->
+      <!-- <div role="group" class="fl-rich-text-toolbar-group">
         <button
           aria-label="Toggle text color dropdown"
           type="button"
@@ -1185,22 +1225,10 @@
             fill="none"
             viewBox="0 0 20 12"
           >
-            <defs>
-              <symbol id="dropdown-arrow" viewBox="0 0 10 6" fill="none">
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="m1 1 4 4 4-4"
-                ></path>
-              </symbol>
-            </defs>
             <use href="#dropdown-arrow"></use>
           </svg>
         </button>
 
-        <!-- Highlight dropdown -->
         <button
           class="fl-bubble-menu-mark-button"
           type="button"
@@ -1237,7 +1265,7 @@
             ></path>
           </svg>
         </button>
-      </div>
+      </div> -->
 
       <!-- Inline math -->
       <div role="group" class="fl-rich-text-toolbar-group">
@@ -1272,6 +1300,7 @@
           onclick={addImage}
           aria-label="Image"
           class:is-active={$editor.isActive("image")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -1291,8 +1320,19 @@
           onclick={addAudio}
           aria-label="Audio"
           class:is-active={$editor.isActive("audio")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         >
-          <svg style="transform: scale(1.1);" fill="currentColor" width="24px" viewBox="0 -960 960 960" height="24px" xmlns="http://www.w3.org/2000/svg"><path d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z"></path></svg>
+          <svg
+            style="transform: scale(1.1);"
+            fill="currentColor"
+            width="24px"
+            viewBox="0 -960 960 960"
+            height="24px"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              d="M400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47Z"
+            ></path></svg
+          >
         </button>
       </div>
 
@@ -1304,6 +1344,7 @@
           onclick={addMediaGrid}
           aria-label="Media grid"
           class:is-active={$editor.isActive("MediaGridComponent")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -1329,6 +1370,7 @@
           onclick={addTable}
           aria-label="Table"
           class:is-active={$editor.isActive("table")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -1355,6 +1397,7 @@
           type="button"
           onclick={() => $editor.chain().focus().toggleTextAlign("left").run()}
           class:is-active={$editor.isActive({ textAlign: "left" })}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
           aria-label="Align left"
         >
           <svg
@@ -1378,6 +1421,7 @@
           onclick={() =>
             $editor.chain().focus().toggleTextAlign("center").run()}
           class:is-active={$editor.isActive({ textAlign: "center" })}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
           aria-label="Align center"
         >
           <svg
@@ -1400,6 +1444,7 @@
           type="button"
           onclick={() => $editor.chain().focus().toggleTextAlign("right").run()}
           class:is-active={$editor.isActive({ textAlign: "right" })}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
           aria-label="Align right"
         >
           <svg
@@ -1447,7 +1492,7 @@
           type="button"
           onclick={() => $editor.chain().focus().clearNodes().run()}
         >
-          Clear nodes
+          Clear
         </button>
       </div>
     </header>
@@ -1461,7 +1506,11 @@
   bind:this={tooltip}
   style="display: {tooltipVisible
     ? 'flex'
-    : 'none'}; left: {tooltipX}px; top: {tooltipY}px;"
+    : 'none'}; 
+  left: {tooltipX}px;
+  top: {tooltipY}px;
+  --fl-editor-accent-color: {editorConfig.editorAccentColor};
+  "
 >
   {#if activeDropdownType === "headings-dropdown"}
     <div role="group" class="fl-rich-text-toolbar-group">
@@ -1469,7 +1518,11 @@
         type="button"
         onclick={() =>
           $editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        class={($editor.isActive("heading", { level: 1 }) || $editor.isActive("h1")) ? "is-active" : ""}
+        class={$editor.isActive("heading", { level: 1 }) ||
+        $editor.isActive("h1")
+          ? "is-active"
+          : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         aria-label="H1"
         disabled={!$editor.isActive("h1")}
       >
@@ -1490,6 +1543,7 @@
         onclick={() =>
           $editor.chain().focus().toggleHeading({ level: 2 }).run()}
         class={$editor.isActive("heading", { level: 2 }) ? "is-active" : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         aria-label="H2"
         disabled={$editor.isActive("h1")}
       >
@@ -1510,6 +1564,7 @@
         onclick={() =>
           $editor.chain().focus().toggleHeading({ level: 3 }).run()}
         class={$editor.isActive("heading", { level: 3 }) ? "is-active" : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         aria-label="H3"
         disabled={$editor.isActive("h1")}
       >
@@ -1530,6 +1585,7 @@
         onclick={() =>
           $editor.chain().focus().toggleHeading({ level: 4 }).run()}
         class={$editor.isActive("heading", { level: 4 }) ? "is-active" : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         aria-label="H4"
         disabled={$editor.isActive("h1")}
       >
@@ -1550,6 +1606,7 @@
         onclick={() =>
           $editor.chain().focus().toggleHeading({ level: 5 }).run()}
         class={$editor.isActive("heading", { level: 5 }) ? "is-active" : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         aria-label="H5"
         disabled={$editor.isActive("h1")}
       >
@@ -1570,6 +1627,7 @@
         onclick={() =>
           $editor.chain().focus().toggleHeading({ level: 6 }).run()}
         class={$editor.isActive("heading", { level: 6 }) ? "is-active" : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
         aria-label="H6"
         disabled={$editor.isActive("h1")}
       >
@@ -1592,6 +1650,7 @@
         type="button"
         onclick={() => $editor.chain().focus().toggleBulletList().run()}
         class={$editor.isActive("bulletList") ? "is-active" : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
       >
         <svg
           width="24"
@@ -1639,6 +1698,7 @@
         type="button"
         onclick={() => $editor.chain().focus().toggleOrderedList().run()}
         class={$editor.isActive("orderedList") ? "is-active" : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
       >
         <svg
           width="24"
@@ -1686,6 +1746,7 @@
         type="button"
         onclick={() => $editor.chain().focus().toggleTaskList().run()}
         class={$editor.isActive("taskList") ? "is-active" : ""}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
       >
         <svg
           width="24"
@@ -2016,3 +2077,702 @@
     </div>
   {/if}
 </div>
+
+{#if $editor}
+  <!-- General Menu -->
+  <BubbleMenu
+    options={{ placement: "top", offset: bubbleOffset, flip: false }}
+    editor={$editor}
+    shouldShow={() => {
+      const emptySelection = $editor.state.selection.empty;
+      const isImage = $editor.isActive("image");
+      const isCodeBlock = $editor.isActive("codeBlock");
+      const isAudio = $editor.isActive("audio");
+      const selection = $editor.state.selection;
+      const isRow = $editor.storage.tableCell.customTableSelection === "row";
+      const isColumn =
+        $editor.storage.tableCell.customTableSelection === "column";
+
+      // ⛔️ Ocultar si hay flag de selección completa por fila/columna
+      if (isRow || isColumn) {
+        console.log(
+          "Ocultar si hay flag de selección completa por fila/columna"
+        );
+        return false;
+      }
+
+      // // ⛔️ Ocultar si es CellSelection completa (por seguridad)
+      // if (selection instanceof CellSelection) {
+      //   return false;
+      // }
+
+      if (emptySelection || isImage || isCodeBlock || isAudio) {
+        return false;
+      }
+      return true;
+    }}
+  >
+    <div data-test-id="bubble-menu" class="fl-bubble-menu flex">
+      <div role="group" class="fl-rich-text-toolbar-group">
+        <!-- Bold -->
+        <button
+          type="button"
+          onclick={() => $editor.chain().focus().toggleBold().run()}
+          disabled={!$editor.can().chain().focus().toggleBold().run()}
+          class="fl-bubble-menu-mark-button"
+          class:is-active={$editor.isActive("bold")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
+          aria-label="Bold"
+        >
+          <svg
+            width="24"
+            height="24"
+            class="fl-button-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M6 2.5C5.17157 2.5 4.5 3.17157 4.5 4V20C4.5 20.8284 5.17157 21.5 6 21.5H15C16.4587 21.5 17.8576 20.9205 18.8891 19.8891C19.9205 18.8576 20.5 17.4587 20.5 16C20.5 14.5413 19.9205 13.1424 18.8891 12.1109C18.6781 11.9 18.4518 11.7079 18.2128 11.5359C19.041 10.5492 19.5 9.29829 19.5 8C19.5 6.54131 18.9205 5.14236 17.8891 4.11091C16.8576 3.07946 15.4587 2.5 14 2.5H6ZM14 10.5C14.663 10.5 15.2989 10.2366 15.7678 9.76777C16.2366 9.29893 16.5 8.66304 16.5 8C16.5 7.33696 16.2366 6.70107 15.7678 6.23223C15.2989 5.76339 14.663 5.5 14 5.5H7.5V10.5H14ZM7.5 18.5V13.5H15C15.663 13.5 16.2989 13.7634 16.7678 14.2322C17.2366 14.7011 17.5 15.337 17.5 16C17.5 16.663 17.2366 17.2989 16.7678 17.7678C16.2989 18.2366 15.663 18.5 15 18.5H7.5Z"
+              fill="currentColor"
+            ></path></svg
+          >
+        </button>
+
+        <!-- Italic -->
+        <button
+          type="button"
+          onclick={() => $editor.chain().focus().toggleItalic().run()}
+          disabled={!$editor.can().chain().focus().toggleItalic().run()}
+          class="fl-bubble-menu-mark-button"
+          class:is-active={$editor.isActive("italic")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
+          aria-label="Italic"
+        >
+          <svg
+            width="24"
+            height="24"
+            class="tiptap-button-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              d="M15.0222 3H19C19.5523 3 20 3.44772 20 4C20 4.55228 19.5523 5 19 5H15.693L10.443 19H14C14.5523 19 15 19.4477 15 20C15 20.5523 14.5523 21 14 21H9.02418C9.00802 21.0004 8.99181 21.0004 8.97557 21H5C4.44772 21 4 20.5523 4 20C4 19.4477 4.44772 19 5 19H8.30704L13.557 5H10C9.44772 5 9 4.55228 9 4C9 3.44772 9.44772 3 10 3H14.9782C14.9928 2.99968 15.0075 2.99967 15.0222 3Z"
+              fill="currentColor"
+            ></path></svg
+          >
+        </button>
+
+        <!-- Underline -->
+        <button
+          type="button"
+          onclick={() => $editor.chain().focus().toggleUnderline().run()}
+          disabled={!$editor.can().chain().focus().toggleStrike().run()}
+          class="fl-bubble-menu-mark-button"
+          class:is-active={$editor.isActive("underline")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
+          aria-label="Underline"
+        >
+          <svg
+            width="24"
+            height="24"
+            class="tiptap-button-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M7 4C7 3.44772 6.55228 3 6 3C5.44772 3 5 3.44772 5 4V10C5 11.8565 5.7375 13.637 7.05025 14.9497C8.36301 16.2625 10.1435 17 12 17C13.8565 17 15.637 16.2625 16.9497 14.9497C18.2625 13.637 19 11.8565 19 10V4C19 3.44772 18.5523 3 18 3C17.4477 3 17 3.44772 17 4V10C17 11.3261 16.4732 12.5979 15.5355 13.5355C14.5979 14.4732 13.3261 15 12 15C10.6739 15 9.40215 14.4732 8.46447 13.5355C7.52678 12.5979 7 11.3261 7 10V4ZM4 19C3.44772 19 3 19.4477 3 20C3 20.5523 3.44772 21 4 21H20C20.5523 21 21 20.5523 21 20C21 19.4477 20.5523 19 20 19H4Z"
+              fill="currentColor"
+            ></path></svg
+          >
+        </button>
+
+        <!-- Strike -->
+        <button
+          type="button"
+          onclick={() => $editor.chain().focus().toggleStrike().run()}
+          disabled={!$editor.can().chain().focus().toggleStrike().run()}
+          class="fl-bubble-menu-mark-button"
+          class:is-active={$editor.isActive("strike")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
+          aria-label="Strike"
+        >
+          <svg
+            width="24"
+            height="24"
+            class="tiptap-button-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              d="M9.00039 3H16.0001C16.5524 3 17.0001 3.44772 17.0001 4C17.0001 4.55229 16.5524 5 16.0001 5H9.00011C8.68006 4.99983 8.36412 5.07648 8.07983 5.22349C7.79555 5.37051 7.55069 5.5836 7.36585 5.84487C7.181 6.10614 7.06155 6.40796 7.01754 6.72497C6.97352 7.04198 7.00623 7.36492 7.11292 7.66667C7.29701 8.18737 7.02414 8.75872 6.50344 8.94281C5.98274 9.1269 5.4114 8.85403 5.2273 8.33333C5.01393 7.72984 4.94851 7.08396 5.03654 6.44994C5.12456 5.81592 5.36346 5.21229 5.73316 4.68974C6.10285 4.1672 6.59256 3.74101 7.16113 3.44698C7.72955 3.15303 8.36047 2.99975 9.00039 3Z"
+              fill="currentColor"
+            ></path><path
+              d="M18 13H20C20.5523 13 21 12.5523 21 12C21 11.4477 20.5523 11 20 11H4C3.44772 11 3 11.4477 3 12C3 12.5523 3.44772 13 4 13H14C14.7956 13 15.5587 13.3161 16.1213 13.8787C16.6839 14.4413 17 15.2044 17 16C17 16.7956 16.6839 17.5587 16.1213 18.1213C15.5587 18.6839 14.7956 19 14 19H6C5.44772 19 5 19.4477 5 20C5 20.5523 5.44772 21 6 21H14C15.3261 21 16.5979 20.4732 17.5355 19.5355C18.4732 18.5979 19 17.3261 19 16C19 14.9119 18.6453 13.8604 18 13Z"
+              fill="currentColor"
+            ></path></svg
+          >
+        </button>
+
+        <!-- Code -->
+        <button
+          type="button"
+          onclick={() => $editor.chain().focus().toggleCode().run()}
+          disabled={!$editor.can().chain().focus().toggleCode().run()}
+          class="fl-bubble-menu-mark-button"
+          class:is-active={$editor.isActive("code")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
+          aria-label="Code"
+        >
+          <svg
+            width="24"
+            height="24"
+            class="tiptap-button-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              d="M15.4545 4.2983C15.6192 3.77115 15.3254 3.21028 14.7983 3.04554C14.2712 2.88081 13.7103 3.1746 13.5455 3.70175L8.54554 19.7017C8.38081 20.2289 8.6746 20.7898 9.20175 20.9545C9.72889 21.1192 10.2898 20.8254 10.4545 20.2983L15.4545 4.2983Z"
+              fill="currentColor"
+            ></path><path
+              d="M6.70711 7.29289C7.09763 7.68342 7.09763 8.31658 6.70711 8.70711L3.41421 12L6.70711 15.2929C7.09763 15.6834 7.09763 16.3166 6.70711 16.7071C6.31658 17.0976 5.68342 17.0976 5.29289 16.7071L1.29289 12.7071C0.902369 12.3166 0.902369 11.6834 1.29289 11.2929L5.29289 7.29289C5.68342 6.90237 6.31658 6.90237 6.70711 7.29289Z"
+              fill="currentColor"
+            ></path><path
+              d="M17.2929 7.29289C17.6834 6.90237 18.3166 6.90237 18.7071 7.29289L22.7071 11.2929C23.0976 11.6834 23.0976 12.3166 22.7071 12.7071L18.7071 16.7071C18.3166 17.0976 17.6834 17.0976 17.2929 16.7071C16.9024 16.3166 16.9024 15.6834 17.2929 15.2929L20.5858 12L17.2929 8.70711C16.9024 8.31658 16.9024 7.68342 17.2929 7.29289Z"
+              fill="currentColor"
+            ></path></svg
+          >
+        </button>
+
+        <!-- Link -->
+        <button
+          type="button"
+          onclick={() => setLink()}
+          class="fl-bubble-menu-mark-button"
+          class:is-active={$editor.isActive("link")}
+          class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
+          aria-label="Link"
+        >
+          <svg
+            width="24"
+            height="24"
+            class="tiptap-button-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              d="M16.9958 1.06669C15.4226 1.05302 13.907 1.65779 12.7753 2.75074L12.765 2.76086L11.045 4.47086C10.6534 4.86024 10.6515 5.49341 11.0409 5.88507C11.4303 6.27673 12.0634 6.27858 12.4551 5.88919L14.1697 4.18456C14.9236 3.45893 15.9319 3.05752 16.9784 3.06662C18.0272 3.07573 19.0304 3.49641 19.772 4.23804C20.5137 4.97967 20.9344 5.98292 20.9435 7.03171C20.9526 8.07776 20.5515 9.08563 19.8265 9.83941L16.833 12.8329C16.4274 13.2386 15.9393 13.5524 15.4019 13.7529C14.8645 13.9533 14.2903 14.0359 13.7181 13.9949C13.146 13.9539 12.5894 13.7904 12.0861 13.5154C11.5827 13.2404 11.1444 12.8604 10.8008 12.401C10.47 11.9588 9.84333 11.8685 9.40108 12.1993C8.95883 12.5301 8.86849 13.1568 9.1993 13.599C9.71464 14.288 10.3721 14.858 11.1272 15.2705C11.8822 15.683 12.7171 15.9283 13.5753 15.9898C14.4334 16.0513 15.2948 15.9274 16.1009 15.6267C16.907 15.326 17.639 14.8555 18.2473 14.247L21.2472 11.2471L21.2593 11.2347C22.3523 10.1031 22.9571 8.58751 22.9434 7.01433C22.9297 5.44115 22.2987 3.93628 21.1863 2.82383C20.0738 1.71138 18.5689 1.08036 16.9958 1.06669Z"
+              fill="currentColor"
+            ></path><path
+              d="M10.4247 8.0102C9.56657 7.94874 8.70522 8.07256 7.89911 8.37326C7.09305 8.67395 6.36096 9.14458 5.75272 9.753L2.75285 12.7529L2.74067 12.7653C1.64772 13.8969 1.04295 15.4125 1.05662 16.9857C1.07029 18.5589 1.70131 20.0637 2.81376 21.1762C3.9262 22.2886 5.43108 22.9196 7.00426 22.9333C8.57744 22.947 10.0931 22.3422 11.2247 21.2493L11.2371 21.2371L12.9471 19.5271C13.3376 19.1366 13.3376 18.5034 12.9471 18.1129C12.5565 17.7223 11.9234 17.7223 11.5328 18.1129L9.82932 19.8164C9.07555 20.5414 8.06768 20.9425 7.02164 20.9334C5.97285 20.9243 4.9696 20.5036 4.22797 19.762C3.48634 19.0203 3.06566 18.0171 3.05655 16.9683C3.04746 15.9222 3.44851 14.9144 4.17355 14.1606L7.16719 11.167C7.5727 10.7613 8.06071 10.4476 8.59811 10.2471C9.13552 10.0467 9.70976 9.96412 10.2819 10.0051C10.854 10.0461 11.4106 10.2096 11.9139 10.4846C12.4173 10.7596 12.8556 11.1397 13.1992 11.599C13.53 12.0412 14.1567 12.1316 14.5989 11.8007C15.0412 11.4699 15.1315 10.8433 14.8007 10.401C14.2854 9.71205 13.6279 9.14198 12.8729 8.72948C12.1178 8.31697 11.2829 8.07166 10.4247 8.0102Z"
+              fill="currentColor"
+            ></path></svg
+          >
+        </button>
+
+        <!-- Highlight -->
+        <button
+          class="fl-bubble-menu-mark-button"
+          type="button"
+          aria-label="Highlight"
+          onclick={(e) => toogleDropdown(e.currentTarget, "highlight")}
+        >
+          <svg
+            width="24"
+            height="24"
+            class="tiptap-button-icon"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M14.7072 4.70711C15.0977 4.31658 15.0977 3.68342 14.7072 3.29289C14.3167 2.90237 13.6835 2.90237 13.293 3.29289L8.69294 7.89286L8.68594 7.9C8.13626 8.46079 7.82837 9.21474 7.82837 10C7.82837 10.2306 7.85491 10.4584 7.90631 10.6795L2.29289 16.2929C2.10536 16.4804 2 16.7348 2 17V20C2 20.5523 2.44772 21 3 21H12C12.2652 21 12.5196 20.8946 12.7071 20.7071L15.3205 18.0937C15.5416 18.1452 15.7695 18.1717 16.0001 18.1717C16.7853 18.1717 17.5393 17.8639 18.1001 17.3142L22.7072 12.7071C23.0977 12.3166 23.0977 11.6834 22.7072 11.2929C22.3167 10.9024 21.6835 10.9024 21.293 11.2929L16.6971 15.8887C16.5105 16.0702 16.2605 16.1717 16.0001 16.1717C15.7397 16.1717 15.4897 16.0702 15.303 15.8887L10.1113 10.697C9.92992 10.5104 9.82837 10.2604 9.82837 10C9.82837 9.73963 9.92992 9.48958 10.1113 9.30297L14.7072 4.70711ZM13.5858 17L9.00004 12.4142L4 17.4142V19H11.5858L13.5858 17Z"
+              fill="currentColor"
+            ></path>
+          </svg>
+          <svg
+            class="toogle-dropdown-button-icon"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 10 6"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 4 4 4-4"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- Text color -->
+        <button
+          aria-label="Text color"
+          type="button"
+          bind:this={textColorDropdownTriggerEl}
+          onclick={() =>
+            toogleDropdown(textColorDropdownTriggerEl, "text-color-dropdown")}
+          class="fl-bubble-menu-mark-button"
+        >
+          <span
+            class="fl-button-color-text-popover"
+            style="background: {$editor?.getAttributes('textStyle')?.color ||
+              'currentColor'}"
+          ></span>
+
+          <svg
+            class="toogle-dropdown-button-icon"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 10 6"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 4 4 4-4"
+            ></path>
+          </svg>
+        </button>
+
+        {#if !isCellSelection()}
+          <button
+            class="fl-bubble-menu-mark-button"
+            type="button"
+            onclick={() => $editor.chain().focus().setHardBreak().run()}
+            aria-label="Hard break"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-corner-down-left"
+              ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
+                d="M18 6v6a3 3 0 0 1 -3 3h-10l4 -4m0 8l-4 -4"
+              ></path></svg
+            >
+          </button>
+        {/if}
+
+        {#if isCellSelection()}
+          <button
+            class="fl-bubble-menu-mark-button"
+            type="button"
+            aria-label="Merge cells"
+            title="Merge cells"
+            onclick={() => $editor?.chain().focus().mergeCells().run()}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="opacity:1;"
+              ><path d="M12 21v-6m0-6V3M3 15h18M3 9h18"></path><rect
+                width="18"
+                height="18"
+                x="3"
+                y="3"
+                rx="2"
+              ></rect></svg
+            >
+          </button>
+
+          <button
+            class="fl-bubble-menu-mark-button"
+            type="button"
+            aria-label="Split cell"
+            title="Split cell"
+            onclick={() => $editor?.chain().focus().splitCell().run()}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="opacity:1;"
+              ><path d="M12 15V9m-9 6h18M3 9h18" /><rect
+                width="18"
+                height="18"
+                x="3"
+                y="3"
+                rx="2"
+              /></svg
+            >
+          </button>
+        {/if}
+      </div>
+    </div>
+
+    <!-- <div
+      class="fl-toolbar-dropdown-panel"
+      bind:this={tooltip}
+      style="display: {tooltipVisible
+        ? 'flex'
+        : 'none'}; left: {tooltipX}px; top: {tooltipY}px;"
+    >
+      {#if activeDropdownType === "text-color"}
+        <div class="fl-editor-color-palette">
+          <button
+            class="fl-color-swatch fl-color-picker-btn"
+            aria-label="Text color picker"
+            type="button"
+          >
+            <input
+              type="color"
+              onchange={(event: any) => {
+                recentCustomColors = [
+                  ...recentCustomColors,
+                  event?.target?.value,
+                ];
+                $editor.chain().focus().setColor(event?.target?.value).run();
+                hideDropdown();
+              }}
+              value={rgbToHex($editor?.getAttributes("textStyle")?.color)}
+              data-testid="setColor"
+              id="colorPicker"
+            />
+          </button>
+
+          {#each TEXT_COLOR_PALETTE as color}
+            <button
+              class="fl-color-swatch"
+              class:active={$editor?.isActive("textStyle", {
+                color: color,
+              })}
+              onclick={() => {
+                $editor?.chain().focus().setColor(color).run();
+                hideDropdown();
+              }}
+              style="background-color: {color};"
+              aria-label={color}
+            >
+            </button>
+          {/each}
+
+          <button
+            class="fl-color-swatch unset-color"
+            onclick={() => {
+              $editor?.chain().focus().unsetColor().run();
+              hideDropdown();
+            }}
+            style="background-color: #ffffff;"
+            aria-label="Unset color"
+          >
+          </button>
+
+          {#if recentCustomColors.length > 0}
+            {#each recentCustomColors as color}
+              <button
+                class="fl-color-swatch"
+                class:active={$editor?.isActive("textStyle", {
+                  color: color,
+                })}
+                onclick={() => {
+                  $editor?.chain().focus().setColor(color).run();
+                  hideDropdown();
+                }}
+                style="background-color: {color};"
+                aria-label={color}
+              >
+              </button>
+            {/each}
+          {:else}
+            <button
+              class="fl-color-swatch"
+              style="outline: 1px dashed #ffffff66;background: transparent;"
+              onclick={() => alert("Not implemented yet")}
+              aria-label="Add new color"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+                style="
+                  width: 11px;
+                  height: 11px;
+              "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                ></path>
+              </svg>
+            </button>
+
+            <button
+              class="fl-color-swatch"
+              style="outline: 1px dashed #ffffff66;background: transparent;"
+              onclick={() => alert("Not implemented yet")}
+              aria-label="Add new color"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+                style="
+                  width: 11px;
+                  height: 11px;
+              "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                ></path>
+              </svg>
+            </button>
+          {/if}
+        </div>
+      {:else if activeDropdownType === "highlight"}
+        <div class="fl-editor-color-palette">
+          <button
+            class="fl-color-swatch fl-color-picker-btn"
+            aria-label="Highlight color picker"
+            type="button"
+          >
+            <input
+              type="color"
+              onchange={(event: any) => {
+                recentCustomColors = [
+                  ...recentCustomColors,
+                  event?.target?.value,
+                ];
+                $editor
+                  .chain()
+                  .focus()
+                  .setHighlight({ color: event?.target?.value })
+                  .run();
+                hideDropdown();
+              }}
+              value={rgbToHex($editor?.getAttributes("textStyle")?.color)}
+              data-testid="setHiglight"
+              id="colorPicker"
+            />
+          </button>
+
+          {#each HIGHLIGHT_COLOR_PALETTE as color}
+            <button
+              class="fl-color-swatch"
+              class:active={$editor?.isActive("textStyle", {
+                color: color,
+              })}
+              onclick={() => {
+                $editor?.chain().focus().setHighlight({ color }).run();
+                hideDropdown();
+              }}
+              style="background-color: {color};"
+              aria-label={color}
+            >
+            </button>
+          {/each}
+
+          <button
+            class="fl-color-swatch unset-color"
+            onclick={() => {
+              $editor?.chain().focus().unsetColor().run();
+              hideDropdown();
+            }}
+            style="background-color: #ffffff;"
+            aria-label="Unset color"
+          >
+          </button>
+
+          {#if recentCustomColors.length > 0}
+            {#each recentCustomColors as color}
+              <button
+                class="fl-color-swatch"
+                class:active={$editor?.isActive("textStyle", {
+                  color: color,
+                })}
+                onclick={() => {
+                  $editor?.chain().focus().setHighlight({ color }).run();
+                  hideDropdown();
+                }}
+                style="background-color: {color};"
+                aria-label={color}
+              >
+              </button>
+            {/each}
+          {:else}
+            <button
+              class="fl-color-swatch"
+              style="outline: 1px dashed #ffffff66;background: transparent;"
+              onclick={() => alert("Not implemented yet")}
+              aria-label="Add new color"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+                style="
+                  width: 11px;
+                  height: 11px;
+              "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                ></path>
+              </svg>
+            </button>
+
+            <button
+              class="fl-color-swatch"
+              style="outline: 1px dashed #ffffff66;background: transparent;"
+              onclick={() => alert("Not implemented yet")}
+              aria-label="Add new color"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+                style="
+                  width: 11px;
+                  height: 11px;
+              "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                ></path>
+              </svg>
+            </button>
+          {/if}
+        </div>
+      {/if}
+    </div> -->
+  </BubbleMenu>
+
+  <!-- Image Menu -->
+  <BubbleMenu
+    editor={$editor}
+    shouldShow={() => {
+      const emptySelection = $editor.state.selection.empty;
+      if (emptySelection) {
+        return false;
+      }
+      return $editor.isActive("image");
+    }}
+  >
+    <div data-test-id="bubble-menu" class="fl-bubble-menu flex">
+      <input
+        class="fl-editor-image-url-input"
+        type="text"
+        placeholder="Insert image url"
+        bind:this={imageUrlInputEl}
+        value={$editor.getAttributes("image").src}
+        oninput={(e: any) => {
+          // console.log(e.target.value);
+          imageUrlInputValue = e.target.value;
+        }}
+        onkeydown={(e: any) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            $editor
+              .chain()
+              .focus()
+              .setImage({ src: imageUrlInputEl?.value })
+              .run();
+          }
+        }}
+      />
+      <button
+        type="button"
+        aria-label="Insert image from url"
+        disabled={!imageUrlInputValue ||
+          imageUrlInputValue === $editor.getAttributes("image").src}
+        class:is-active={imageUrlInputValue &&
+          imageUrlInputValue !== $editor.getAttributes("image").src}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
+        onclick={() => {
+          $editor
+            .chain()
+            .focus()
+            .setImage({ src: imageUrlInputEl?.value })
+            .run();
+        }}
+      >
+        <svg
+          width="16"
+          height="16"
+          class="tiptap-button-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          ><path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M21 4C21 3.44772 20.5523 3 20 3C19.4477 3 19 3.44772 19 4V11C19 11.7956 18.6839 12.5587 18.1213 13.1213C17.5587 13.6839 16.7956 14 16 14H6.41421L9.70711 10.7071C10.0976 10.3166 10.0976 9.68342 9.70711 9.29289C9.31658 8.90237 8.68342 8.90237 8.29289 9.29289L3.29289 14.2929C2.90237 14.6834 2.90237 15.3166 3.29289 15.7071L8.29289 20.7071C8.68342 21.0976 9.31658 21.0976 9.70711 20.7071C10.0976 20.3166 10.0976 19.6834 9.70711 19.2929L6.41421 16H16C17.3261 16 18.5979 15.4732 19.5355 14.5355C20.4732 13.5979 21 12.3261 21 11V4Z"
+            fill="currentColor"
+            class="s-m1-89pp0R0Iu"
+          ></path></svg
+        >
+      </button>
+
+      <button
+        type="button"
+        onclick={() => setLink()}
+        class="fl-bubble-menu-mark-button"
+        class:is-active={$editor.isActive("link")}
+        class:accent-soft={editorConfig.buttonStyle === "accent-soft"}
+        aria-label="Link"
+      >
+        <svg
+          width="16"
+          height="16"
+          class="tiptap-button-icon"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg"
+          ><path
+            d="M16.9958 1.06669C15.4226 1.05302 13.907 1.65779 12.7753 2.75074L12.765 2.76086L11.045 4.47086C10.6534 4.86024 10.6515 5.49341 11.0409 5.88507C11.4303 6.27673 12.0634 6.27858 12.4551 5.88919L14.1697 4.18456C14.9236 3.45893 15.9319 3.05752 16.9784 3.06662C18.0272 3.07573 19.0304 3.49641 19.772 4.23804C20.5137 4.97967 20.9344 5.98292 20.9435 7.03171C20.9526 8.07776 20.5515 9.08563 19.8265 9.83941L16.833 12.8329C16.4274 13.2386 15.9393 13.5524 15.4019 13.7529C14.8645 13.9533 14.2903 14.0359 13.7181 13.9949C13.146 13.9539 12.5894 13.7904 12.0861 13.5154C11.5827 13.2404 11.1444 12.8604 10.8008 12.401C10.47 11.9588 9.84333 11.8685 9.40108 12.1993C8.95883 12.5301 8.86849 13.1568 9.1993 13.599C9.71464 14.288 10.3721 14.858 11.1272 15.2705C11.8822 15.683 12.7171 15.9283 13.5753 15.9898C14.4334 16.0513 15.2948 15.9274 16.1009 15.6267C16.907 15.326 17.639 14.8555 18.2473 14.247L21.2472 11.2471L21.2593 11.2347C22.3523 10.1031 22.9571 8.58751 22.9434 7.01433C22.9297 5.44115 22.2987 3.93628 21.1863 2.82383C20.0738 1.71138 18.5689 1.08036 16.9958 1.06669Z"
+            fill="currentColor"
+          ></path><path
+            d="M10.4247 8.0102C9.56657 7.94874 8.70522 8.07256 7.89911 8.37326C7.09305 8.67395 6.36096 9.14458 5.75272 9.753L2.75285 12.7529L2.74067 12.7653C1.64772 13.8969 1.04295 15.4125 1.05662 16.9857C1.07029 18.5589 1.70131 20.0637 2.81376 21.1762C3.9262 22.2886 5.43108 22.9196 7.00426 22.9333C8.57744 22.947 10.0931 22.3422 11.2247 21.2493L11.2371 21.2371L12.9471 19.5271C13.3376 19.1366 13.3376 18.5034 12.9471 18.1129C12.5565 17.7223 11.9234 17.7223 11.5328 18.1129L9.82932 19.8164C9.07555 20.5414 8.06768 20.9425 7.02164 20.9334C5.97285 20.9243 4.9696 20.5036 4.22797 19.762C3.48634 19.0203 3.06566 18.0171 3.05655 16.9683C3.04746 15.9222 3.44851 14.9144 4.17355 14.1606L7.16719 11.167C7.5727 10.7613 8.06071 10.4476 8.59811 10.2471C9.13552 10.0467 9.70976 9.96412 10.2819 10.0051C10.854 10.0461 11.4106 10.2096 11.9139 10.4846C12.4173 10.7596 12.8556 11.1397 13.1992 11.599C13.53 12.0412 14.1567 12.1316 14.5989 11.8007C15.0412 11.4699 15.1315 10.8433 14.8007 10.401C14.2854 9.71205 13.6279 9.14198 12.8729 8.72948C12.1178 8.31697 11.2829 8.07166 10.4247 8.0102Z"
+            fill="currentColor"
+          ></path></svg
+        >
+      </button>
+    </div>
+  </BubbleMenu>
+{/if}

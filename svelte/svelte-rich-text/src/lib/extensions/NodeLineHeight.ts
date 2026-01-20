@@ -2,12 +2,14 @@ import { Extension } from "@tiptap/core";
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
-    lineHeight: {
+    nodeLineHeight: {
       setNodeLineHeight: (lineHeight: string) => ReturnType;
       unsetNodeLineHeight: () => ReturnType;
     };
   }
 }
+
+const allowedTypes = ["paragraph", "heading", "h1"];
 
 export const NodeLineHeight = Extension.create({
   name: "nodeLineHeight",
@@ -15,7 +17,7 @@ export const NodeLineHeight = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        types: ["paragraph", "heading"],
+        types: allowedTypes,
         attributes: {
           lineHeight: {
             default: null,
@@ -42,14 +44,8 @@ export const NodeLineHeight = Extension.create({
             for (let d = $from.depth; d > 0; d--) {
               const node = $from.node(d);
 
-              if (node.type.name === "paragraph") {
-                return commands.updateAttributes("paragraph", {
-                  lineHeight,
-                });
-              }
-
-              if (node.type.name === "heading") {
-                return commands.updateAttributes("heading", {
+              if (allowedTypes.includes(node.type.name)) {
+                return commands.updateAttributes(node.type.name, {
                   lineHeight,
                 });
               }
@@ -60,10 +56,20 @@ export const NodeLineHeight = Extension.create({
 
       unsetNodeLineHeight:
         () =>
-          ({ commands }) => {
-            return commands.updateAttributes("paragraph", {
-              lineHeight: null,
-            });
+          ({ state, commands }) => {
+            const { $from } = state.selection;
+
+            for (let d = $from.depth; d > 0; d--) {
+              const node = $from.node(d);
+
+              if (allowedTypes.includes(node.type.name)) {
+                return commands.updateAttributes(node.type.name, {
+                  lineHeight: null,
+                });
+              }
+            }
+
+            return false;
           },
     };
   }
