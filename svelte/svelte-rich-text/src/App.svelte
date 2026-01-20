@@ -5,7 +5,7 @@
   import RichText from "./lib/RichText.svelte";
   import packageJson from "../package.json";
   import { renderHTMLFromJSON } from "./lib/renderRichText";
-  import { AudioExt, PlaceholderExt } from "./lib/index";
+  import { AudioExt, PlaceholderExt, audioAttributes } from "./lib/index";
 
   let name = packageJson.name;
   let description = packageJson.description;
@@ -443,6 +443,7 @@
           playBtnTextColor: "currentColor",
           colorPlay: "#5d5d5dc9",
           maxWidth: "100%",
+          rewriteStyles: true,
         },
       },
       {
@@ -578,6 +579,7 @@
         playBtnTextColor,
         maxWidth,
         colorPlay,
+        rewriteStyles,
       } = node.attrs;
 
       return `
@@ -589,12 +591,13 @@
       bgColor="${bgColor}"
       textColor="${textColor}"
       borderRadius="${borderRadius}"
-      accentColor="${accentColor}"
+      accentColor="${$audioAttributes.accentColor}"
       accentColorPaused="${accentColorPaused}"
       playBtnBgColor="${playBtnBgColor}"
       playBtnTextColor="${playBtnTextColor}"
       maxWidth="${maxWidth}"
       colorPlay="${colorPlay}"
+      rewriteStyles="${rewriteStyles}"
       >
       </fl-audio-player>
       `;
@@ -666,6 +669,16 @@
     // console.log("contentError");
     // console.log(e);
   }
+
+  function changeAccentColor(color: string) {
+    const accentColor = color;
+    $audioAttributes.accentColor = accentColor;
+  }
+
+  function changeBgColor(color: string) {
+    const bgColor = color;
+    $audioAttributes.bgColor = bgColor;
+  }
 </script>
 
 <main>
@@ -679,9 +692,32 @@
   <p class="package-desc">{description}</p>
 
   <div class="card">
+    <pre>
+      {JSON.stringify($audioAttributes, null, 2)}
+    </pre>
+    <button onclick={() => changeAccentColor('red')}>
+      Accent color RED
+    </button>
+    <button onclick={() => changeAccentColor('blue')}>
+      Accent color BLUE
+    </button>
+    <button onclick={() => changeAccentColor('green')}>
+      Accent color GREEN
+    </button>
+
+    <button onclick={() => changeBgColor('#222')}>
+      Background color #222
+    </button>
+    <button onclick={() => changeBgColor('#ddd')}>
+      Background color #ddd
+    </button>
+  </div>
+
+  <div class="card">
     <RichText
       config={{
         // docBg: '#202020',
+        // editorAccentColor: "#22c55e",
         editorBgColor: "#242424",
         toolbarStickyPosition: 0,
         toolbarZIndex: 10,

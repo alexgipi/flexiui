@@ -329,8 +329,9 @@ tbody tr:last-child td {
     }
 
     &::before, &::after {
-      border-color: #ffffff33;
+      border-color: currentColor;
       pointer-events: none;
+      opacity: 0.3;
     }
   }
 
