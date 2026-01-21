@@ -20,6 +20,13 @@
     content: "h1 block*",
   });
 
+  // audioAttributes.set({
+  //   bgColor: "#111827",
+  //   accentColor: "#22c55e",
+  //   textColor: "#e5e7eb",
+  //   borderRadius: "12px",
+  // });
+
   let customExtensions = [
     CustomDocument,
     SpecialBox,
@@ -591,7 +598,7 @@
       bgColor="${bgColor}"
       textColor="${textColor}"
       borderRadius="${borderRadius}"
-      accentColor="${$audioAttributes.accentColor}"
+      accentColor="${accentColor}"
       accentColorPaused="${accentColorPaused}"
       playBtnBgColor="${playBtnBgColor}"
       playBtnTextColor="${playBtnTextColor}"

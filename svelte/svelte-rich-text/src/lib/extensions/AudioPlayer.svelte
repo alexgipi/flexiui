@@ -45,17 +45,21 @@
 
   id = id + "-" + Math.random().toString(36).substring(2, 15);
 
-  audioAttributes.set({
-    bgColor,
-    textColor,
-    borderRadius,
-    accentColor,
-    accentColorPaused,
-    playBtnBgColor,
-    playBtnTextColor,
-    colorPlay,
-    maxWidth,
+  audioAttributes.subscribe((value) => {
+    console.log({ value });
   });
+
+  // audioAttributes.set({
+  //   bgColor,
+  //   textColor,
+  //   borderRadius,
+  //   accentColor,
+  //   accentColorPaused,
+  //   playBtnBgColor,
+  //   playBtnTextColor,
+  //   colorPlay,
+  //   maxWidth,
+  // });
 
   function formatTime(seconds: number) {
     if (isNaN(seconds) || seconds < 0) return "0:00";
@@ -308,10 +312,10 @@ class="audio-player"
 {id} 
 class:playing
 style={`
-  ${(bgColor || $audioAttributes.bgColor) && `--player-bg-color: ${rewrite ? bgColor : $audioAttributes.bgColor};`}
+  ${bgColor && `--player-bg-color: ${rewrite ? bgColor : $audioAttributes.bgColor || bgColor};`}
   ${playBtnBgColor && `--player-play-btn-bg: ${playBtnBgColor};`}
   ${playBtnTextColor && `--player-play-btn-color: ${playBtnTextColor};`}
-  ${`--player-primary-color: ${rewrite ? accentColor : $audioAttributes.accentColor};`}
+  ${`--player-primary-color: ${rewrite ? accentColor : $audioAttributes.accentColor || accentColor};`}
   ${accentColorPaused && `--player-progress-default-bg: ${accentColorPaused};`}
   ${textColor && `--player-text-color: ${textColor};`}
   ${borderRadius && `--player-border-radius: ${borderRadius};`}

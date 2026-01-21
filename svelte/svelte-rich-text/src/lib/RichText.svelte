@@ -22,7 +22,7 @@
   import { getRichTextExtensions } from "./getExtensions";
   import { CellSelection } from "prosemirror-tables";
 
-  declare interface Props {
+  export interface Props {
     id?: string;
     className?: string;
     editable?: boolean;
@@ -62,6 +62,8 @@
       buttonStyle?: "accent-soft" | "accent-solid";
     };
   }
+
+  export type RichTextProps = Props;
 
   let {
     id = "fl-rich-text-editor",
