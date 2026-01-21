@@ -36,6 +36,43 @@ const nodeMapping: any = {
     gridItem({ node, children }) {
         return `<div class="fl-grid-item">${serializeChildrenToHTMLString(children)}</div>`
     },
+    audio({ node, children }) {
+        const {
+            id,
+            src,
+            controls,
+            bgColor,
+            textColor,
+            borderRadius,
+            accentColor,
+            accentColorPaused,
+            playBtnBgColor,
+            playBtnTextColor,
+            maxWidth,
+            colorPlay,
+            rewriteStyles,
+        } = node.attrs;
+
+        return `
+        <fl-audio-player
+        class="fl-audio-player"
+        id="${id}" 
+        src="${src}"
+        controls="${controls}"
+        bgColor="${bgColor}"
+        textColor="${textColor}"
+        borderRadius="${borderRadius}"
+        accentColor="${accentColor}"
+        accentColorPaused="${accentColorPaused}"
+        playBtnBgColor="${playBtnBgColor}"
+        playBtnTextColor="${playBtnTextColor}"
+        maxWidth="${maxWidth}"
+        colorPlay="${colorPlay}"
+        rewriteStyles="${rewriteStyles}"
+        >
+        </fl-audio-player>
+        `
+    },
 }
 
 
