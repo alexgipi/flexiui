@@ -16,7 +16,7 @@
   --fl-toolbar-bg: #242424;
   --fl-toolbar-text-color: currentColor;
 
-  --fl-doc-max-width: 1024px;
+  --fl-doc-max-width: 1032px;
   --fl-doc-padding: 2rem;
   --fl-doc-bg: transparent;
   --fl-doc-margin-inline: auto;
@@ -45,7 +45,7 @@
   color: var(--fl-doc-text-color, currentColor);
   border-radius: var(--fl-doc-radius, 12px);
   width: 100%;
-  max-width: var(--fl-doc-max-width, 1024px);
+  max-width: var(--fl-doc-max-width, 1032px);
   margin-inline: var(--fl-doc-margin-inline, auto);
   margin-block: var(--fl-doc-margin-block, 2rem);
   box-sizing: border-box;
@@ -174,6 +174,7 @@
   flex-wrap: nowrap;
   overflow: auto;
   align-items: center;
+  justify-content: center;
   gap: var(--fl-toolbar-gap);
   padding: var(--fl-toolbar-padding);
   position: sticky;
@@ -182,6 +183,12 @@
   background: var(--fl-toolbar-bg, #242424);
   color: var(--fl-toolbar-text-color);
   border-radius: var(--fl-editor-radius);
+}
+
+.fl-rich-text-toolbar-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--fl-toolbar-gap);
 }
 
 .fl-rich-text-toolbar-group {
@@ -266,7 +273,6 @@ button {
   font-size: 11px;
   border-radius: 3px;
   outline: 1px dashed currentColor;
-  scale: 1.1;
 }
 
 .fl-button-color-text-popover {
