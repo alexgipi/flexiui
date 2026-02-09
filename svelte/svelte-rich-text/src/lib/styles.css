@@ -411,7 +411,7 @@ button {
 }
 
 .fl-range-element input {
-  accent-color: #ffffff;
+  accent-color: var(--fl-editor-accent-color);
 }
 
 .fl-range-element-value {
