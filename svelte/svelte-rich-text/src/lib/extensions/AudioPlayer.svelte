@@ -46,7 +46,7 @@
   id = id + "-" + Math.random().toString(36).substring(2, 15);
 
   audioAttributes.subscribe((value) => {
-    console.log({ value });
+    // console.log({ value });
   });
 
   // audioAttributes.set({
@@ -73,7 +73,7 @@
 
   function togglePlayPause() {
     playing = !playing;
-    console.log({ playing });
+    // console.log({ playing });
 
     if (playing) {
       activeAudioId.set(id);
@@ -130,15 +130,15 @@
         wavesurfer?.pause();
       }
     });
-    console.log({ src });
-    console.log({ WaveSurfer });
+    // console.log({ src });
+    // console.log({ WaveSurfer });
 
     if (WaveSurfer) {
         
         setTimeout(() => {
           const identifier = "waveform-" + id;
-          console.log({ identifier });
-          console.log({ waveformEl });
+          // console.log({ identifier });
+          // console.log({ waveformEl });
 
           wavesurfer = WaveSurfer?.create({
             container: waveformEl,
@@ -193,7 +193,7 @@
 
     audio.onended = () => {
       playing = false;
-      console.log("Audio playback ended");
+      // console.log("Audio playback ended");
     };
 
     audio.addEventListener("timeupdate", () => {
@@ -205,7 +205,7 @@
 
     audio.onended = () => {
       playing = false;
-      console.log("Audio playback ended");
+      // console.log("Audio playback ended");
     };
 
     audio.addEventListener("play", () => {

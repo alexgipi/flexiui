@@ -5,7 +5,7 @@
 
   const { node, updateAttributes, selected, getPos, editor }: NodeViewProps = $props();
 
-  console.log(node);
+  // console.log(node);
   let cols = $state(node.attrs.cols || 2);
   let gap = $state(node.attrs.gap || 1);
   let showIndicator = $state(node.attrs.showIndicator || false);

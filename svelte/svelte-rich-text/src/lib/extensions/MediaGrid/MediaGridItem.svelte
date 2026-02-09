@@ -119,10 +119,10 @@
   }
 
   async function handleDragOver(e: any) {
-    console.log(e);
+    // console.log(e);
     dragging = true;
     e.preventDefault();
-    console.log("Drag over");
+    // console.log("Drag over");
   }
 
   async function handleDrop(e: DragEvent) {
@@ -140,18 +140,18 @@
       );
 
       if (files.length > 0) {
-        console.log("Dropped local files:", files);
+        // console.log("Dropped local files:", files);
         await uploadFiles(files);
       }
     } else {
       dragging = false;
-      console.log("Dropped external content:", types);
+      // console.log("Dropped external content:", types);
 
       // puede ser desde navegador (ejemplo: arrastrar imagen desde otra pestaña)
       if (types.includes("text/uri-list")) {
         const url = e.dataTransfer?.getData("text/uri-list");
         if (url) {
-          console.log("Dropped image URL:", url);
+          // console.log("Dropped image URL:", url);
           insertImage(url);
         }
       }
@@ -159,19 +159,19 @@
   }
 
   function handleDragEnter(e: any) {
-    console.log("Drag enter");
+    // console.log("Drag enter");
     dragging = true;
   }
 
   function handleDragLeave(e: any) {
-    console.log("Drag leave");
+    // console.log("Drag leave");
     dragging = false;
   }
 
   function handleFileChange(e: any) {
-    console.log("File change");
+    // console.log("File change");
     const files = [...e.target.files];
-    console.log(files);
+    // console.log(files);
 
     uploadFiles(files);
   }
@@ -200,7 +200,7 @@
       // console.log({ errorMessage: docs.message });
 
       if (json.error === "Token expired") {
-        console.log("Token expired: MediaModal.svelte");
+        // console.log("Token expired: MediaModal.svelte");
         // return Astro.redirect('/admin/logout');
         const refreshTokenData = await refreshUserToken(refreshToken);
 
@@ -217,7 +217,7 @@
           console.error({ error, message });
         }
       } else if (json.error === "Token missing or invalid") {
-        console.log("Token missing or invalid");
+        // console.log("Token missing or invalid");
       }
     }
 
@@ -246,9 +246,9 @@
   }
 
   function dragAreaClickHandler(e) {
-    console.log("Clicked drag area");
+    // console.log("Clicked drag area");
     if (addGridMediaIconEl) {
-      console.log("Add grid Media icon el: ", addGridMediaIconEl);
+      // console.log("Add grid Media icon el: ", addGridMediaIconEl);
       showTooltip(addGridMediaIconEl);
     }
   }

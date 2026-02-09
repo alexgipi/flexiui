@@ -461,7 +461,7 @@
         });
       }, 100);
     } catch (e) {
-      console.log(e.message);
+      // console.log(e.message);
     }
   }
 
@@ -2107,9 +2107,9 @@
 
         // ⛔️ Ocultar si hay flag de selección completa por fila/columna
         if (isRow || isColumn) {
-          console.log(
-            "Ocultar si hay flag de selección completa por fila/columna"
-          );
+          // console.log(
+          //   "Ocultar si hay flag de selección completa por fila/columna"
+          // );
           return false;
         }
 

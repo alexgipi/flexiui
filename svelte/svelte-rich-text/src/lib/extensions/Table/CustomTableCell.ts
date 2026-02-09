@@ -39,7 +39,7 @@ export const CustomTableCell = TableCell.extend<{}, CustomTableCellStorage>({
     },
     addNodeView() {
         const editor = this.editor // ✅ aquí lo tienes disponible
-        console.log('Editor:', editor)
+        // console.log('Editor:', editor)
         return SvelteNodeViewRenderer(TableCellNodeView, {
             as: 'td',
             stopEvent: () => false,
@@ -64,7 +64,7 @@ export const CustomTableCell = TableCell.extend<{}, CustomTableCellStorage>({
                             tr.setSelection(rowSel);
                             dispatch(tr);
 
-                            console.log('Row selected. Is first row?', isFirst);
+                            // console.log('Row selected. Is first row?', isFirst);
                         }
                         return true;
                     },
@@ -86,7 +86,7 @@ export const CustomTableCell = TableCell.extend<{}, CustomTableCellStorage>({
                             tr.setSelection(colSel);
                             dispatch(tr);
 
-                            console.log('Column selected. Is first row?', isFirst);
+                            // console.log('Column selected. Is first row?', isFirst);
                         }
                         return true;
                     },
