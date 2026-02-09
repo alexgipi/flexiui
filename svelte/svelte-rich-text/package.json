@@ -1,6 +1,6 @@
 {
   "name": "@flexiui/svelte-rich-text",
-  "version": "0.0.48",
+  "version": "0.0.57",
   "description": "A lightweight and flexible rich text editor component for Svelte",
   "keywords": [
     "svelte",
