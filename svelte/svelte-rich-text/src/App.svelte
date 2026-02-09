@@ -37,14 +37,13 @@
         } else if (node.type.name === "paragraph") {
           return "Escribe algo...";
         }
-        
       },
       showOnlyCurrent: ({ node }) => {
         const allowedTypes = ["h1", "paragraph"];
         if (allowedTypes.includes(node.type.name)) {
           return false;
         } else {
-          return true;  
+          return true;
         }
       },
     }),
@@ -65,6 +64,7 @@
         attrs: {
           textAlign: null,
           lineHeight: null,
+          level: 1,
         },
         content: [
           {
@@ -339,26 +339,9 @@
               {
                 type: "tableCell",
                 attrs: {
-                  colspan: 1,
+                  colspan: 2,
                   rowspan: 1,
-                  colwidth: [323],
-                },
-                content: [
-                  {
-                    type: "paragraph",
-                    attrs: {
-                      textAlign: null,
-                      lineHeight: null,
-                    },
-                  },
-                ],
-              },
-              {
-                type: "tableCell",
-                attrs: {
-                  colspan: 1,
-                  rowspan: 1,
-                  colwidth: [375],
+                  colwidth: [323, 375],
                 },
                 content: [
                   {
@@ -446,6 +429,7 @@
           borderRadius: "18px",
           accentColor: "#5e17eb",
           accentColorPaused: "#fff",
+          seekBarBgColor: "#8d8d8d3a",
           playBtnBgColor: "#8d8d8d26",
           playBtnTextColor: "currentColor",
           colorPlay: "#5d5d5dc9",
@@ -545,10 +529,12 @@
           borderRadius: "18px",
           accentColor: "#5e17eb",
           accentColorPaused: "#fff",
+          seekBarBgColor: "#8d8d8d3a",
           playBtnBgColor: "#8d8d8d26",
           playBtnTextColor: "currentColor",
           colorPlay: "#5d5d5dc9",
           maxWidth: "100%",
+          rewriteStyles: false,
         },
       },
       {
@@ -702,20 +688,18 @@
     <pre>
       {JSON.stringify($audioAttributes, null, 2)}
     </pre>
-    <button onclick={() => changeAccentColor('red')}>
-      Accent color RED
-    </button>
-    <button onclick={() => changeAccentColor('blue')}>
+    <button onclick={() => changeAccentColor("red")}> Accent color RED </button>
+    <button onclick={() => changeAccentColor("blue")}>
       Accent color BLUE
     </button>
-    <button onclick={() => changeAccentColor('green')}>
+    <button onclick={() => changeAccentColor("green")}>
       Accent color GREEN
     </button>
 
-    <button onclick={() => changeBgColor('#222')}>
+    <button onclick={() => changeBgColor("#222")}>
       Background color #222
     </button>
-    <button onclick={() => changeBgColor('#ddd')}>
+    <button onclick={() => changeBgColor("#ddd")}>
       Background color #ddd
     </button>
   </div>
