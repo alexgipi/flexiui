@@ -29,12 +29,28 @@
   let tooltip: HTMLDivElement = $state(null) as HTMLDivElement;
   let cleanup: () => void;
 
-  onMount(() => {
+onMount(() => {
     const td = wrapper.closest("td, th");
     if (!td) return;
 
     const tr = td.parentElement;
     const table = td.closest("table");
+
+    // ✅ Establecer atributos iniciales
+    const attrs = node.attrs;
+    const { colspan, rowspan, colwidth } = attrs;
+
+    if (colspan) {
+      td.setAttribute("colspan", colspan);
+    }
+
+    if (rowspan) {
+      td.setAttribute("rowspan", rowspan);
+    }
+
+    if (colwidth) {
+      td.setAttribute("colwidth", colwidth);
+    }
 
     // ✅ primera celda de la fila (botón lateral)
     if (tr && tr.firstElementChild === td) {
