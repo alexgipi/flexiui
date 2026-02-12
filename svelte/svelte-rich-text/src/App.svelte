@@ -706,6 +706,7 @@
 
   <div class="card">
     <RichText
+      nodesLimit={12}
       config={{
         // docBg: '#202020',
         // editorAccentColor: "#22c55e",
@@ -732,34 +733,6 @@
         onContentError: handleEditorContentError,
       }}
       {content}
-    ></RichText>
-
-    <RichText
-      config={{
-        // docBg: '#202020',
-        editorBgColor: "#242424",
-        toolbarStickyPosition: 0,
-        toolbarZIndex: 10,
-        // docMarginBlock: "0"
-      }}
-      className="my-rich-text"
-      id="flexi-rich-text"
-      {customExtensions}
-      editorEvents={{
-        onUpdate: handleEditorUpdate,
-        onTransaction: handleEditorTransaction,
-        onFocus: handleEditorFocus,
-        onBlur: handleEditorBlur,
-        onDestroy: handleEditorDestroy,
-        onDrop: handleEditorDrop,
-        onDelete: handleEditorDelete,
-        onPaste: handleEditorPaste,
-        onSelectionUpdate: handleEditorSelectionUpdate,
-        onBeforeCreate: handleEditorBeforeCreate,
-        onCreate: handleEditorCreate,
-        onContentError: handleEditorContentError,
-      }}
-      content={`<p>HOLAAAAA`}
     ></RichText>
   </div>
 

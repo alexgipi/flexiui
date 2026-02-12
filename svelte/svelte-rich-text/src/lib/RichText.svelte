@@ -27,6 +27,7 @@
     className?: string;
     editable?: boolean;
     content?: string | {type: string, content: any[]} | null;
+    nodesLimit?: number;
     customExtensions?: any[];
     editorEvents?: {
       onTransaction?: (params: any) => void;
@@ -70,6 +71,7 @@
     className,
     editable,
     content,
+    nodesLimit,
     customExtensions = [],
     editorEvents = {
       onTransaction: () => {},
@@ -172,6 +174,8 @@
   let enterPressed = $state(false);
   let fontSize = $state(16) as number;
   let lineHeight = $state(null) as number;
+  let currentNodeCount = $state(0);
+  let showLimitWarning = $state(false);
 
   const TEXT_COLOR_PALETTE = [
     editorConfig.editorAccentColor,
@@ -253,6 +257,25 @@
   const isCellSelection = () =>
     $editor && $editor.state.selection instanceof CellSelection;
 
+  // función para contar nodos en el documento
+  function countNodes(doc: any): number {
+    // Solo contar los nodos de primer nivel (hijos directos del doc)
+    console.log(doc);
+    if (doc.type === 'doc' && doc.content) {
+      return doc.content.length;
+    }
+    return 0;
+  }
+
+  // función para actualizar el contador de nodos
+  function updateNodeCount() {
+    if ($editor) {
+
+      currentNodeCount = countNodes($editor.getJSON());
+      
+    }
+  }
+
   onMount(() => {
     editor = createEditor({
       extensions,
@@ -263,7 +286,26 @@
         },
         handleKeyDown: (view, event) => {
           if (event.key === "Enter" && !event.ctrlKey) {
+            // Verificar si hay límite de nodos y si se ha alcanzado
             enterPressed = true;
+
+            if (nodesLimit) {
+              const currentCount = currentNodeCount;
+              if (currentCount >= nodesLimit) {
+
+                if(!showLimitWarning){
+                  showLimitWarning = true;
+                  setTimeout(() => {
+                    showLimitWarning = false;
+                  }, 3000);
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                return true;
+
+              }
+            }
 
             setTimeout(() => {
               enterPressed = false;
@@ -318,13 +360,17 @@
         },
       },
       onTransaction: ({ editor, transaction }) => {
-        editorEvents.onTransaction({ editor, transaction });
-        editor = editor;
+
+        // Actualizar contador de nodos
+
+        updateNodeCount();
 
         if (enterPressed) {
-          // console.log("Enter pressed");
           return;
         }
+
+        editorEvents.onTransaction({ editor, transaction });
+        editor = editor;
 
         const { from } = editor.state.selection;
 
@@ -377,6 +423,8 @@
       onCreate: ({ editor }) => {
         editorEvents.onCreate({ editor });
         migrateMathStrings(editor);
+        
+        updateNodeCount();
       },
 
       onUpdate: ({ editor }) => {
@@ -1510,6 +1558,22 @@
   {/if}
 
   <EditorContent editor={$editor} class="fl-rich-text-content" />
+
+  <!-- Bottom bar showing node count -->
+  {#if nodesLimit}
+    <div class="fl-node-count-bar">
+      <span class="fl-node-count-text">
+        <strong>Límite:</strong> {currentNodeCount} de {nodesLimit} nodos
+      </span>
+      <div class="fl-node-count-progress">
+        <div 
+          class="fl-node-count-progress-bar" 
+          style="width: {Math.min((currentNodeCount / nodesLimit) * 100, 100)}%"
+        ></div>
+      </div>
+    </div>
+  {/if}
+
 </div>
 
 <div
@@ -2793,9 +2857,21 @@
   </div>
 {/if}
 
+<!-- Warning message for node limit -->
+{#if showLimitWarning && nodesLimit}
+  <div class="fl-node-limit-warning">
+    No se pueden añadir más elementos. Límite alcanzado: {nodesLimit} elementos.
+  </div>
+{/if}
 
 <style>
   .hidden {
     display: none;
+  }
+
+  .fl-node-count-text {
+    strong {
+      margin-right: 4px;
+    }
   }
 </style>

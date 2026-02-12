@@ -490,6 +490,64 @@ button {
   }
 }
 
+/* Node limit styles */
+.fl-node-limit-warning {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ff4444;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.fl-node-count-bar {
+  background: var(--fl-toolbar-bg, #242424);
+  border-top: 1px solid #333;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--fl-toolbar-text-color, currentColor);
+}
+
+.fl-node-count-text {
+  font-weight: 500;
+  min-width: fit-content;
+}
+
+.fl-node-count-progress {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.fl-node-count-progress-bar {
+  height: 100%;
+  background: var(--fl-editor-accent-color, #535bf2);
+  transition: width 0.2s ease;
+  border-radius: 2px;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 .media-grid-item-view-content > div {
   display: flex;
   height: 100%;
