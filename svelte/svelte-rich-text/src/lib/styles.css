@@ -92,6 +92,7 @@
   background-color: var(--fl-editor-bg, #242424);
   box-sizing: border-box;
   border-radius: var(--fl-editor-radius);
+  position: relative;
 
   .fl-editor-image-url-input {
     white-space: nowrap;
@@ -492,18 +493,28 @@ button {
 
 /* Node limit styles */
 .fl-node-limit-warning {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
   background: #ff4444;
   color: white;
-  padding: 12px 16px;
+  padding: 4px 12px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
-  z-index: 1000;
-  animation: slideInRight 0.3s ease-out;
+  animation: slideInTop 0.3s ease-out;
+}
+
+@keyframes slideInTop {
+  from {
+    transform: translateX(-50%) translateY(15px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
 }
 
 .fl-node-count-bar {
@@ -537,16 +548,6 @@ button {
   border-radius: 2px;
 }
 
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
 
 .media-grid-item-view-content > div {
   display: flex;

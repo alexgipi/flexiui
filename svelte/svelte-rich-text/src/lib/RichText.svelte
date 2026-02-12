@@ -28,6 +28,7 @@
     editable?: boolean;
     content?: string | {type: string, content: any[]} | null;
     nodesLimit?: number;
+    limitWarningMessage?: string;
     customExtensions?: any[];
     editorEvents?: {
       onTransaction?: (params: any) => void;
@@ -72,6 +73,7 @@
     editable,
     content,
     nodesLimit,
+    limitWarningMessage,
     customExtensions = [],
     editorEvents = {
       onTransaction: () => {},
@@ -1559,11 +1561,18 @@
 
   <EditorContent editor={$editor} class="fl-rich-text-content" />
 
+  <!-- Warning message for node limit -->
+  {#if showLimitWarning && nodesLimit}
+    <div class="fl-node-limit-warning">
+      {limitWarningMessage || ` No se pueden añadir más elementos a este editor. Max: ${nodesLimit} elementos.`}
+    </div>
+  {/if}
+
   <!-- Bottom bar showing node count -->
   {#if nodesLimit}
     <div class="fl-node-count-bar">
       <span class="fl-node-count-text">
-        <strong>Límite:</strong> {currentNodeCount} de {nodesLimit} nodos
+        {currentNodeCount} de {nodesLimit} elementos
       </span>
       <div class="fl-node-count-progress">
         <div 
@@ -2854,13 +2863,6 @@
         </button>
       </div>
     </BubbleMenu>
-  </div>
-{/if}
-
-<!-- Warning message for node limit -->
-{#if showLimitWarning && nodesLimit}
-  <div class="fl-node-limit-warning">
-    No se pueden añadir más elementos. Límite alcanzado: {nodesLimit} elementos.
   </div>
 {/if}
 
