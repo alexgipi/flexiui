@@ -540,7 +540,7 @@ button {
   }
 }
 
-.fl-node-count-bar {
+.fl-counters-bar {
   background: var(--fl-toolbar-bg, #242424);
   border-top: 1px solid #333;
   padding: 9px 12px;
@@ -551,12 +551,16 @@ button {
   color: var(--fl-toolbar-text-color, currentColor);
   border-bottom-left-radius: inherit;
   border-bottom-right-radius: inherit;
+
+  span {
+    color: #ffffffab;
+  }
 }
 
 .fl-character-count {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
 
   svg {
     color: var(--fl-editor-accent-color);
@@ -565,7 +569,7 @@ button {
   &.fl-character-count--warning {
     color: #ff5c33;
 
-    svg {
+    svg, span {
       color: currentColor;
     }
   }

@@ -1,49 +1,28 @@
 <script lang="ts">
   import "./styles.css";
   import "katex/dist/katex.min.css";
-
   import { onMount, onDestroy, setContext } from "svelte";
   import type { Readable } from "svelte/store";
-
   import { computePosition, offset, autoUpdate } from "@floating-ui/dom";
-
   import {
     Mathematics,
     migrateMathStrings,
   } from "@tiptap/extension-mathematics";
-
   import { CharacterCount } from '@tiptap/extensions'
-
   import { CellSelection } from "prosemirror-tables";
-
   import {
     createEditor,
     Editor,
     EditorContent,
     BubbleMenu,
   } from "svelte-tiptap";
-
   import { getRichTextExtensions } from "./getExtensions";
-
   import { rgbToHex } from "./utils";
-
-  import SpecialBox from "./Toolbar/action-buttons/marks/SpecialBox.svelte";
 
   import MergeCellsBtn from "./Toolbar/action-buttons/MergeCellsBtn.svelte";
   import SplitCellBtn from "./Toolbar/action-buttons/SplitCellBtn.svelte";
 
   import HeadingBtn from "./Toolbar/action-buttons/nodes/HeadingBtn.svelte";
-  import HardBreakBtn from "./Toolbar/action-buttons/nodes/HardBreakBtn.svelte";
-
-  import CodeMarkBtn from "./Toolbar/action-buttons/marks/CodeMarkBtn.svelte";
-  import LinkBtn from "./Toolbar/action-buttons/marks/LinkBtn.svelte";
-  import Strike from "./Toolbar/action-buttons/marks/Strike.svelte";
-  import Underline from "./Toolbar/action-buttons/marks/Underline.svelte";
-  import Italic from "./Toolbar/action-buttons/marks/Italic.svelte";
-  import Bold from "./Toolbar/action-buttons/marks/Bold.svelte";
-
-  import HighlightDropdownBtn from "./Toolbar/dropdown-buttons/HighlightDropdownBtn.svelte";
-  import TextColorDropdownBtn from "./Toolbar/dropdown-buttons/TextColorDropdownBtn.svelte";
 
   import LineHeightDropdown from "./Toolbar/dropdowns/LineHeightDropdown.svelte";
   import ListBtn from "./Toolbar/action-buttons/nodes/ListBtn.svelte";
@@ -60,6 +39,7 @@
     charactersLimit?: number;
     limitWarningMessage?: string;
     showToolbar?: boolean;
+    showCountersBar?: boolean;
     toolbarAlign?: string;
     semanticHeadings?: boolean;
     uniqueH1?: boolean;
@@ -138,6 +118,7 @@
     charactersLimit,
     limitWarningMessage,
     showToolbar = true,
+    showCountersBar = true,
     toolbarAlign = "center",
     semanticHeadings = false,
     uniqueH1 = false,
@@ -241,7 +222,7 @@
 
   const isAccentSoft = editorConfig.buttonStyle === "accent-soft";
   let percentage = $derived.by(() => {
-    return $editor ? Math.round((100 / charactersLimit) * $editor.storage.characterCount.characters()) : 0
+    return $editor ? (100 / charactersLimit) * $editor.storage.characterCount.characters() : 0
   });
 
   let toolbarGroups = $derived(
@@ -292,8 +273,6 @@
       Mathematics.configure({
         inlineOptions: {
           onClick: (node, pos) => {
-            // you can do anything on click, e.g. open a dialog to edit the math node
-            // or just a prompt to edit the LaTeX code for a quick prototype
             const katex = prompt(
               "Update math LaTeX expression:",
               node.attrs.latex,
@@ -321,7 +300,7 @@
         },
       }),
 
-      charactersLimit && CharacterCount.configure({
+      CharacterCount.configure({
         limit: charactersLimit,
       }),
       ...customExtensions,
@@ -334,9 +313,9 @@
     activeDropdownType = type;
 
     if (tooltipVisible) {
-      hideDropdown(); // Ocultar
+      hideDropdown();
     } else {
-      hideDropdown(); // limpiar antes de abrir
+      hideDropdown();
       currentTriggerEl = el;
       tooltipVisible = true;
       document.body.append(tooltip);
@@ -733,40 +712,44 @@
   {/if}
 
   <!-- Bottom bar showing node count -->
-  {#if nodesLimit}
-    <div class="fl-node-count-bar">
-      
+
+  {#if showCountersBar || percentage >= 90}
+    <div class="fl-counters-bar">
+      <div class="fl-character-count" class:fl-character-count--warning={percentage >= 100}>
         {#if charactersLimit}
-          <div class="fl-character-count" class:fl-character-count--warning={percentage >= 100}>
-            <svg height="20" width="20" viewBox="0 0 20 20">
-                <circle r="10" cx="10" cy="10" fill="#ffffff30" />
-                <circle
-                  r="5"
-                  cx="10"
-                  cy="10"
-                  fill="transparent"
-                  stroke="currentColor"
-                  stroke-width="10"
-                  stroke-dasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
-                  transform="rotate(-90) translate(-20)"
-                />
-                <circle r="6" cx="10" cy="10" fill="var(--fl-editor-bg)" />
-            </svg>
-
-            <span>
-              Characters count: {$editor?.storage?.characterCount?.characters()} / {charactersLimit}
-            </span>
-
-            <span>
-              Words count: {$editor?.storage?.characterCount?.words()}
-            </span>
-          </div>
+          <svg height="20" width="20" viewBox="0 0 20 20">
+              <circle r="10" cx="10" cy="10" fill="#ffffff30" />
+              <circle
+                r="5"
+                cx="10"
+                cy="10"
+                fill="transparent"
+                stroke="currentColor"
+                stroke-width="10"
+                stroke-dasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
+                transform="rotate(-90) translate(-20)"
+              />
+              <circle r="6" cx="10" cy="10" fill="var(--fl-editor-bg)" />
+          </svg>
         {/if}
 
+        <span>
+          Characters: {$editor?.storage?.characterCount?.characters()} 
+          {#if charactersLimit} / {charactersLimit}{/if}
+        </span>
+      </div>
 
-      <span class="fl-node-count-text">
-        Nodes count: {currentNodeCount} / {nodesLimit}
-      </span>
+      {#if showCountersBar}
+        <span>
+          Words: {$editor?.storage?.characterCount?.words()}
+        </span>
+      {/if}
+
+      {#if nodesLimit}
+        <span class="fl-node-count-text">
+          Nodes: {currentNodeCount} / {nodesLimit}
+        </span>
+      {/if}
 
       <!-- <div class="fl-node-count-progress">
         <div

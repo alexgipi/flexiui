@@ -708,9 +708,10 @@
   </div>
 
   <div class="card">
-      <RichText
+    <RichText
       nodesLimit={12}
       charactersLimit={1000}
+      showCountersBar={false}
       semanticHeadings={true}
       uniqueH1={true}
       config={{
@@ -758,7 +759,10 @@
       ]}
       {content}
     />
-    <RichText
+  </div>
+
+  <div class="card">
+        <RichText
       nodesLimit={3}
       showToolbar={true}
       toolbarAlign="left"
