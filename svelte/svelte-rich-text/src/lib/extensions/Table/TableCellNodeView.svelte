@@ -66,10 +66,6 @@ onMount(() => {
       if (node?.type?.name !== "tableCell" && node?.type?.name !== "tableHeader")
         return;
 
-      const nodeEl = editor.view.nodeDOM(getPos());
-      // console.log(nodeEl);
-
-      // console.log("update", transaction);
 
       const attrs = node.attrs;
       const { colspan, rowspan, colwidth } = attrs;
