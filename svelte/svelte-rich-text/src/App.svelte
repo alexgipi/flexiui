@@ -17,7 +17,7 @@
   let json = $state(null);
 
   const CustomDocument = Document.extend({
-    content: "h1 block*",
+    content: "block+",
   });
 
   // audioAttributes.set({
@@ -28,12 +28,15 @@
   // });
 
   let customExtensions = [
-    CustomDocument,
+    // CustomDocument,
     SpecialBox,
     PlaceholderExt.configure({
       placeholder: ({ node }) => {
         if (node.type.name === "h1") {
           return "Introduce un título";
+        } else if (node.type.name === "heading") {
+          const level = node.attrs.level;
+          return "Introduce un título H" + level;
         } else if (node.type.name === "paragraph") {
           return "Escribe algo...";
         }
@@ -705,8 +708,11 @@
   </div>
 
   <div class="card">
-    <RichText
+      <RichText
       nodesLimit={12}
+      charactersLimit={1000}
+      semanticHeadings={true}
+      uniqueH1={true}
       config={{
         // docBg: '#202020',
         // editorAccentColor: "#22c55e",
@@ -732,13 +738,85 @@
         onCreate: handleEditorCreate,
         onContentError: handleEditorContentError,
       }}
+      toolbarConfig={[
+        [{ type: "undo" }, "redo"],
+        [{ type: "headings" }, { type: "lists" }],
+        ["codeBlock", "blockquote"],
+        ["fontSize", "lineHeight"],
+        // ["horizontalRule", "hardBreak"],
+        // ["inlineMath"],
+        // ["image", "audio"],
+        // ["mediaGrid", "table"],
+        [
+          "textAlignLeft",
+          "textAlignCenter",
+          "textAlignRight",
+          "clearFormatting",
+          "clearNodes",
+        ],
+        // ...
+      ]}
       {content}
-    ></RichText>
+    />
+    <RichText
+      nodesLimit={3}
+      showToolbar={true}
+      toolbarAlign="left"
+      config={{
+        // docBg: '#202020',
+        // editorAccentColor: "#22c55e",
+        editorRadius: "12px",
+        editorBgColor: "#242424",
+        toolbarStickyPosition: 0,
+        toolbarZIndex: 10,
+        // docMarginBlock: "0"
+      }}
+      className="my-rich-text"
+      id="flexi-rich-text"
+      {customExtensions}
+      editorEvents={{
+        onUpdate: handleEditorUpdate,
+        onTransaction: handleEditorTransaction,
+        onFocus: handleEditorFocus,
+        onBlur: handleEditorBlur,
+        onDestroy: handleEditorDestroy,
+        onDrop: handleEditorDrop,
+        onDelete: handleEditorDelete,
+        onPaste: handleEditorPaste,
+        onSelectionUpdate: handleEditorSelectionUpdate,
+        onBeforeCreate: handleEditorBeforeCreate,
+        onCreate: handleEditorCreate,
+        onContentError: handleEditorContentError,
+      }}
+      content={null}
+      toolbarConfig={[
+        [{ type: "undo" }, "redo"],
+        [{ type: "headings" }, { type: "lists" }],
+        ["codeBlock", "blockquote"],
+        ["horizontalRule", "hardBreak"],
+        ["inlineMath"],
+        ["image", "audio"],
+        ["mediaGrid", "table"],
+        [
+          "textAlignLeft",
+          "textAlignCenter",
+          "textAlignRight",
+          "clearFormatting",
+          "clearNodes",
+        ],
+        // ...
+      ]}
+      bubbleMenuConfig={[
+        ["bold", "italic", "underline", "strike", "code", "link", "specialBox"],
+        ["textColor", "highlight"],
+        ["fontSize", "lineHeight"],
+      ]}
+    />
   </div>
 
   <div class="card">
-    <h2>Static renderer with renderToHTMLString</h2>
-    {@html html}
+    <!-- <h2>Static renderer with renderToHTMLString</h2>
+    {@html html} -->
 
     <h2>JSON output</h2>
     <PrismCodeEditor

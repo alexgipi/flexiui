@@ -12,9 +12,15 @@
   --fl-toolbar-sticky-position: 0;
   --fl-toolbar-z-index: 10;
   --fl-toolbar-padding: 6px;
+  --fl-toolbar-justify-content: center;
   --fl-toolbar-gap: 5px;
   --fl-toolbar-bg: #242424;
   --fl-toolbar-text-color: currentColor;
+
+  --fl-toolbar-btn-padding: 0 9px;
+  --fl-toolbar-btn-radius: 9px;
+  --fl-toolbar-btn-min-height: 34px;
+  --fl-toolbar-btn-min-width: var(--fl-toolbar-btn-min-height);
 
   --fl-doc-max-width: 1032px;
   --fl-doc-padding: 2rem;
@@ -37,6 +43,12 @@
   min-height: 56px;
   box-sizing: border-box;
   width: 100%;
+}
+
+.fl-rich-text-content {
+  img {
+    max-width: 100%;
+  }
 }
 
 .fl-rich-text-doc {
@@ -113,11 +125,11 @@
     backdrop-filter: blur(16px);
     border-radius: 14px;
     display: flex;
-    gap: 6px;
+    gap: 5px;
     position: relative;
     z-index: 9;
 
-    button {
+    .fl-bubble-menu-mark-button {
       border-radius: 9px;
       border: none;
       display: flex;
@@ -175,7 +187,7 @@
   flex-wrap: nowrap;
   overflow: auto;
   align-items: center;
-  justify-content: center;
+  justify-content: var(--fl-toolbar-justify-content);
   gap: var(--fl-toolbar-gap);
   padding: var(--fl-toolbar-padding);
   position: sticky;
@@ -184,6 +196,7 @@
   background: var(--fl-toolbar-bg, #242424);
   color: var(--fl-toolbar-text-color);
   border-radius: var(--fl-editor-radius);
+  margin-bottom: calc(var(--fl-toolbar-padding) * -1);
 }
 
 .fl-rich-text-toolbar-container {
@@ -198,11 +211,11 @@
   gap: var(--fl-toolbar-gap);
 
   button {
-    padding: 8px 8px;
+    padding: var(--fl-toolbar-btn-padding, 0 9px);
     flex: auto;
     border: none;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: var(--fl-toolbar-btn-radius, 9px);
     color: currentColor;
     font-size: 14px;
     display: flex;
@@ -212,7 +225,8 @@
     gap: 2px;
     cursor: pointer;
     line-height: 1;
-    min-height: 32px;
+    min-height: var(--fl-toolbar-btn-min-height, 34px);
+  min-width: var(--fl-toolbar-btn-min-width, var(--fl-toolbar-btn-min-height, 34px));
 
     &.fl-font-size-button {
       font-size: 14px;
@@ -361,14 +375,23 @@ button {
   }
 }
 
+.fl-bubble-menu {
+  .fl-font-size-editor {
+    min-width: 30px;
+    min-height: 30px;
+    padding-inline: 6px;
+  }
+}
+
 .fl-font-size-editor {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0 6px;
-  border-radius: 8px;
+  padding: var(--fl-toolbar-btn-padding, 0 6px);
+  border-radius: var(--fl-toolbar-btn-radius, 9px);
   background: rgba(255, 255, 255, 0.1);
-  min-height: 32px;
+  min-height: var(--fl-toolbar-btn-min-height, 34px);
+  min-width: var(--fl-toolbar-btn-min-width, var(--fl-toolbar-btn-min-height, 34px));
 
   & button {
     border: none;
@@ -520,12 +543,32 @@ button {
 .fl-node-count-bar {
   background: var(--fl-toolbar-bg, #242424);
   border-top: 1px solid #333;
-  padding: 8px 16px;
+  padding: 9px 12px;
   display: flex;
   align-items: center;
   gap: 12px;
   font-size: 12px;
   color: var(--fl-toolbar-text-color, currentColor);
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+.fl-character-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  svg {
+    color: var(--fl-editor-accent-color);
+  }
+
+  &.fl-character-count--warning {
+    color: #ff5c33;
+
+    svg {
+      color: currentColor;
+    }
+  }
 }
 
 .fl-node-count-text {
