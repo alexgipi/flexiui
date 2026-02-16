@@ -1,247 +1,450 @@
-A 'RichText' component for Svelte.
+# RichText Component
+
+A powerful rich text editor component for Svelte built on top of [Tiptap](https://tiptap.dev/).
+
 ## Installation
-
-To install the `RichText` component in your Svelte project, you can use npm or yarn.
-
-With npm:
 
 ```bash
 npm install @flexiui/svelte-rich-text
 ```
 
-With yarn:
-
-```bash
-yarn add @flexiui/svelte-rich-text
-```
-
 ## Usage
 
-Once installed, you can use the `RichText` component in your Svelte application.
+### Basic Usage
 
 ```svelte
 <script lang="ts">
   import { RichText } from '@flexiui/svelte-rich-text';
-  import { SpecialBox } from './editor/custom-extensions/SpecialBox';
 
-  let editor = $state(null);
-
-  let html = $state(null);
   let json = $state(null);
+  let html = $state(null);
 
-  let customExtensions = [
-    SpecialBox
-  ]
-
-  let content = `
-    <p>This is a simple and flexible "RichText" component designed to generate a WYSIWYG editor.</p>
-    <p>It allows easy customization of styles, icons, colors, and more. Additionally, it includes an editable mode for use in forms, block editors, etc.</p>
-    <p>This component is built on top of <a href="https://tiptap.dev/">Tiptap</a>, a powerful and flexible rich text editor framework for Svelte.</p>
-  `
-
-  // Editor events
-  function handleEditorBeforeCreate(e: any) {
-    console.log('beforeCreate');
-    console.log(e);
-  }
-
-  function handleEditorCreate(e: any) {
-    editor = e.editor;
-    html = editor.getHTML();
-    json = editor.getJSON();
-  }
-  
-  function handleEditorDestroy(e: any) {
-    console.log('destroy');
-    console.log(e);
-  }
-
-  function handleEditorUpdate(e: any) {
-    console.log(e);
-    const { editor } = e;
-    html = editor.getHTML();
-    json = editor.getJSON();
-  }
-
-  function handleEditorTransaction(e: any) {
-      console.log('transaction');
-      console.log(e);
-  }
-
-  function handleEditorFocus(e: any) {
-      console.log('focus');
-      console.log(e);
-  }
-
-  function handleEditorBlur(e: any) {
-      console.log('blur');
-      console.log(e);
-  }
-
-  function handleEditorDrop(e: any) {
-      console.log('drop');
-      console.log(e);
-  }
-
-  function handleEditorDelete(e: any) {
-      console.log('delete');
-      console.log(e);
-  }
-
-  function handleEditorPaste(e: any) {
-      console.log('paste');
-      console.log(e);
-  }
-
-  function handleEditorSelectionUpdate(e: any) {
-      console.log('selectionUpdate');
-      console.log(e);
-  }
-
-  function handleEditorContentError(e: any) {
-      console.log('contentError');
-      console.log(e);
+  function handleUpdate(e) {
+    const { editor, html: editorHtml, json: editorJson } = e;
+    json = editorJson;
+    html = editorHtml;
   }
 </script>
 
 <RichText
-className="my-rich-text"
-id="flexi-rich-text"
-customExtensions={customExtensions}
-editorEvents={{
-  onUpdate: handleEditorUpdate,
-  onTransaction: handleEditorTransaction,
-  onFocus: handleEditorFocus,
-  onBlur: handleEditorBlur,
-  onDestroy: handleEditorDestroy,
-  onDrop: handleEditorDrop,
-  onDelete: handleEditorDelete,
-  onPaste: handleEditorPaste,
-  onSelectionUpdate: handleEditorSelectionUpdate,
-  onBeforeCreate: handleEditorBeforeCreate,
-  onCreate: handleEditorCreate,
-  onContentError: handleEditorContentError,
-}}
->
-</RichText>
+  editorEvents={{
+    onUpdate: handleUpdate
+  }}
+/>
+```
 
-<h2>JSON Output</h2>
-<pre>{JSON.stringify(json, null, 2)}</pre>
+### With Initial Content
 
-<h2>HTML Output</h2>
-<pre>{html}</pre>
+```svelte
+<script lang="ts">
+  import { RichText } from '@flexiui/svelte-rich-text';
 
+  let content = {
+    type: "doc",
+    content: [
+      {
+        type: "h1",
+        content: [{ type: "text", text: "Hello World" }]
+      },
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "This is a paragraph." }]
+      }
+    ]
+  };
+</script>
+
+<RichText {content} />
+```
+
+### Without Toolbar
+
+```svelte
+<RichText showToolbar={false} />
+```
+
+### With Node Limit
+
+Limita el número de nodos de primer nivel que puede tener el documento.
+
+```svelte
+<RichText nodesLimit={5} />
+```
+
+### With Unique H1
+
+Automáticamente convierte encabezados H1 adicionales en párrafos, permitiendo solo un H1 en el documento.
+
+```svelte
+<RichText uniqueH1={true} />
+```
+
+### With Semantic Headings
+
+```svelte
+<RichText semanticHeadings={true} />
+```
+
+### Custom Toolbar Configuration
+
+```svelte
+<RichText
+  toolbarConfig={[
+    [{ type: "undo" }, "redo"],
+    [{ type: "headings" }, { type: "lists" }],
+    ["codeBlock", "blockquote"],
+    ["fontSize", "lineHeight"],
+    ["textAlignLeft", "textAlignCenter", "textAlignRight", "clearFormatting"],
+  ]}
+/>
+```
+
+### With Custom Styling
+
+```svelte
+<RichText
+  config={{
+    editorAccentColor: "#22c55e",
+    editorBgColor: "#242424",
+    toolbarBgColor: "#1a1a1a",
+    docBg: "#2a2a2a",
+    buttonStyle: "accent-soft"
+  }}
+/>
+```
+
+### With Custom Extensions
+
+```svelte
+<script lang="ts">
+  import { RichText } from '@flexiui/svelte-rich-text';
+  import { SpecialBox } from './extensions/SpecialBox';
+  import { PlaceholderExt } from '@flexiui/svelte-rich-text';
+
+  let customExtensions = [
+    SpecialBox,
+    PlaceholderExt.configure({
+      placeholder: ({ node }) => {
+        if (node.type.name === "h1") {
+          return "Introduce un título";
+        } else if (node.type.name === "paragraph") {
+          return "Escribe algo...";
+        }
+      }
+    })
+  ];
+</script>
+
+<RichText {customExtensions} />
+```
+
+### Complete Example
+
+```svelte
+<script lang="ts">
+  import { RichText } from '@flexiui/svelte-rich-text';
+  import { SpecialBox, PlaceholderExt } from '@flexiui/svelte-rich-text';
+
+  let editor = $state(null);
+  let json = $state(null);
+  let html = $state(null);
+
+  let customExtensions = [
+    SpecialBox,
+    PlaceholderExt.configure({
+      placeholder: ({ node }) => {
+        if (node.type.name === "h1") {
+          return "Introduce un título";
+        } else if (node.type.name === "paragraph") {
+          return "Escribe algo...";
+        }
+      }
+    })
+  ];
+
+  function handleEditorCreate(e) {
+    editor = e.editor;
+  }
+
+  function handleEditorUpdate(e) {
+    const { editor, html: editorHtml, json: editorJson } = e;
+    json = editorJson;
+    html = editorHtml;
+  }
+</script>
+
+<RichText
+  nodesLimit={10}
+  uniqueH1={true}
+  semanticHeadings={true}
+  config={{
+    editorAccentColor: "#6366f1",
+    editorBgColor: "#1e1e1e",
+    toolbarBgColor: "#2d2d2d",
+    buttonStyle: "accent-solid"
+  }}
+  toolbarConfig={[
+    [{ type: "undo" }, "redo"],
+    [{ type: "headings" }, { type: "lists" }],
+    ["codeBlock", "blockquote"],
+    ["fontSize", "lineHeight"],
+    ["textAlignLeft", "textAlignCenter", "textAlignRight"],
+  ]}
+  {customExtensions}
+  editorEvents={{
+    onCreate: handleEditorCreate,
+    onUpdate: handleEditorUpdate
+  }}
+/>
 ```
 
 ## Props
 
-| Prop name | Type | Default value | Description |
-| --- | --- | --- | --- |
-| className | string | '' | A string that sets the class attribute of the component.
-| editable | boolean | false | A boolean that determines whether the editor is editable or not.
-| content | any | null | The initial content of the editor.
-| customExtensions | any[] | [] | An array of custom extensions to be added to the editor.
-| editorEvents | object | {} | An object containing event handlers for various editor events.
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `id` | `string` | `'fl-rich-text-editor'` | Unique identifier for the editor |
+| `className` | `string` | `''` | CSS class for the component container |
+| `editable` | `boolean` | `true` | Whether the editor is editable |
+| `content` | `string \| { type: string; content: any[] } \| null` | `null` | Initial content (HTML string or Tiptap JSON) |
+| `nodesLimit` | `number` | `undefined` | Maximum number of top-level nodes allowed |
+| `limitWarningMessage` | `string` | `undefined` | Custom warning message when limit is reached |
+| `showToolbar` | `boolean` | `true` | Whether to show the toolbar |
+| `semanticHeadings` | `boolean` | `false` | Use semantic heading structure |
+| `uniqueH1` | `boolean` | `false` | Allow only one H1 heading (converts extras to paragraphs) |
+| `toolbarConfig` | `ToolbarConfig` | `undefined` | Custom toolbar configuration |
+| `customExtensions` | `any[]` | `[]` | Custom Tiptap extensions |
+| `editorEvents` | `EditorEvents` | `{}` | Event handlers for editor events |
+| `config` | `EditorConfig` | `{}` | Visual configuration options |
 
-## Events
+## Editor Events
 
-| Event name | Parameters | Description |
-| --- | --- | --- |
-| onTransaction | { editor, transaction } | Triggered when a transaction is executed on the editor.
-| onBeforeCreate | { editor } | Triggered before the editor is created.
-| onCreate | { editor } | Triggered after the editor is created.
-| onUpdate | { editor, html, json } | Triggered when the editor content is updated.
-| onFocus | { editor, event } | Triggered when the editor is focused.
-| onBlur | { editor, event } | Triggered when the editor is blurred.
-| onDestroy | { editor, message } | Triggered when the editor is destroyed.
-| onDrop | { editor, event, slice, moved } | Triggered when the editor is dropped into the editor.
-| onDelete | { editor, type, deletedRange, newRange, partial, from, to } | Triggered when content is deleted from the editor.
-| onContentError | { editor, error, disableCollaboration } | Triggered when the editor content does not match the schema.
-| onSelectionUpdate | { editor } | Triggered when the selection in the editor is updated.
-| onPaste | { event, slice } | Triggered when the editor is pasted into.
+| Event | Parameters | Description |
+|-------|------------|-------------|
+| `onTransaction` | `{ editor, transaction }` | Triggered on any editor transaction |
+| `onBeforeCreate` | `{ editor }` | Triggered before editor initialization |
+| `onCreate` | `{ editor }` | Triggered after editor is created |
+| `onUpdate` | `{ editor, html, json }` | Triggered when content changes |
+| `onFocus` | `{ editor, event }` | Triggered when editor receives focus |
+| `onBlur` | `{ editor, event }` | Triggered when editor loses focus |
+| `onDestroy` | `{ editor, message }` | Triggered when editor is destroyed |
+| `onDrop` | `{ editor, event, slice, moved }` | Triggered when content is dropped |
+| `onDelete` | `{ editor, type, deletedRange, newRange, partial, from, to }` | Triggered when content is deleted |
+| `onContentError` | `{ editor, error, disableCollaboration }` | Triggered on content schema error |
+| `onSelectionUpdate` | `{ editor }` | Triggered when selection changes |
+| `onPaste` | `{ event, slice }` | Triggered when content is pasted |
 
-## Custom Extensions
+## Config Options
 
-You can add custom extensions to the editor by passing them as an array to the `customExtensions` prop. Here's an example of how to add the `SpecialBox` extension:
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `editorAccentColor` | `string` | `'var(--purple)'` | Primary accent color for UI elements |
+| `editorBgColor` | `string` | `'transparent'` | Editor background color |
+| `editorRadius` | `string` | `'12px'` | Border radius for editor container |
+| `toolbarStickyPosition` | `number` | `0` | CSS `top` value for sticky toolbar |
+| `toolbarZIndex` | `number` | `10` | Z-index of the toolbar |
+| `toolbarBgColor` | `string` | `'#242424'` | Toolbar background color |
+| `toolbarTextColor` | `string` | `'currentColor'` | Toolbar text color |
+| `toolbarPadding` | `string` | `'8px'` | Toolbar padding |
+| `toolbarGap` | `string` | `'5px'` | Gap between toolbar buttons |
+| `docMaxWidth` | `string` | `'1032px'` | Maximum width of document content |
+| `docPadding` | `string` | `'2rem'` | Document padding |
+| `docBg` | `string` | `'transparent'` | Document background |
+| `docMarginInline` | `string` | `'auto'` | Horizontal margin |
+| `docMarginBlock` | `string` | `'2rem'` | Vertical margin |
+| `docRadius` | `string` | `'0'` | Document border radius |
+| `docTextColor` | `string` | `'currentColor'` | Document text color |
+| `buttonStyle` | `'accent-soft' \| 'accent-solid'` | `'accent-solid'` | Button style variant |
+
+## Toolbar Configuration
+
+### Available Button Types
+
+- **Navigation**: `undo`, `redo`
+- **Headings**: `headings` (dropdown), `lists` (dropdown)
+- **Text Formatting**: `codeBlock`, `blockquote`
+- **Text Style**: `fontSize`, `lineHeight`
+- **Block Elements**: `horizontalRule`, `hardBreak`
+- **Media**: `inlineMath`, `image`, `audio`, `mediaGrid`, `table`
+- **Alignment**: `textAlignLeft`, `textAlignCenter`, `textAlignRight`, `clearFormatting`, `clearNodes`
+
+### Toolbar Types
+
+#### Button (string)
+
+Simple button represented as a string:
+
+```ts
+"undo"
+"redo"
+"codeBlock"
+```
+
+#### Button with Options (object)
+
+Button with custom configuration:
+
+```ts
+{ type: "undo" }
+{ type: "redo", tooltip: "Custom tooltip" }
+```
+
+#### Dropdown (select)
+
+Dropdown menu with multiple options:
+
+```ts
+{
+  select: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+  name: 'headings-dropdown'
+}
+```
+
+### ToolbarConfig Type
+
+```ts
+type ToolbarButton = string | {
+  type?: string;
+  tooltip?: string;
+  icon?: string;
+  name?: string;
+};
+
+type ToolbarSelect = {
+  select: ToolbarButton[];
+  name?: string;
+  tooltip?: string;
+  icon?: string;
+  type?: string;
+};
+
+type ToolbarItem = ToolbarButton | ToolbarSelect;
+type ToolbarConfig = ToolbarItem[] | ToolbarItem[][];
+```
+
+### Examples
+
+#### Simple Toolbar
 
 ```svelte
-<script lang="ts">
-  import { SpecialBox } from './editor/custom-extensions/SpecialBox';
-
-  let customExtensions = [
-    SpecialBox
-  ]
-</script>
-
 <RichText
-  customExtensions={customExtensions}
-  ...
+  toolbarConfig={[
+    ["undo", "redo"],
+    ["bold", "italic", "underline"]
+  ]}
 />
 ```
 
-In this example, the `SpecialBox` extension is imported from a file called `SpecialBox.ts` in the `editor/custom-extensions` directory.
+#### Grouped Toolbar
 
-In this case, the `SpecialBox` extension is a custom "Mark" that adds a special box inline node to the editor.
-
-```ts
-import { Mark } from "@tiptap/core";
-
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    specialBox: {
-      specialBox: () => ReturnType
-      isActive: (options: any) => ReturnType
-    }
-  }
-}
-
-export const SpecialBox = Mark.create({
-  name: "specialBox",
-  excludes: 'code highlight',
-
-  parseHTML() {
-    return [
-      {
-        tag: "span[data-special-box]",
-      },
-    ];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      "span",
-      {
-        "class": "special-box",
-        "data-special-box": "true",
-        style: "line-height: 1.5;",
-      },
-      0,
-    ];
-  },
-
-  addCommands(): any {
-    return {
-      specialBox: () => ({ commands }: any) => {
-        return commands.toggleMark(this.name);
-      },
-      isActive: (options: any) => {
-        return options.type === this.name;
-      },
-    };
-  },
-});
+```svelte
+<RichText
+  toolbarConfig={[
+    [{ type: "undo" }, "redo"],           // Group 1
+    [{ type: "headings" }],              // Group 2
+    ["codeBlock", "blockquote"],         // Group 3
+    ["bold", "italic", "underline"]      // Group 4
+  ]}
+/>
 ```
 
-In this example, the `SpecialBox` extension defines a custom "Mark" that adds a special box inline node to the editor.
+#### Full Custom Toolbar
 
-The `parseHTML` method defines the HTML structure of the special box node. In this case, the node is a `<span>` element with a `data-special-box` attribute.
+```svelte
+<RichText
+  toolbarConfig={[
+    [{ type: "undo" }, "redo"],
+    [{ type: "headings" }, { type: "lists" }],
+    ["codeBlock", "blockquote"],
+    ["fontSize", "lineHeight"],
+    ["horizontalRule", "hardBreak"],
+    ["inlineMath"],
+    ["image", "audio"],
+    ["mediaGrid", "table"],
+    ["textAlignLeft", "textAlignCenter", "textAlignRight", "clearFormatting", "clearNodes"],
+  ]}
+/>
+```
 
-The `renderHTML` method defines the HTML structure of the special box node. In this case, the node is a `<span>` element with a `data-special-box` attribute and a `special-box` class.
+## Node Limit Feature
 
-The `addCommands` method defines the commands for the special box node. In this case, the `specialBox` command toggles the mark on the selected text.
+When `nodesLimit` is set, the editor:
 
-The `isActive` method defines the logic for determining whether the special box node is active or not. In this case, the node is active if the selected text has the `specialBox` mark.
+1. Shows a warning message when the user tries to add more nodes than allowed
+2. Displays a bottom bar with current node count and limit
+3. Prevents adding new nodes via Enter key when limit is reached
 
-You can customize the behavior of the special box node by modifying the `SpecialBox` extension as needed.
+### Custom Warning Message
 
-More information about custom nodes, marks and extensions can be found in the [Tiptap documentation](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new).
+```svelte
+<RichText
+  nodesLimit={5}
+  limitWarningMessage="Has alcanzado el límite máximo de 5 elementos."
+/>
+```
+
+## Unique H1 Feature
+
+When `uniqueH1` is enabled:
+
+1. The first H1 heading remains as H1
+2. Any additional H1 headings are automatically converted to paragraphs
+3. This ensures semantic HTML structure with only one H1 per document
+
+## Default Toolbar
+
+If no `toolbarConfig` is provided, the default toolbar is used:
+
+```svelte
+[
+  [{ type: "undo" }, "redo"],
+  [{ type: "headings" }, { type: "lists" }],
+  ["codeBlock", "blockquote"],
+  ["fontSize", "lineHeight"],
+  ["horizontalRule", "hardBreak"],
+  ["inlineMath"],
+  ["image", "audio"],
+  ["mediaGrid", "table"],
+  ["textAlignLeft", "textAlignCenter", "textAlignRight", "clearFormatting", "clearNodes"],
+]
+```
+
+## Output
+
+The editor provides two output formats:
+
+### HTML Output
+
+```svelte
+function handleUpdate(e) {
+  const { html } = e;
+  // html: "<h1>Hello</h1><p>World</p>"
+}
+```
+
+### JSON Output
+
+```svelte
+function handleUpdate(e) {
+  const { json } = e;
+  // json: { type: "doc", content: [...] }
+}
+```
+
+## Static Rendering
+
+You can also render the content statically using `renderHTMLFromJSON`:
+
+```svelte
+<script lang="ts">
+  import { renderHTMLFromJSON } from '@flexiui/svelte-rich-text';
+
+  let json = { type: "doc", content: [...] };
+  let html = renderHTMLFromJSON({ json });
+</script>
+
+{@html html}
+```
+
+## License
+
+MIT
