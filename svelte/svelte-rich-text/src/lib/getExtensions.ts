@@ -10,16 +10,35 @@ import { TableKit } from "@tiptap/extension-table";
 
 import { Audio } from "./extensions/Audio";
 import { NodeLineHeight } from "./extensions/NodeLineHeight";
+import { NodeFontSize } from "./extensions/NodeFontSize";
 import { MediaGridExtension } from "./extensions/MediaGrid/MediaGrid";
 import { MediaGridItemExtension } from "./extensions/MediaGrid/MediaGridItem";
 import { CustomTableCell } from "./extensions/Table/CustomTableCell";
 import { CustomTableHeader } from "./extensions/Table/CustomTableHeader";
 import { EnhancedLink } from "./extensions/EnhancedLink";
+import { SemanticHeadings } from "./extensions/SemanticHeadings";
 import { Heading } from "@tiptap/extension-heading";
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    h1: {
+      toggleH1: () => ReturnType;
+    };
+  }
+}
 
   const DocHeading = Heading.extend({
     name: "h1",
-    group: "none", // <- prevent it from being considered as a `block` in the body of the document
+  
+    addCommands() {
+      return {
+        toggleH1:
+          () =>
+          ({ commands }) => {
+            return commands.toggleNode('h1', 'paragraph');
+          },
+      }
+    },
   }).configure({ levels: [1] });
 
 
@@ -33,7 +52,9 @@ export function getRichTextExtensions(options?: {
     DocHeading,
     Heading.configure({ levels: [2, 3, 4, 5, 6] }),
     Highlight.configure({ multicolor: true }),
-    TextStyleKit,
+    TextStyleKit.configure({
+      // fontSize: false
+    }),
     StarterKit.configure({
       trailingNode: false,
       link: false,
@@ -60,6 +81,7 @@ export function getRichTextExtensions(options?: {
       ],
     }),
     NodeLineHeight,
+    NodeFontSize,
     MediaGridExtension,
     MediaGridItemExtension,
     TableKit.configure({
