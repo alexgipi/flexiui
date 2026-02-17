@@ -16,16 +16,18 @@
   let html = $state(null);
   let json = $state(null);
 
-  const CustomDocument = Document.extend({
-    content: "block+",
-  });
-
   // audioAttributes.set({
   //   bgColor: "#111827",
   //   accentColor: "#22c55e",
   //   textColor: "#e5e7eb",
   //   borderRadius: "12px",
   // });
+
+  const CustomDocument = Document.extend({
+    content: "block+",
+  });
+
+  // accept list item order list item an taskListItem
 
   let customExtensions = [
     // CustomDocument,
@@ -38,17 +40,19 @@
           const level = node.attrs.level;
           return "Introduce un título H" + level;
         } else if (node.type.name === "paragraph") {
-          return "Escribe algo...";
+          return "Introduce un párrafo";
         }
+        
       },
-      showOnlyCurrent: ({ node }) => {
-        const allowedTypes = ["h1", "paragraph"];
-        if (allowedTypes.includes(node.type.name)) {
-          return false;
-        } else {
-          return true;
-        }
-      },
+        showOnlyCurrent: ({ node }) => {
+          
+          const allowedTypes = ["h1", "paragraph"];
+          if (allowedTypes.includes(node.type.name)) {
+            return false;
+          } else {
+            return true;
+          }
+        },
     }),
     AudioExt.configure({
       HTMLAttributes: { class: "audio-player" },
@@ -762,9 +766,12 @@
   </div>
 
   <div class="card">
-        <RichText
+      <RichText
       nodesLimit={3}
-      showToolbar={true}
+      showToolbar={false}
+      showCountersBar={false}
+      contentWrapperAs="h1"
+      inlineNodeMode={true}
       toolbarAlign="left"
       config={{
         // docBg: '#202020',
@@ -777,7 +784,7 @@
       }}
       className="my-rich-text"
       id="flexi-rich-text"
-      {customExtensions}
+      customExtensions={[...customExtensions]}
       editorEvents={{
         onUpdate: handleEditorUpdate,
         onTransaction: handleEditorTransaction,
