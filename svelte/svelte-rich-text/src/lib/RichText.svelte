@@ -1,7 +1,8 @@
-<script lang="ts">
+<script lang="ts" generics="T extends keyof SvelteHTMLElements = 'div'">
+  import type { SvelteHTMLElements } from 'svelte/elements';
   import "./styles.css";
   import "katex/dist/katex.min.css";
-  import { onMount, onDestroy, setContext } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import type { Readable } from "svelte/store";
   import { computePosition, offset, autoUpdate } from "@floating-ui/dom";
   import {
@@ -13,9 +14,11 @@
   import {
     createEditor,
     Editor,
-    EditorContent,
+    // EditorContent,
     BubbleMenu,
   } from "svelte-tiptap";
+
+  import EditorContent from "./svelte-tiptap-extends/EditorContent.svelte";
   import { getRichTextExtensions } from "./getExtensions";
   import { rgbToHex } from "./utils";
 
@@ -30,7 +33,11 @@
 
   import RenderToolbarButton from "./Toolbar/RenderToolbarButton.svelte";
 
-  export interface Props {
+  import { Document } from "@tiptap/extension-document";
+
+  const InlineDoc = Document.extend({ content: "inline*" })
+
+  interface Props {
     id?: string;
     className?: string;
     editable?: boolean;
@@ -40,7 +47,7 @@
     limitWarningMessage?: string;
     showToolbar?: boolean;
     showCountersBar?: boolean;
-    toolbarAlign?: string;
+    toolbarAlign?: "left" | "center" | "right";
     semanticHeadings?: boolean;
     uniqueH1?: boolean;
     toolbarConfig?: ToolbarConfig;
@@ -84,9 +91,9 @@
       docTextColor?: string;
       buttonStyle?: "accent-soft" | "accent-solid";
     };
+    contentWrapperAs?: T;
+    inlineNodeMode?: boolean;
   }
-
-  export type RichTextProps = Props;
 
   type ToolbarButton =
     | string
@@ -140,6 +147,8 @@
       onPaste: () => {},
     },
     config,
+    contentWrapperAs = "div" as T,
+    inlineNodeMode = false,
   }: Props = $props();
 
   let editor = $state() as Readable<Editor>;
@@ -299,6 +308,8 @@
           },
         },
       }),
+
+      inlineNodeMode && InlineDoc,
 
       CharacterCount.configure({
         limit: charactersLimit,
@@ -701,7 +712,7 @@
     </header>
   {/if}
 
-  <EditorContent editor={$editor} class="fl-rich-text-content" />
+  <EditorContent as={contentWrapperAs} editor={$editor} class="fl-rich-text-content a" data-fl-editable="true" />
 
   <!-- Warning message for node limit -->
   {#if showLimitWarning && nodesLimit}
@@ -712,7 +723,6 @@
   {/if}
 
   <!-- Bottom bar showing node count -->
-
   {#if showCountersBar || percentage >= 90}
     <div class="fl-counters-bar">
       <div class="fl-character-count" class:fl-character-count--warning={percentage >= 100}>
