@@ -63,6 +63,18 @@ npm install @flexiui/svelte-rich-text
 <RichText showToolbar={false} />
 ```
 
+### With Content Wrapper Element
+
+```svelte
+<RichText contentWrapperAs="h1" />
+```
+
+### Inline Node Mode
+
+```svelte
+<RichText inlineNodeMode={true} />
+```
+
 ### With Node Limit
 
 Limita el número de nodos de primer nivel que puede tener el documento.
@@ -215,6 +227,8 @@ Automáticamente convierte encabezados H1 adicionales en párrafos, permitiendo 
 | `customExtensions` | `any[]` | `[]` | Custom Tiptap extensions |
 | `editorEvents` | `EditorEvents` | `{}` | Event handlers for editor events |
 | `config` | `EditorConfig` | `{}` | Visual configuration options |
+| `contentWrapperAs` | `T extends keyof SvelteHTMLElements` | `'div'` | HTML element type for content wrapper |
+| `inlineNodeMode` | `boolean` | `false` | Enable inline node mode (uses inline document) |
 
 ## Editor Events
 
