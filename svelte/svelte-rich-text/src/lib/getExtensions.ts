@@ -57,7 +57,7 @@ export function getRichTextExtensions(options?: {
       // fontSize: false
     }),
     StarterKit.configure({
-      trailingNode: trailingNode ? undefined : false,
+      ...(!trailingNode && { trailingNode: false }),
       link: false,
       bulletList: false,
       listItem: false,
