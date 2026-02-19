@@ -64,7 +64,7 @@ export const MediaGridExtension = Node.create({
 
   parseHTML() {
     return [
-      { 
+      {
         tag: 'media-grid-component',
       }
     ];
@@ -83,7 +83,7 @@ export const MediaGridExtension = Node.create({
             const cols = options?.cols || 2
 
             const items = Array.from({ length: cols }, () =>
-              schema.nodes.gridItem.create() // 👈 sin contenido
+              schema.nodes.gridItem.create()
             )
 
             const grid = this.type.create({ cols }, items)
@@ -92,6 +92,7 @@ export const MediaGridExtension = Node.create({
               tr.replaceSelectionWith(grid).scrollIntoView()
               dispatch(tr)
             }
+
             return true
           },
 
@@ -116,6 +117,35 @@ export const MediaGridExtension = Node.create({
 
             return false
           },
+    }
+  },
+
+  addKeyboardShortcuts() {
+    return {
+      Enter: () => {
+        const { state } = this.editor
+        const { $from } = state.selection
+
+        let gridPos: number | null = null
+        let gridNode = null
+        for (let depth = $from.depth; depth > 0; depth--) {
+          if ($from.node(depth).type === this.type) {
+            gridPos = $from.before(depth)
+            gridNode = $from.node(depth)
+            break
+          }
+        }
+
+        if (gridPos === null || !gridNode) return false
+
+        const insertPos = gridPos + gridNode.nodeSize
+        this.editor.chain()
+          .insertContentAt(insertPos, { type: 'paragraph' })
+          .setTextSelection(insertPos + 1)
+          .run()
+
+        return true
+      },
     }
   },
 
