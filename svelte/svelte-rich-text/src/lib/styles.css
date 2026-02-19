@@ -127,7 +127,8 @@
     display: flex;
     gap: 5px;
     position: relative;
-    z-index: 9;
+    z-index: var(--fl-toolbar-sticky-position, 10);
+
 
     .fl-bubble-menu-mark-button {
       border-radius: 9px;
