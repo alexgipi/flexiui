@@ -44,9 +44,10 @@ declare module '@tiptap/core' {
 
 export function getRichTextExtensions(options?: {
   editable?: boolean;
+  trailingNode?: boolean;
   customExtensions?: any[];
 }) {
-  const { editable = false, customExtensions = [] } = options ?? {};
+  const { editable = false, trailingNode = true, customExtensions = [] } = options ?? {};
 
   return [
     DocHeading,
@@ -56,7 +57,7 @@ export function getRichTextExtensions(options?: {
       // fontSize: false
     }),
     StarterKit.configure({
-      trailingNode: false,
+      trailingNode: trailingNode ? undefined : false,
       link: false,
       bulletList: false,
       listItem: false,

@@ -93,6 +93,7 @@
     };
     contentWrapperAs?: T;
     inlineNodeMode?: boolean;
+    trailingNode?: boolean;
   }
 
   type ToolbarButton =
@@ -149,6 +150,7 @@
     config,
     contentWrapperAs = "div" as T,
     inlineNodeMode = false,
+    trailingNode = true,
   }: Props = $props();
 
   let editor = $state() as Readable<Editor>;
@@ -278,6 +280,7 @@
 
   const extensions = getRichTextExtensions({
     editable: true,
+    trailingNode,
     customExtensions: [
       Mathematics.configure({
         inlineOptions: {
@@ -712,7 +715,7 @@
     </header>
   {/if}
 
-  <EditorContent as={contentWrapperAs} editor={$editor} class="fl-rich-text-content a" data-fl-editable="true" />
+  <EditorContent as={contentWrapperAs} editor={$editor} class="fl-rich-text-content" data-fl-editable="true" />
 
   <!-- Warning message for node limit -->
   {#if showLimitWarning && nodesLimit}

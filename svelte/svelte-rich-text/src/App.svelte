@@ -714,6 +714,7 @@
   <div class="card">
     <RichText
       nodesLimit={12}
+      trailingNode={true}
       charactersLimit={1000}
       showCountersBar={false}
       semanticHeadings={true}
@@ -743,24 +744,7 @@
         onCreate: handleEditorCreate,
         onContentError: handleEditorContentError,
       }}
-      toolbarConfig={[
-        [{ type: "undo" }, "redo"],
-        [{ type: "headings" }, { type: "lists" }],
-        ["codeBlock", "blockquote"],
-        ["fontSize", "lineHeight"],
-        // ["horizontalRule", "hardBreak"],
-        // ["inlineMath"],
-        // ["image", "audio"],
-        // ["mediaGrid", "table"],
-        [
-          "textAlignLeft",
-          "textAlignCenter",
-          "textAlignRight",
-          "clearFormatting",
-          "clearNodes",
-        ],
-        // ...
-      ]}
+
       {content}
     />
   </div>
