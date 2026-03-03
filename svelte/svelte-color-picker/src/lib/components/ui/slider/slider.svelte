@@ -7,6 +7,7 @@
 		value = $bindable(),
 		orientation = "horizontal",
 		class: className = '',
+		baseColor,
 		...restProps
 	} = $props();
 </script>
@@ -28,6 +29,7 @@ get along, so we shut typescript up by casting `value` to `never`.
 >
 	{#snippet children({ thumbs })}
 		<span
+		style="--base-color: {baseColor}"
 			data-orientation={orientation}
 			data-slot="slider-track"
 			class={cn(
@@ -60,6 +62,6 @@ get along, so we shut typescript up by casting `value` to `never`.
 	}
 
 	:global(.slider-alpha-track) {
-		background: linear-gradient(to right, transparent, rgb(53, 212, 124));
+		background: linear-gradient(to right, transparent, var(--base-color))
 	}
 </style>
