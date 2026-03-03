@@ -1,10 +1,21 @@
-<script lang="ts">
+  <script lang="ts">
     import { onMount } from 'svelte';
     import ColorPicker from './lib/ColorPicker.svelte';
     import packageJson from '../package.json';
+  import ColorPickerSwatch from '$lib/ColorPickerSwatch.svelte';
+  import ColorPickerTrigger from '$lib/ColorPickerTrigger.svelte';
   
     let name = packageJson.name;
     let description = packageJson.description;
+    let colorValue = $state('#35d47c');
+
+    function onFormatChange(e) {
+      console.log('Format changed:', e);
+    }
+
+    function onChange(value: string) {
+      console.log('Color changed:', value);
+    }
   </script>
   
   <main>
@@ -17,11 +28,18 @@
     <h1 class="package-name">{name}</h1>
     <p class="package-desc">{description}</p>
   
-    <div class="card">
+    <div class="card flex justify-center">
+    <!-- <p>Color value: {colorValue}</p> -->
         <ColorPicker
-        className="my-color-picker"
-        id="flexi-color-picker"
+          bind:value={colorValue}
+          defaultFormat="rgb"
+          onFormatChange={onFormatChange}
+          onChange={onChange}
         >
+          <ColorPickerTrigger>
+            <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} />
+            {colorValue}
+          </ColorPickerTrigger>
         </ColorPicker>
     </div>
   
