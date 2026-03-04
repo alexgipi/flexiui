@@ -432,7 +432,35 @@
     <div class="flex flex-col gap-4 {className}">
 
       <!-- ── Área de color ────────────────────────────────────────────────── -->
+<Popover.Root 
+  open={open} 
+  defaultOpen={defaultOpen} 
+  onOpenChange={onOpenChange}
+  dir={rtl}
+>
+  <!-- Trigger -->
+  {#if children}
+
+    {@render children?.()}
+    
+  {:else}
+    <Popover.Trigger 
+      class="flex items-center gap-2"
+      disabled={disabled}
+    >
+      <ColorPickerSwatch class="w-5 h-5" />
+      <span class="text-sm font-mono">
+        {value}
+      </span>
+    </Popover.Trigger>
+  {/if}
+
+  <Popover.Content class="flex flex-col gap-4 min-w-76 p-2.25" portalProps={{}}>
+    <div class="flex flex-col gap-4 {className}">
+
+      <!-- ── Área de color ────────────────────────────────────────────────── -->
       <div
+        bind:this={areaEl}
         bind:this={areaEl}
         aria-label="Color picker area"
         tabindex="0"
@@ -441,7 +469,13 @@
         onpointerdown={onAreaPointerDown}
         onpointermove={onAreaPointerMove}
         onpointerup={onAreaPointerUp}
+        role="slider"
+        aria-valuetext="Saturation {satHSV}%, Brightness {valHSV}%"
+        onpointerdown={onAreaPointerDown}
+        onpointermove={onAreaPointerMove}
+        onpointerup={onAreaPointerUp}
         data-slot="color-picker-area"
+        class="relative h-40 w-full cursor-crosshair touch-none rounded-lg border select-none"
         class="relative h-40 w-full cursor-crosshair touch-none rounded-lg border select-none"
       >
         <!-- Fondo: hue puro -->
@@ -459,22 +493,51 @@
           class="absolute inset-0 rounded-lg"
           style="background: linear-gradient(to bottom, transparent, rgb(0,0,0));"
         ></div>
+        <!-- Fondo: hue puro -->
+        <div
+          class="absolute inset-0 rounded-lg"
+          style="background-color: {areaBaseColor};height: calc(100% - 2px);"
+        ></div>
+        <!-- Gradiente blanco → transparente (izquierda → derecha) -->
+        <div
+          class="absolute inset-0 rounded-lg"
+          style="background: linear-gradient(to right, rgb(255,255,255), transparent);height: calc(100% - 2px);"
+        ></div>
+        <!-- Gradiente transparente → negro (arriba → abajo) -->
+        <div
+          class="absolute inset-0 rounded-lg"
+          style="background: linear-gradient(to bottom, transparent, rgb(0,0,0));"
+        ></div>
 
         <!-- Thumb -->
+        <!-- Thumb -->
         <div
+          class="color-picker-area-thumb pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-md ring-1 ring-black/20"
+          style="left: {thumbLeft}%; top: {thumbTop}%;"
           class="color-picker-area-thumb pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-md ring-1 ring-black/20"
           style="left: {thumbLeft}%; top: {thumbTop}%;"
         ></div>
       </div>
 
       <!-- ── Sliders ──────────────────────────────────────────────────────── -->
+      <!-- ── Sliders ──────────────────────────────────────────────────────── -->
       <div class="flex items-center gap-2">
+        <!-- Eye dropper -->
         <!-- Eye dropper -->
         <button
           aria-label="Eye dropper"
           onclick={openEyeDropper}
           class="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 size-9"
+          onclick={openEyeDropper}
+          class="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 size-9"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12"/>
+            <path d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z"/>
+            <path d="m2 22 .414-.414"/>
+          </svg>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
             stroke-linejoin="round" aria-hidden="true">
@@ -486,6 +549,7 @@
 
         <div class="flex flex-1 flex-col gap-2">
           <!-- Hue slider -->
+          <!-- Hue slider -->
           <SliderHue
             type="single"
             bind:value={hue}
@@ -495,6 +559,7 @@
           />
 
           <!-- Alpha slider -->
+          <!-- Alpha slider -->
           <SliderAlpha
             type="single"
             bind:value={alpha}
@@ -503,12 +568,23 @@
             class="w-full h-3 slider color-picker-slider color-picker-slider--alpha"
             style=""
             baseColor={hex}
+            style=""
+            baseColor={hex}
           />
         </div>
       </div>
 
       <!-- ── Inputs ───────────────────────────────────────────────────────── -->
+      <!-- ── Inputs ───────────────────────────────────────────────────────── -->
       <div class="flex items-center gap-2">
+        <!-- Selector de modo -->
+        <Select.Root 
+          type="single" 
+          name="colorMode" 
+          value={colorMode} 
+          onValueChange={handleSelectChange}
+          disabled={disabled || readOnly}
+        >
         <!-- Selector de modo -->
         <Select.Root 
           type="single" 
@@ -521,7 +597,11 @@
             {triggerContent}
           </Select.Trigger>
           <Select.Content class="max-w-20 min-w-20" portalProps={{ style: "width: 100%" }}>
+          <Select.Content class="max-w-20 min-w-20" portalProps={{ style: "width: 100%" }}>
             <Select.Group>
+              {#each modes as mode (mode.value)}
+                <Select.Item class="select-item" value={mode.value} label={mode.label}>
+                  {mode.label}
               {#each modes as mode (mode.value)}
                 <Select.Item class="select-item" value={mode.value} label={mode.label}>
                   {mode.label}
@@ -533,7 +613,11 @@
 
         <!-- Campos según modo -->
         <div data-slot="color-picker-input-wrapper" class="flex flex-1 items-center">
+        <!-- Campos según modo -->
+        <div data-slot="color-picker-input-wrapper" class="flex flex-1 items-center">
 
+          {#if colorMode === "hex"}
+            <!-- HEX: un solo input + alpha -->
           {#if colorMode === "hex"}
             <!-- HEX: un solo input + alpha -->
             <Input
@@ -542,7 +626,38 @@
               class="h-8 rounded-tr-none rounded-br-none flex-1 font-mono"
               value={hexInput}
               oninput={onHexInput}
+              placeholder="#000000"
+              class="h-8 rounded-tr-none rounded-br-none flex-1 font-mono"
+              value={hexInput}
+              oninput={onHexInput}
             />
+
+          {:else if colorMode === "rgb"}
+            <!-- R -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("rounded-e-none")}
+              aria-label="Red (0-255)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="255"
+              bind:value={rInput}
+              onchange={onRgbChange}
+            />
+            <!-- G -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("rounded-none border-l-0")}
+              aria-label="Green (0-255)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="255"
+              bind:value={gInput}
+              onchange={onRgbChange}
 
           {:else if colorMode === "rgb"}
             <!-- R -->
@@ -590,7 +705,27 @@
             <!-- H -->
             <Input
               type="number"
+            <!-- B -->
+            <Input
+              type="number"
               placeholder="0"
+              class={inputClass("rounded-none border-l-0")}
+              aria-label="Blue (0-255)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="255"
+              bind:value={bInput}
+              onchange={onRgbChange}
+            />
+
+          {:else if colorMode === "hsl"}
+            <!-- H -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-tr-none rounded-br-none")}
+              aria-label="Hue (0-360)"
               class={inputClass("-ms-px rounded-tr-none rounded-br-none")}
               aria-label="Hue (0-360)"
               inputmode="numeric"
@@ -604,7 +739,16 @@
             <!-- S -->
             <Input
               type="number"
+              bind:value={hslHInput}
+              onchange={onHslChange}
+            />
+
+            <!-- S -->
+            <Input
+              type="number"
               placeholder="0"
+              class={inputClass("-ms-px rounded-none border-l-0")}
+              aria-label="Saturation (0-100)"
               class={inputClass("-ms-px rounded-none border-l-0")}
               aria-label="Saturation (0-100)"
               inputmode="numeric"
@@ -675,10 +819,76 @@
           {/if}
 
           <!-- Alpha (siempre visible) -->
+              bind:value={hslSInput}
+              onchange={onHslChange}
+            />
+
+            <!-- L -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-none border-l-0")}
+              aria-label="Lightness (0-100)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="100"
+              bind:value={hslLInput}
+              onchange={onHslChange}
+            />
+
+          {:else if colorMode === "hsb"}
+            <!-- Hue -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-tr-none rounded-br-none")}
+              aria-label="Hue (0-360)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="360"
+              bind:value={hsbHInput}
+              onchange={onHsbChange}
+            />
+
+            <!-- Saturation -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-none border-l-0")}
+              aria-label="Saturation (0-100)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="100"
+              bind:value={hsbSInput}
+              onchange={onHsbChange}
+            />
+
+            <!-- Brightness -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-none border-l-0")}
+              aria-label="Brightness (0-100)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="100"
+              bind:value={hsbBInput}
+              onchange={onHsbChange}
+            />
+
+          {/if}
+
+          <!-- Alpha (siempre visible) -->
           <Input
             bind:value={alpha}
             class={inputClass("rounded-md rounded-tl-none rounded-bl-none border-l-0")}
+            class={inputClass("rounded-md rounded-tl-none rounded-bl-none border-l-0")}
             type="number"
+            aria-label="Alpha (0-100)"
             aria-label="Alpha (0-100)"
             placeholder="100"
             min="0"
@@ -686,6 +896,7 @@
           />
         </div>
       </div>
+
 
     </div>
   </Popover.Content>
@@ -698,5 +909,13 @@
       "flex min-w-0 w-full flex-1 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none rounded-e-none",
       extra,
     ].join(" ");
+<!-- Helper: clases base para inputs numéricos del color picker -->
+<script module lang="ts">
+  function inputClass(extra = "") {
+    return [
+      "flex min-w-0 w-full flex-1 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none rounded-e-none",
+      extra,
+    ].join(" ");
   }
+</script>
 </script>
