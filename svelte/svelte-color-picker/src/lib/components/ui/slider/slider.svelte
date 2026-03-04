@@ -56,7 +56,7 @@ get along, so we shut typescript up by casting `value` to `never`.
 
 <style>
 	:global(.slider-alpha) {
-		background-image: repeating-conic-gradient(rgb(255, 255, 255) 0%, rgb(255, 255, 255) 25%, rgb(183, 183, 183) 0%, rgb(183, 183, 183) 50%);
+		background-image: repeating-conic-gradient(rgb(33 33 33) 0%, rgb(33 33 33) 25%, rgb(99 99 99 / 90%) 0%, rgb(100 100 100 / 90%) 50%);
 		background-size: 8px 8px;
 		border-radius: 20px;
 	}

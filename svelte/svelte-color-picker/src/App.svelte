@@ -7,14 +7,18 @@
   
     let name = packageJson.name;
     let description = packageJson.description;
-    let colorValue = $state('#35d47c');
+    let colorValue = $state('rebeccapurple');
+    let colorValue2 = $state('#ff0000');
 
     function onFormatChange(e) {
       console.log('Format changed:', e);
     }
 
-    function onChange(value: string) {
+    let colorValueRgb = $state(null);
+
+    function onChange(value: any) {
       console.log('Color changed:', value);
+      colorValueRgb = value.rgb;
     }
   </script>
   
@@ -32,12 +36,12 @@
     <!-- <p>Color value: {colorValue}</p> -->
         <ColorPicker
           bind:value={colorValue}
-          defaultFormat="rgb"
+          defaultFormat="hex"
           onFormatChange={onFormatChange}
           onChange={onChange}
         >
           <ColorPickerTrigger>
-            <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} />
+            <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} value={colorValueRgb} />
             {colorValue}
           </ColorPickerTrigger>
         </ColorPicker>

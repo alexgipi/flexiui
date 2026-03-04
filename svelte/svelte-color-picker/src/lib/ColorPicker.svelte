@@ -4,109 +4,488 @@
   import { Input } from "$lib/components/ui/input/index.js";
   import { SliderAlpha } from "$lib/components/ui/slider/index.js";
   import { SliderHue } from "$lib/components/ui/slider-hue/index.js";
+  import { ColorPickerSwatch } from "$lib";
 
-  let showColorPicker: boolean = false;
-  const fruits = [
+  // ─── Props (dirui-style) ───────────────────────────────────────────────────────
+  type ColorFormat = "hex" | "rgb" | "hsl" | "hsb";
+  type Direction = "ltr" | "rtl";
+
+  interface Props {
+    // Format
+    format?: ColorFormat;
+    defaultFormat?: ColorFormat;
+    onFormatChange?: (format: ColorFormat) => void;
+    
+    // Form
+    name?: string;
+    required?: boolean;
+    
+    // State
+    disabled?: boolean;
+    readOnly?: boolean;
+    
+    // Presentation
+    inline?: boolean;
+    rtl?: Direction;
+    
+    // Two-way binding
+    value?: string;
+    onChange?: (value: any) => void;
+    
+    // Popover control
+    defaultOpen?: boolean;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    
+    class?: string;
+    children?: any;
+  }
+
+  let {
+    // Format
+    format,
+    defaultFormat = "hex",
+    onFormatChange,
+    
+    // Form
+    name,
+    required = false,
+    
+    // State
+    disabled = false,
+    readOnly = false,
+    
+    // Presentation
+    inline = false,
+    rtl = "ltr",
+    
+    // Two-way binding
+    value = $bindable(),
+    onChange,
+    
+    // Popover control
+    defaultOpen = false,
+    open = $bindable(),
+    onOpenChange,
+    
+    class: className,
+    children,
+  }: Props = $props();
+
+  // ─── Tipos internos ───────────────────────────────────────────────────────────
+  type ColorMode = "hex" | "rgb" | "hsl" | "hsb";
+
+  // ─── Estado principal (todo en HSV internamente) ──────────────────────────────
+  let hue = $state(147);         // 0–360
+  let satHSV = $state(75);       // 0–100  → posición X del thumb
+  let valHSV = $state(83);       // 0–100  → posición Y invertida del thumb
+  let alpha = $state(100);       // 0–100
+
+  let isInitialized = $state(false);
+
+  $effect(() => {
+    if (value && !isInitialized) {
+      const rgb = parseColorToRgb(value);
+      if (rgb) {
+        hue = hsvToHue(rgb.r, rgb.g, rgb.b);
+        satHSV = hsvToSat(rgb.r, rgb.g, rgb.b);
+        valHSV = hsvToVal(rgb.r, rgb.g, rgb.b);
+      }
+      isInitialized = true;
+    }
+  });
+
+  function hsvToHue(r: number, g: number, b: number) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d !== 0) {
+      if (max === r) h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h = Math.round(h * 60);
+      if (h < 0) h += 360;
+    }
+    return h;
+  }
+
+  function hsvToSat(r: number, g: number, b: number) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let s = 0;
+    if (d !== 0) {
+      s = d / max;
+    }
+    return s * 100;
+  }
+
+  function hsvToVal(r: number, g: number, b: number) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let v = 0;
+    if (d !== 0) {
+      v = max;
+    }
+    return v * 100;
+  }
+
+  // Color mode: usar format si está controlado, si no usar defaultFormat
+  let internalColorMode = $state<ColorMode>(defaultFormat);
+  let colorMode = $derived(format ?? internalColorMode);
+  let isColorModeControlled = $derived(format !== undefined);
+
+  // Sincronizar valor externo (two-way binding)
+  let lastExternalValue = $state<string | undefined>(undefined);
+  $effect(() => {
+    if (value !== lastExternalValue && value) {
+      const rgb = parseColorToRgb(value);
+      if (rgb) {
+        const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+        hue = hsv.h;
+        satHSV = hsv.s;
+        valHSV = hsv.v;
+      }
+      lastExternalValue = value;
+    }
+  });
+
+  let isDragging = $state(false);
+  let areaEl = $state<HTMLElement | null>(null);
+
+  const modes: { value: ColorMode; label: string }[] = [
     { value: "hex", label: "HEX" },
     { value: "rgb", label: "RGB" },
     { value: "hsl", label: "HSL" },
     { value: "hsb", label: "HSB" },
   ];
 
-  let value = $state("hex");
+  // ─── Posición del thumb derivada del estado HSV ───────────────────────────────
+  let thumbLeft = $derived(satHSV);          // %
+  let thumbTop  = $derived(100 - valHSV);    // %
 
-  let areaThumbLeftPosition = $state(75);
-  let areaThumbTopPosition = $state(17);
+  // ─── Conversiones ─────────────────────────────────────────────────────────────
 
-  let alpha = $state(18);
-  let hue = $state(147);
-  let hex = $state("#35d47c");
-
-  const triggerContent = $derived(
-    fruits.find((f) => f.value === value)?.label ?? "Select a fruit",
-  );
-
-  function toggleColorPicker(e) {
-    showColorPicker = !showColorPicker;
-    console.log(showColorPicker);
+  /** HSV → HSL */
+  function hsvToHsl(h: number, s: number, v: number) {
+    s /= 100; v /= 100;
+    const l = v * (1 - s / 2);
+    const sl = (l === 0 || l === 1) ? 0 : (v - l) / Math.min(l, 1 - l);
+    return { h: Math.round(h), s: Math.round(sl * 100), l: Math.round(l * 100) };
   }
 
-  function colorPickerAreaClick(e:any) {
-    const areaWidth = e.target.clientWidth;
-    const areaHeight = e.target.clientHeight;
-    console.log(e);
-    const offsetY = e.offsetY;
-    const offsetX = e.offsetX;
+  /** HSV → RGB (0–255) */
+  function hsvToRgb(h: number, s: number, v: number) {
+    s /= 100; v /= 100;
+    const k = (n: number) => (n + h / 60) % 6;
+    const f = (n: number) => v - v * s * Math.max(0, Math.min(k(n), 4 - k(n), 1));
+    return {
+      r: Math.round(f(5) * 255),
+      g: Math.round(f(3) * 255),
+      b: Math.round(f(1) * 255),
+    };
+  }
 
-    console.log(offsetY);
-    console.log(offsetX);
-    areaThumbTopPosition = offsetY / areaHeight * 100;
-    areaThumbLeftPosition = offsetX / areaWidth * 100;
+  /** RGB → HEX */
+  function rgbToHex(r: number, g: number, b: number) {
+    return "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
+  }
+
+  /** HSL → HSV */
+  function hslToHsv(h: number, s: number, l: number) {
+    s /= 100; l /= 100;
+    const v = l + s * Math.min(l, 1 - l);
+    const sv = v === 0 ? 0 : 2 * (1 - l / v);
+    return { h, s: Math.round(sv * 100), v: Math.round(v * 100) };
+  }
+
+  /** HEX → RGB */
+  function hexToRgb(hex: string) {
+    const clean = hex?.replace("#", "");
+    if (clean.length !== 6) return null;
+    const num = parseInt(clean, 16);
+    if (isNaN(num)) return null;
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+
+  /** Parse any CSS color (hex, rgb, hsl, named colors) → RGB */
+  function parseColorToRgb(color: string): { r: number; g: number; b: number } | null {
+    if (!color) return null;
+
+    // Try hex first
+    const hexResult = hexToRgb(color);
+    if (hexResult) return hexResult;
+
+    // Try using browser for named colors, rgb(), hsl(), etc.
+    if (typeof document === 'undefined') return null;
+
+    const div = document.createElement('div');
+    div.style.color = color;
+    document.body.appendChild(div);
+    const computed = getComputedStyle(div).color;
+    document.body.removeChild(div);
+
+    const match = computed.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (!match) return null;
+    return { r: +match[1], g: +match[2], b: +match[3] };
+  }
+
+  /** RGB → HSV */
+  function rgbToHsv(r: number, g: number, b: number) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d !== 0) {
+      if (max === r) h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h = Math.round(h * 60);
+      if (h < 0) h += 360;
+    }
+    return {
+      h,
+      s: Math.round(max === 0 ? 0 : (d / max) * 100),
+      v: Math.round(max * 100),
+    };
+  }
+
+  // ─── Colores derivados ─────────────────────────────────────────────────────────
+  let rgb  = $derived(hsvToRgb(hue, satHSV, valHSV));
+  let hsl  = $derived(hsvToHsl(hue, satHSV, valHSV));
+  let hex  = $derived(rgbToHex(rgb.r, rgb.g, rgb.b));
+
+  // Color del fondo del área (hue puro)
+  let areaBaseColor = $derived(`hsl(${hue}, 100%, 50%)`);
+
+  // Color actual con alpha para el trigger
+  let currentColor = $derived(
+    alpha < 100
+      ? `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, ${alpha / 100})`
+      : hex
+  );
+
+  // Color del thumb del slider de alpha
+  let alphaGradient = $derived(
+    `linear-gradient(to right, transparent, ${hex})`
+  );
+
+  // triggerContent para el select
+  const triggerContent = $derived(
+    modes.find(m => m.value === colorMode)?.label ?? "HEX"
+  );
+
+  // ─── Edición manual de inputs ─────────────────────────────────────────────────
+
+  // HEX input (edición directa)
+  let hexInput = $state(hex);
+  $effect(() => { hexInput = hex; });
+
+  function onHexInput(e: Event) {
+    const val = (e.target as HTMLInputElement).value;
+    hexInput = val;
+    const rgb = parseColorToRgb(val);
+    if (rgb) {
+      const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
+      hue = hsv.h; satHSV = hsv.s; valHSV = hsv.v;
+    }
+  }
+
+  // RGB inputs
+  let rInput = $state(0), gInput = $state(0), bInput = $state(0);
+  $effect(() => { rInput = rgb.r; gInput = rgb.g; bInput = rgb.b; });
+
+  function onRgbChange() {
+    const hsv = rgbToHsv(
+      Math.min(255, Math.max(0, rInput)),
+      Math.min(255, Math.max(0, gInput)),
+      Math.min(255, Math.max(0, bInput))
+    );
+    hue = hsv.h; satHSV = hsv.s; valHSV = hsv.v;
+  }
+
+  // HSL inputs
+  let hslHInput = $state(0), hslSInput = $state(0), hslLInput = $state(0);
+  $effect(() => { hslHInput = hsl.h; hslSInput = hsl.s; hslLInput = hsl.l; });
+
+  function onHslChange() {
+    const hsv = hslToHsv(
+      Math.min(360, Math.max(0, hslHInput)),
+      Math.min(100, Math.max(0, hslSInput)),
+      Math.min(100, Math.max(0, hslLInput))
+    );
+    hue = hsv.h; satHSV = hsv.s; valHSV = hsv.v;
+  }
+
+  // HSB inputs
+  let hsbHInput = $state(0), hsbSInput = $state(0), hsbBInput = $state(0);
+  $effect(() => { hsbHInput = hue; hsbSInput = satHSV; hsbBInput = valHSV; });
+
+  // Efecto para notificar cambios al usuario
+  $effect(() => {
+    // Actualizar valor bindeado
+    value = hex;
+
+    if(colorMode === "hex") {
+      value = hex;
+    } else if(colorMode === "rgb") {
+      value = `rgb(${rInput} ${gInput} ${bInput} / ${alpha}%)`;
+    } else if(colorMode === "hsl") {
+      value = `hsl(${hslHInput}deg ${hslSInput}% ${hslLInput}% / ${alpha}%)`;
+    } else if(colorMode === "hsb") {
+      value = `hsba(${hsbHInput}%, ${hsbSInput}%, ${hsbBInput}%, ${alpha / 100})`;
+    }
+
+    // Notificar cambio (solo después de inicializado)
+    if (lastExternalValue !== undefined) {
+      onChange?.({
+        hex,
+        rgb: `rgb(${rInput} ${gInput} ${bInput} / ${alpha}%)`,
+        hsl: `hsl(${hslHInput}deg ${hslSInput}% ${hslLInput}% / ${alpha}%)`,
+        hsb: `hsba(${hsbHInput}%, ${hsbSInput}%, ${hsbBInput}%, ${alpha / 100})`,
+        alpha,
+      });
+    }
+  });
+
+  function onHsbChange() {
+    hue = Math.min(360, Math.max(0, hsbHInput));
+    satHSV = Math.min(100, Math.max(0, hsbSInput));
+    valHSV = Math.min(100, Math.max(0, hsbBInput));
+  }
+
+  // ─── Interacción con el área ───────────────────────────────────────────────────
+
+  function updateFromPointer(e: MouseEvent | PointerEvent) {
+    if (!areaEl) return;
+    const rect = areaEl.getBoundingClientRect();
+    const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
+    const y = Math.min(Math.max(0, e.clientY - rect.top), rect.height);
+    satHSV = Math.round((x / rect.width) * 100);
+    valHSV = Math.round((1 - y / rect.height) * 100);
+  }
+
+  function onAreaPointerDown(e: PointerEvent) {
+    isDragging = true;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    updateFromPointer(e);
+  }
+
+  function onAreaPointerMove(e: PointerEvent) {
+    if (!isDragging) return;
+    updateFromPointer(e);
+  }
+
+  function onAreaPointerUp(e: PointerEvent) {
+    isDragging = false;
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+  }
+
+  // ─── Eye dropper ──────────────────────────────────────────────────────────────
+  async function openEyeDropper() {
+    if (!("EyeDropper" in window)) return;
+    try {
+      const dropper = new (window as any).EyeDropper();
+      const result = await dropper.open();
+      const rgbVal = hexToRgb(result.sRGBHex);
+      if (rgbVal) {
+        const hsv = rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b);
+        hue = hsv.h; satHSV = hsv.s; valHSV = hsv.v;
+      }
+    } catch {}
+  }
+
+  function handleSelectChange(newMode: ColorMode) {
+    if (!isColorModeControlled) {
+      internalColorMode = newMode;
+    }
+    onFormatChange?.(newMode);
   }
 </script>
 
-<Popover.Root>
-  <Popover.Trigger class="flex">Open</Popover.Trigger>
-  <Popover.Content class="flex flex-col gap-4 min-w-74.25 p-2.25" portalProps={{}}>
-    <div class="flex flex-col gap-4">
+<Popover.Root 
+  open={open} 
+  defaultOpen={defaultOpen} 
+  onOpenChange={onOpenChange}
+  dir={rtl}
+>
+  <!-- Trigger -->
+  {#if children}
+
+    {@render children?.()}
+    
+  {:else}
+    <Popover.Trigger 
+      class="flex items-center gap-2"
+      disabled={disabled}
+    >
+      <ColorPickerSwatch class="w-5 h-5" />
+      <span class="text-sm font-mono">
+        {value}
+      </span>
+    </Popover.Trigger>
+  {/if}
+
+  <Popover.Content class="flex flex-col gap-4 min-w-76 p-2.25" portalProps={{}}>
+    <div class="flex flex-col gap-4 {className}">
+
+      <!-- ── Área de color ────────────────────────────────────────────────── -->
       <div
+        bind:this={areaEl}
         aria-label="Color picker area"
         tabindex="0"
-        role="button"
-        onmousedown={colorPickerAreaClick}
+        role="slider"
+        aria-valuetext="Saturation {satHSV}%, Brightness {valHSV}%"
+        onpointerdown={onAreaPointerDown}
+        onpointermove={onAreaPointerMove}
+        onpointerup={onAreaPointerUp}
         data-slot="color-picker-area"
-        class="relative h-40 w-full cursor-crosshair touch-none rounded-lg border"
+        class="relative h-40 w-full cursor-crosshair touch-none rounded-lg border select-none"
       >
-        <div class="color-picker-area-wrapper absolute inset-0 rounded-lg">
-          <div
-            class="base absolute inset-0 rounded-lg"
-            style="background-color: {hex};"
-          ></div>
-
-          <div
-            class="white absolute inset-0 rounded-lg"
-            style="background: linear-gradient(to right, rgb(255, 255, 255), transparent);"
-          ></div>
-
-          <div
-            class="black absolute inset-0 rounded-lg"
-            style="background: linear-gradient(transparent, rgb(0, 0, 0));"
-          ></div>
-        </div>
-
+        <!-- Fondo: hue puro -->
         <div
-          class="color-picker-area-thumb absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-sm"
-          style="left: {areaThumbLeftPosition}%; top: {areaThumbTopPosition}%;"
+          class="absolute inset-0 rounded-lg"
+          style="background-color: {areaBaseColor};height: calc(100% - 2px);"
+        ></div>
+        <!-- Gradiente blanco → transparente (izquierda → derecha) -->
+        <div
+          class="absolute inset-0 rounded-lg"
+          style="background: linear-gradient(to right, rgb(255,255,255), transparent);height: calc(100% - 2px);"
+        ></div>
+        <!-- Gradiente transparente → negro (arriba → abajo) -->
+        <div
+          class="absolute inset-0 rounded-lg"
+          style="background: linear-gradient(to bottom, transparent, rgb(0,0,0));"
+        ></div>
+
+        <!-- Thumb -->
+        <div
+          class="color-picker-area-thumb pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-md ring-1 ring-black/20"
+          style="left: {thumbLeft}%; top: {thumbTop}%;"
         ></div>
       </div>
 
+      <!-- ── Sliders ──────────────────────────────────────────────────────── -->
       <div class="flex items-center gap-2">
+        <!-- Eye dropper -->
         <button
           aria-label="Eye dropper"
-          data-slot="color-picker-eye-dropper"
-          class="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 size-9"
+          onclick={openEyeDropper}
+          class="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 size-9"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-pipette"
-            aria-hidden="true"
-            ><path
-              d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12"
-            ></path><path
-              d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z"
-            ></path><path d="m2 22 .414-.414"></path></svg
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12"/>
+            <path d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z"/>
+            <path d="m2 22 .414-.414"/>
+          </svg>
         </button>
 
         <div class="flex flex-1 flex-col gap-2">
+          <!-- Hue slider -->
           <SliderHue
             type="single"
             bind:value={hue}
@@ -115,184 +494,209 @@
             class="w-full h-3 slider rounded-3xl color-picker-slider color-picker-slider--hue bg-[linear-gradient(to_right,#ff0000_0%,#ffff00_16.66%,#00ff00_33.33%,#00ffff_50%,#0000ff_66.66%,#ff00ff_83.33%,#ff0000_100%)]"
           />
 
+          <!-- Alpha slider -->
           <SliderAlpha
             type="single"
             bind:value={alpha}
             max={100}
             step={1}
             class="w-full h-3 slider color-picker-slider color-picker-slider--alpha"
-            style="background-image: repeating-conic-gradient(#ffffff 0% 25%, #b7b7b7 0% 50%);
-          background-size: 8px 8px;
-          border-radius: 20px;"
+            style=""
+            baseColor={hex}
           />
         </div>
       </div>
 
+      <!-- ── Inputs ───────────────────────────────────────────────────────── -->
       <div class="flex items-center gap-2">
-        <Select.Root type="single" name="favoriteFruit" bind:value>
+        <!-- Selector de modo -->
+        <Select.Root 
+          type="single" 
+          name="colorMode" 
+          value={colorMode} 
+          onValueChange={handleSelectChange}
+          disabled={disabled || readOnly}
+        >
           <Select.Trigger class="max-h-8 min-w-19">
             {triggerContent}
           </Select.Trigger>
-          <Select.Content
-            class="max-w-20 min-w-20"
-            portalProps={{ style: "width: 100%" }}
-          >
+          <Select.Content class="max-w-20 min-w-20" portalProps={{ style: "width: 100%" }}>
             <Select.Group>
-              {#each fruits as fruit (fruit.value)}
-                <Select.Item
-                  class="select-item"
-                  value={fruit.value}
-                  label={fruit.label}
-                  disabled={fruit.value === "grapes"}
-                >
-                  {fruit.label}
+              {#each modes as mode (mode.value)}
+                <Select.Item class="select-item" value={mode.value} label={mode.label}>
+                  {mode.label}
                 </Select.Item>
               {/each}
             </Select.Group>
           </Select.Content>
         </Select.Root>
 
-        <div data-slot="color-picker-input-wrapper" class="flex items-center">
+        <!-- Campos según modo -->
+        <div data-slot="color-picker-input-wrapper" class="flex flex-1 items-center">
 
-          {#if value === "hex"}
+          {#if colorMode === "hex"}
+            <!-- HEX: un solo input + alpha -->
             <Input
               type="text"
-              placeholder="Hex value"
-              class="h-8 border-r-none rounded-tr-none rounded-br-none"
-              bind:value={hex}
-            />
-          {:else if value === "rgb"}
-            <input 
-            data-slot="color-picker-input"
-            class="flex min-w-0 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none rounded-e-none" 
-            aria-label="Green color component (0-255)" 
-            placeholder="0" inputmode="numeric" 
-            pattern="[0-9]*" 
-            min="0" 
-            max="255" 
-            value="53"
+              placeholder="#000000"
+              class="h-8 rounded-tr-none rounded-br-none flex-1 font-mono"
+              value={hexInput}
+              oninput={onHexInput}
             />
 
-            <input 
-            data-slot="color-picker-input"
-            class="flex min-w-0 w-full border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&amp;::-webkit-inner-spin-button]:m-0 [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:m-0 [&amp;::-webkit-outer-spin-button]:appearance-none -ms-px rounded-none border-l-0" 
-            aria-label="Red color component (0-255)"
-            placeholder="0" inputmode="numeric" 
-            pattern="[0-9]*" 
-            min="0" 
-            max="255" 
-            value="53"
-            />
-
-            <input 
-            data-slot="color-picker-input"
-            class="flex min-w-0 w-full border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&amp;::-webkit-inner-spin-button]:m-0 [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:m-0 [&amp;::-webkit-outer-spin-button]:appearance-none -ms-px rounded-none border-l-0" 
-            aria-label="Blue color component (0-255)" 
-            placeholder="0" inputmode="numeric" 
-            pattern="[0-9]*" 
-            min="0" 
-            max="255" 
-            value="53"
-            />
-            
-          {:else}
-            <input
-              data-slot="color-picker-input"
-              class="flex min-w-0 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&amp;::-webkit-inner-spin-button]:m-0 [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:m-0 [&amp;::-webkit-outer-spin-button]:appearance-none rounded-e-none"
-              aria-label="Hue degree (0-360)"
+          {:else if colorMode === "rgb"}
+            <!-- R -->
+            <Input
+              type="number"
               placeholder="0"
+              class={inputClass("rounded-e-none")}
+              aria-label="Red (0-255)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="255"
+              bind:value={rInput}
+              onchange={onRgbChange}
+            />
+            <!-- G -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("rounded-none border-l-0")}
+              aria-label="Green (0-255)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="255"
+              bind:value={gInput}
+              onchange={onRgbChange}
+            />
+
+            <!-- B -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("rounded-none border-l-0")}
+              aria-label="Blue (0-255)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="255"
+              bind:value={bInput}
+              onchange={onRgbChange}
+            />
+
+          {:else if colorMode === "hsl"}
+            <!-- H -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-tr-none rounded-br-none")}
+              aria-label="Hue (0-360)"
               inputmode="numeric"
               pattern="[0-9]*"
               min="0"
               max="360"
-              bind:value={hue}
+              bind:value={hslHInput}
+              onchange={onHslChange}
             />
 
-            <input
-              class="flex min-w-0 w-full border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&amp;::-webkit-inner-spin-button]:m-0 [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:m-0 [&amp;::-webkit-outer-spin-button]:appearance-none -ms-px rounded-none border-l-0"
-              aria-label="Saturation percentage (0-100)"
+            <!-- S -->
+            <Input
+              type="number"
               placeholder="0"
+              class={inputClass("-ms-px rounded-none border-l-0")}
+              aria-label="Saturation (0-100)"
               inputmode="numeric"
               pattern="[0-9]*"
               min="0"
               max="100"
-              value="50"
+              bind:value={hslSInput}
+              onchange={onHslChange}
             />
 
-            {#if value === "hsl"}
-              <input
-                data-slot="color-picker-input"
-                class="flex min-w-0 w-full border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&amp;::-webkit-inner-spin-button]:m-0 [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:m-0 [&amp;::-webkit-outer-spin-button]:appearance-none -ms-px rounded-none border-l-0"
-                aria-label="Lightness percentage (0-100)"
-                placeholder="0"
-                inputmode="numeric"
-                pattern="[0-9]*"
-                min="0"
-                max="100"
-                value="42"
-              />
-            {:else if value === "hsb"}
-              <input
-                data-slot="color-picker-input"
-                class="flex min-w-0 w-full border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&amp;::-webkit-inner-spin-button]:m-0 [&amp;::-webkit-inner-spin-button]:appearance-none [&amp;::-webkit-outer-spin-button]:m-0 [&amp;::-webkit-outer-spin-button]:appearance-none -ms-px rounded-none border-l-0"
-                aria-label="Brightness percentage (0-100)"
-                placeholder="0"
-                inputmode="numeric"
-                pattern="[0-9]*"
-                min="0"
-                max="100"
-                value="63"
-              />
-            {/if}
+            <!-- L -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-none border-l-0")}
+              aria-label="Lightness (0-100)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="100"
+              bind:value={hslLInput}
+              onchange={onHslChange}
+            />
+
+          {:else if colorMode === "hsb"}
+            <!-- Hue -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-tr-none rounded-br-none")}
+              aria-label="Hue (0-360)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="360"
+              bind:value={hsbHInput}
+              onchange={onHsbChange}
+            />
+
+            <!-- Saturation -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-none border-l-0")}
+              aria-label="Saturation (0-100)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="100"
+              bind:value={hsbSInput}
+              onchange={onHsbChange}
+            />
+
+            <!-- Brightness -->
+            <Input
+              type="number"
+              placeholder="0"
+              class={inputClass("-ms-px rounded-none border-l-0")}
+              aria-label="Brightness (0-100)"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              min="0"
+              max="100"
+              bind:value={hsbBInput}
+              onchange={onHsbChange}
+            />
+
           {/if}
 
-          <!-- <input
-            data-slot="color-picker-input"
-            class="flex min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none -ms-px rounded-s-none border-l-0 w-14"
-            aria-label="Alpha transparency percentage"
-            placeholder="100"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            min="0"
-            max="100"
-            value="18"
-          /> -->
-
+          <!-- Alpha (siempre visible) -->
           <Input
             bind:value={alpha}
-            class="input-numeric {value === 'hex' ? 'w-auto' : 'w-full'} border border-input  px-3 py-1 text-base shadow-xs outline-none h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none -ms-px rounded-s-none border-l-0"
+            class={inputClass("rounded-md rounded-tl-none rounded-bl-none border-l-0")}
             type="number"
-            aria-label="Alpha transparency percentage"
+            aria-label="Alpha (0-100)"
             placeholder="100"
-            inputmode="numeric"
-            pattern="[0-9]*"
             min="0"
             max="100"
           />
         </div>
       </div>
+
     </div>
   </Popover.Content>
 </Popover.Root>
 
-<style>
-  .color-area {
-    height: 10rem;
-    border-radius: 4px;
-    border: 1px solid #000;
-    background: linear-gradient(to right, #fff, transparent),
-      linear-gradient(to bottom, transparent, #000), rgb(0, 255, 115);
+<!-- Helper: clases base para inputs numéricos del color picker -->
+<script module lang="ts">
+  function inputClass(extra = "") {
+    return [
+      "flex min-w-0 w-full flex-1 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none rounded-e-none",
+      extra,
+    ].join(" ");
   }
-
-  .color-picker-area-wrapper {
-    .base,
-    .white {
-      max-height: calc(100% - 2px);
-    }
-
-    .base,
-    .white,
-    .black {
-    }
-  }
-</style>
+</script>

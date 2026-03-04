@@ -91,8 +91,7 @@ interface ColorPickerChange {
 |------|------|---------|-------------|
 | `class` | `string` | `undefined` | Clases CSS adicionales |
 | `showAlpha` | `boolean` | `false` | Muestra patrón de transparencia cuando alpha < 100 |
-
-> **Nota**: `ColorPickerSwatch` obtiene el color automáticamente del contexto de ColorPicker.
+| `value` | `string` | `undefined` | Valor del color (two-way binding) |
 
 ## Eventos
 
