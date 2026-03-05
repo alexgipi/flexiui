@@ -32,15 +32,17 @@
     <h1 class="package-name">{name}</h1>
     <p class="package-desc">{description}</p>
   
-    <div class="card flex justify-center">
+    <div class="card flex justify-center" id="color-picker-container">
     <!-- <p>Color value: {colorValue}</p> -->
         <ColorPicker
           bind:value={colorValue}
           defaultFormat="hex"
           onFormatChange={onFormatChange}
           onChange={onChange}
+          align="center"
+          portalElement="#color-picker-container"
         >
-          <ColorPickerTrigger>
+          <ColorPickerTrigger class="font-mono">
             <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} value={colorValueRgb} />
             {colorValue}
           </ColorPickerTrigger>
