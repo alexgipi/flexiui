@@ -1,4 +1,7 @@
-import { renderToHTMLString, serializeChildrenToHTMLString } from "@tiptap/static-renderer";
+import {
+  renderToHTMLString,
+  serializeChildrenToHTMLString,
+} from '@tiptap/static-renderer/pm/html-string'
 import katex from "katex";
 import { getRichTextExtensions } from "./getExtensions";
 
