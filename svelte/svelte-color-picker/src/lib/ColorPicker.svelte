@@ -11,6 +11,7 @@
   type Direction = "ltr" | "rtl";
 
   interface Props {
+    align?: "start" | "center" | "end";
     // Portal
     portalElement?: HTMLElement | string;
 
@@ -45,6 +46,7 @@
   }
 
   let {
+    align = "center",
     // Portal
     portalElement,
     
@@ -88,20 +90,19 @@
   let alpha = $state(100);       // 0–100
 
   // ─── Bandera para distinguir cambios internos de externos ────────────────────
-  // Evita que el efecto de sincronización externa sobreescriba el hue
-  // mientras el usuario está interactuando con el picker.
   let isInternalChange = $state(false);
-
   let isInitialized = $state(false);
 
   $effect(() => {
     if (value && !isInitialized) {
+      const clean = value.replace("#", "");
+      // Si viene con alpha (#RRGGBBAA), extraerlo
+      if (clean.length === 8) {
+        alpha = Math.round((parseInt(clean.slice(6, 8), 16) / 255) * 100);
+      }
       const parsedRgb = parseColorToRgb(value);
       if (parsedRgb) {
         const hsv = rgbToHsv(parsedRgb.r, parsedRgb.g, parsedRgb.b);
-        // FIX 2: Solo actualizar hue si el color tiene saturación.
-        // Negro, blanco y grises tienen hue indefinido (rgbToHsv devuelve 0),
-        // no tiene sentido sobreescribir el hue actual con ese 0.
         if (hsv.s > 0) hue = hsv.h;
         satHSV = hsv.s;
         valHSV = hsv.v;
@@ -116,15 +117,17 @@
   let isColorModeControlled = $derived(format !== undefined);
 
   // ─── Sincronizar valor externo (two-way binding) ───────────────────────────────
-  // FIX 1: Ignorar cambios en `value` que vengan de nosotros mismos
-  // (isInternalChange = true), para evitar el loop que causaba saltos de hue.
   let lastExternalValue = $state<string | undefined>(undefined);
   $effect(() => {
     if (!isInternalChange && value !== lastExternalValue && value) {
+      const clean = value.replace("#", "");
+      // Si viene con alpha (#RRGGBBAA), extraerlo
+      if (clean.length === 8) {
+        alpha = Math.round((parseInt(clean.slice(6, 8), 16) / 255) * 100);
+      }
       const parsedRgb = parseColorToRgb(value);
       if (parsedRgb) {
         const hsv = rgbToHsv(parsedRgb.r, parsedRgb.g, parsedRgb.b);
-        // FIX 2: Igual que arriba, preservar hue en colores sin saturación.
         if (hsv.s > 0) hue = hsv.h;
         satHSV = hsv.s;
         valHSV = hsv.v;
@@ -169,7 +172,7 @@
     };
   }
 
-  /** RGB → HEX */
+  /** RGB → HEX (6 chars, sin alpha) */
   function rgbToHex(r: number, g: number, b: number) {
     return "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
   }
@@ -182,11 +185,11 @@
     return { h, s: Math.round(sv * 100), v: Math.round(v * 100) };
   }
 
-  /** HEX → RGB */
+  /** HEX → RGB — acepta 6 u 8 caracteres (#RRGGBB o #RRGGBBAA) */
   function hexToRgb(hex: string) {
     const clean = hex?.replace("#", "");
-    if (clean.length !== 6) return null;
-    const num = parseInt(clean, 16);
+    if (clean.length !== 6 && clean.length !== 8) return null;
+    const num = parseInt(clean.slice(0, 6), 16); // ignoramos AA al parsear RGB
     if (isNaN(num)) return null;
     return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
   }
@@ -195,11 +198,9 @@
   function parseColorToRgb(color: string): { r: number; g: number; b: number } | null {
     if (!color) return null;
 
-    // Try hex first
     const hexResult = hexToRgb(color);
     if (hexResult) return hexResult;
 
-    // Try using browser for named colors, rgb(), hsl(), etc.
     if (typeof document === 'undefined') return null;
 
     const div = document.createElement('div');
@@ -238,19 +239,17 @@
   let hsl  = $derived(hsvToHsl(hue, satHSV, valHSV));
   let hex  = $derived(rgbToHex(rgb.r, rgb.g, rgb.b));
 
+  // HEX con alpha integrado (#RRGGBBAA), solo cuando alpha < 100
+  let hexWithAlphaValue = $derived(hexWithAlpha(hex, alpha));
+
   // Color del fondo del área (hue puro)
   let areaBaseColor = $derived(`hsl(${hue}, 100%, 50%)`);
 
-  // Color actual con alpha para el trigger
+  // Color actual con alpha para el trigger/swatch
   let currentColor = $derived(
     alpha < 100
       ? `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, ${alpha / 100})`
       : hex
-  );
-
-  // Color del thumb del slider de alpha
-  let alphaGradient = $derived(
-    `linear-gradient(to right, transparent, ${hex})`
   );
 
   // triggerContent para el select
@@ -260,17 +259,22 @@
 
   // ─── Edición manual de inputs ─────────────────────────────────────────────────
 
-  // HEX input (edición directa)
+  // HEX input — muestra el hex con alpha integrado cuando corresponde
   let hexInput = $state(hex);
-  $effect(() => { hexInput = hex; });
+  $effect(() => { hexInput = hexWithAlphaValue; });
 
   function onHexInput(e: Event) {
     const val = (e.target as HTMLInputElement).value;
     hexInput = val;
+    const clean = val.replace("#", "");
+    // Extraer alpha si tiene 8 chars
+    if (clean.length === 8) {
+      const a = parseInt(clean.slice(6, 8), 16);
+      if (!isNaN(a)) alpha = Math.round((a / 255) * 100);
+    }
     const parsedRgb = parseColorToRgb(val);
     if (parsedRgb) {
       const hsv = rgbToHsv(parsedRgb.r, parsedRgb.g, parsedRgb.b);
-      // FIX 2: Preservar hue al escribir negro/blanco/gris en el input HEX.
       if (hsv.s > 0) hue = hsv.h;
       satHSV = hsv.s;
       valHSV = hsv.v;
@@ -287,7 +291,6 @@
       Math.min(255, Math.max(0, gInput)),
       Math.min(255, Math.max(0, bInput))
     );
-    // FIX 2: Preservar hue al escribir negro/blanco/gris en los inputs RGB.
     if (hsv.s > 0) hue = hsv.h;
     satHSV = hsv.s;
     valHSV = hsv.v;
@@ -310,15 +313,19 @@
   let hsbHInput = $state(0), hsbSInput = $state(0), hsbBInput = $state(0);
   $effect(() => { hsbHInput = hue; hsbSInput = satHSV; hsbBInput = valHSV; });
 
+  function onHsbChange() {
+    hue = Math.min(360, Math.max(0, hsbHInput));
+    satHSV = Math.min(100, Math.max(0, hsbSInput));
+    valHSV = Math.min(100, Math.max(0, hsbBInput));
+  }
+
   // ─── Efecto para notificar cambios al usuario ─────────────────────────────────
-  // FIX 1: Marcamos isInternalChange = true antes de modificar `value`
-  // para que el efecto de sincronización externa lo ignore y no cause
-  // un loop que sobreescriba el hue con pérdida de precisión.
   $effect(() => {
     isInternalChange = true;
 
     if (colorMode === "hex") {
-      value = hex;
+      // HEX: emitir #RRGGBBAA cuando hay transparencia, #RRGGBB cuando es opaco
+      value = hexWithAlphaValue;
     } else if (colorMode === "rgb") {
       value = `rgb(${rInput} ${gInput} ${bInput} / ${alpha}%)`;
     } else if (colorMode === "hsl") {
@@ -329,10 +336,10 @@
 
     lastExternalValue = value;
 
-    // Notificar cambio (solo después de inicializado)
     if (lastExternalValue !== undefined) {
       onChange?.({
-        hex,
+        hex: hexWithAlphaValue,
+        hexOpaque: hex,
         rgb: `rgb(${rInput} ${gInput} ${bInput} / ${alpha}%)`,
         hsl: `hsl(${hslHInput}deg ${hslSInput}% ${hslLInput}% / ${alpha}%)`,
         hsb: `hsba(${hsbHInput}%, ${hsbSInput}%, ${hsbBInput}%, ${alpha / 100})`,
@@ -345,12 +352,6 @@
     Promise.resolve().then(() => { isInternalChange = false; });
   });
 
-  function onHsbChange() {
-    hue = Math.min(360, Math.max(0, hsbHInput));
-    satHSV = Math.min(100, Math.max(0, hsbSInput));
-    valHSV = Math.min(100, Math.max(0, hsbBInput));
-  }
-
   // ─── Interacción con el área ───────────────────────────────────────────────────
 
   function updateFromPointer(e: MouseEvent | PointerEvent) {
@@ -358,8 +359,6 @@
     const rect = areaEl.getBoundingClientRect();
     const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
     const y = Math.min(Math.max(0, e.clientY - rect.top), rect.height);
-    // FIX 1+2: Solo actualizamos sat y val. El hue NO se toca aquí,
-    // porque al arrastrar por el área nunca debe cambiar el hue base.
     satHSV = Math.round((x / rect.width) * 100);
     valHSV = Math.round((1 - y / rect.height) * 100);
   }
@@ -389,7 +388,6 @@
       const rgbVal = hexToRgb(result.sRGBHex);
       if (rgbVal) {
         const hsv = rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b);
-        // FIX 2: Preservar hue si se selecciona un color sin saturación.
         if (hsv.s > 0) hue = hsv.h;
         satHSV = hsv.s;
         valHSV = hsv.v;
@@ -402,6 +400,15 @@
       internalColorMode = newMode;
     }
     onFormatChange?.(newMode);
+  }
+
+  let showCopiedCheckIcon = $state(false);
+  function copyColorToClipboard() {
+    navigator.clipboard.writeText(value);
+    showCopiedCheckIcon = true;
+    setTimeout(() => {
+      showCopiedCheckIcon = false;
+    }, 2000);
   }
 </script>
 
@@ -428,8 +435,12 @@
     </Popover.Trigger>
   {/if}
 
-  <Popover.Content class="flex flex-col gap-4 min-w-76 p-2.25" portalProps={{to: portalElement}}>
-    <div class="flex flex-col gap-4 {className}">
+  <Popover.Content 
+    class="flex flex-col gap-4 min-w-76 p-2.25 rounded-xl" 
+    portalProps={{to: portalElement}}
+    align={align}
+  >
+    <div class="flex flex-col gap-2.5 {className}">
 
       <!-- ── Área de color ────────────────────────────────────────────────── -->
       <div
@@ -471,20 +482,29 @@
       <!-- ── Sliders ──────────────────────────────────────────────────────── -->
       
       <div class="flex items-center gap-2">
+
         <!-- Eye dropper -->
         <button
           aria-label="Eye dropper"
           onclick={openEyeDropper}
-          class="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 size-9"
+          class="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 size-8.5"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" aria-hidden="true">
-            <path d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12"/>
-            <path d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z"/>
-            <path d="m2 22 .414-.414"/>
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pipette-icon lucide-pipette"><path d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12"/><path d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z"/><path d="m2 22 .414-.414"/></svg>
         </button>
+
+        <button
+          aria-label="Copy color to clipboard"
+          onclick={copyColorToClipboard}
+          class="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50 size-8.5"
+        >
+          
+          {#if showCopiedCheckIcon}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
+          {:else}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          {/if}
+        </button>
+
 
         <div class="flex flex-1 flex-col gap-2">
           <!-- Hue slider -->
@@ -536,11 +556,11 @@
         <div data-slot="color-picker-input-wrapper" class="flex flex-1 items-center">
 
           {#if colorMode === "hex"}
-            <!-- HEX: un solo input + alpha -->
+            <!-- HEX: input único que muestra #RRGGBB o #RRGGBBAA según alpha -->
             <Input
               type="text"
               placeholder="#000000"
-              class="h-8 rounded-tr-none rounded-br-none flex-1 font-mono"
+              class="h-8 rounded-tr-none rounded-br-none flex-auto font-mono"
               value={hexInput}
               oninput={onHexInput}
             />
@@ -591,7 +611,7 @@
             <Input
               type="number"
               placeholder="0"
-              class={inputClass("-ms-px rounded-tr-none rounded-br-none")}
+              class={inputClass("rounded-tr-none rounded-br-none")}
               aria-label="Hue (0-360)"
               inputmode="numeric"
               pattern="[0-9]*"
@@ -604,7 +624,7 @@
             <Input
               type="number"
               placeholder="0"
-              class={inputClass("-ms-px rounded-none border-l-0")}
+              class={inputClass("rounded-none border-l-0")}
               aria-label="Saturation (0-100)"
               inputmode="numeric"
               pattern="[0-9]*"
@@ -617,7 +637,7 @@
             <Input
               type="number"
               placeholder="0"
-              class={inputClass("-ms-px rounded-none border-l-0")}
+              class={inputClass("rounded-none border-l-0")}
               aria-label="Lightness (0-100)"
               inputmode="numeric"
               pattern="[0-9]*"
@@ -632,7 +652,7 @@
             <Input
               type="number"
               placeholder="0"
-              class={inputClass("-ms-px rounded-tr-none rounded-br-none")}
+              class={inputClass("rounded-tr-none rounded-br-none")}
               aria-label="Hue (0-360)"
               inputmode="numeric"
               pattern="[0-9]*"
@@ -645,7 +665,7 @@
             <Input
               type="number"
               placeholder="0"
-              class={inputClass("-ms-px rounded-none border-l-0")}
+              class={inputClass("rounded-none border-l-0")}
               aria-label="Saturation (0-100)"
               inputmode="numeric"
               pattern="[0-9]*"
@@ -658,7 +678,7 @@
             <Input
               type="number"
               placeholder="0"
-              class={inputClass("-ms-px rounded-none border-l-0")}
+              class={inputClass("rounded-none border-l-0")}
               aria-label="Brightness (0-100)"
               inputmode="numeric"
               pattern="[0-9]*"
@@ -689,9 +709,22 @@
 
 <!-- Helper: clases base para inputs numéricos del color picker -->
 <script module lang="ts">
+  /**
+   * Combina un color HEX (#RRGGBB) con un valor de alpha (0–100)
+   * y devuelve #RRGGBBAA (CSS/Web, alpha al final).
+   * Si alpha es 100 devuelve el hex original sin sufijo.
+   */
+  export function hexWithAlpha(hex: string, alpha: number): string {
+    if (alpha >= 100) return hex;
+    const alphaHex = Math.round((alpha / 100) * 255)
+      .toString(16)
+      .padStart(2, "0");
+    return `#${hex.replace("#", "")}${alphaHex}`;
+  }
+
   function inputClass(extra = "") {
     return [
-      "flex min-w-0 w-full flex-1 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none rounded-e-none",
+      "flex min-w-[50px] w-full flex-1 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs outline-none transition-[color,box-shadow] selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 h-8 [-moz-appearance:textfield] focus-visible:z-10 focus-visible:ring-1 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none rounded-e-none",
       extra,
     ].join(" ");
   }

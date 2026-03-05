@@ -1,7 +1,17 @@
-<script>
+<script lang="ts">
 	import { Popover as PopoverPrimitive } from "bits-ui";
 	import PopoverPortal from "./popover-portal.svelte";
 	import { cn } from "$lib/utils.js";
+	
+	interface Props {
+		ref?: HTMLElement | null;
+		class?: string;
+		sideOffset?: number;
+		align?: "start" | "center" | "end";
+		portalProps?: any;
+		[key: string]: any;
+	}
+
 	let {
 		ref = $bindable(null),
 		class: className,
@@ -9,7 +19,7 @@
 		align = "center",
 		portalProps,
 		...restProps
-	} = $props();
+	}: Props = $props();
 </script>
 
 <PopoverPortal {...portalProps}>
