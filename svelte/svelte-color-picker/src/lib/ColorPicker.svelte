@@ -11,6 +11,9 @@
   type Direction = "ltr" | "rtl";
 
   interface Props {
+    // Portal
+    portalElement?: HTMLElement | string;
+
     // Format
     format?: ColorFormat;
     defaultFormat?: ColorFormat;
@@ -42,6 +45,9 @@
   }
 
   let {
+    // Portal
+    portalElement,
+    
     // Format
     format,
     defaultFormat = "hex",
@@ -81,70 +87,45 @@
   let valHSV = $state(83);       // 0–100  → posición Y invertida del thumb
   let alpha = $state(100);       // 0–100
 
+  // ─── Bandera para distinguir cambios internos de externos ────────────────────
+  // Evita que el efecto de sincronización externa sobreescriba el hue
+  // mientras el usuario está interactuando con el picker.
+  let isInternalChange = $state(false);
+
   let isInitialized = $state(false);
 
   $effect(() => {
     if (value && !isInitialized) {
-      const rgb = parseColorToRgb(value);
-      if (rgb) {
-        hue = hsvToHue(rgb.r, rgb.g, rgb.b);
-        satHSV = hsvToSat(rgb.r, rgb.g, rgb.b);
-        valHSV = hsvToVal(rgb.r, rgb.g, rgb.b);
+      const parsedRgb = parseColorToRgb(value);
+      if (parsedRgb) {
+        const hsv = rgbToHsv(parsedRgb.r, parsedRgb.g, parsedRgb.b);
+        // FIX 2: Solo actualizar hue si el color tiene saturación.
+        // Negro, blanco y grises tienen hue indefinido (rgbToHsv devuelve 0),
+        // no tiene sentido sobreescribir el hue actual con ese 0.
+        if (hsv.s > 0) hue = hsv.h;
+        satHSV = hsv.s;
+        valHSV = hsv.v;
       }
       isInitialized = true;
     }
   });
-
-  function hsvToHue(r: number, g: number, b: number) {
-    r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    const d = max - min;
-    let h = 0;
-    if (d !== 0) {
-      if (max === r) h = ((g - b) / d) % 6;
-      else if (max === g) h = (b - r) / d + 2;
-      else h = (r - g) / d + 4;
-      h = Math.round(h * 60);
-      if (h < 0) h += 360;
-    }
-    return h;
-  }
-
-  function hsvToSat(r: number, g: number, b: number) {
-    r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    const d = max - min;
-    let s = 0;
-    if (d !== 0) {
-      s = d / max;
-    }
-    return s * 100;
-  }
-
-  function hsvToVal(r: number, g: number, b: number) {
-    r /= 255; g /= 255; b /= 255;
-    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    const d = max - min;
-    let v = 0;
-    if (d !== 0) {
-      v = max;
-    }
-    return v * 100;
-  }
 
   // Color mode: usar format si está controlado, si no usar defaultFormat
   let internalColorMode = $state<ColorMode>(defaultFormat);
   let colorMode = $derived(format ?? internalColorMode);
   let isColorModeControlled = $derived(format !== undefined);
 
-  // Sincronizar valor externo (two-way binding)
+  // ─── Sincronizar valor externo (two-way binding) ───────────────────────────────
+  // FIX 1: Ignorar cambios en `value` que vengan de nosotros mismos
+  // (isInternalChange = true), para evitar el loop que causaba saltos de hue.
   let lastExternalValue = $state<string | undefined>(undefined);
   $effect(() => {
-    if (value !== lastExternalValue && value) {
-      const rgb = parseColorToRgb(value);
-      if (rgb) {
-        const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
-        hue = hsv.h;
+    if (!isInternalChange && value !== lastExternalValue && value) {
+      const parsedRgb = parseColorToRgb(value);
+      if (parsedRgb) {
+        const hsv = rgbToHsv(parsedRgb.r, parsedRgb.g, parsedRgb.b);
+        // FIX 2: Igual que arriba, preservar hue en colores sin saturación.
+        if (hsv.s > 0) hue = hsv.h;
         satHSV = hsv.s;
         valHSV = hsv.v;
       }
@@ -286,10 +267,13 @@
   function onHexInput(e: Event) {
     const val = (e.target as HTMLInputElement).value;
     hexInput = val;
-    const rgb = parseColorToRgb(val);
-    if (rgb) {
-      const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
-      hue = hsv.h; satHSV = hsv.s; valHSV = hsv.v;
+    const parsedRgb = parseColorToRgb(val);
+    if (parsedRgb) {
+      const hsv = rgbToHsv(parsedRgb.r, parsedRgb.g, parsedRgb.b);
+      // FIX 2: Preservar hue al escribir negro/blanco/gris en el input HEX.
+      if (hsv.s > 0) hue = hsv.h;
+      satHSV = hsv.s;
+      valHSV = hsv.v;
     }
   }
 
@@ -303,7 +287,10 @@
       Math.min(255, Math.max(0, gInput)),
       Math.min(255, Math.max(0, bInput))
     );
-    hue = hsv.h; satHSV = hsv.s; valHSV = hsv.v;
+    // FIX 2: Preservar hue al escribir negro/blanco/gris en los inputs RGB.
+    if (hsv.s > 0) hue = hsv.h;
+    satHSV = hsv.s;
+    valHSV = hsv.v;
   }
 
   // HSL inputs
@@ -323,20 +310,24 @@
   let hsbHInput = $state(0), hsbSInput = $state(0), hsbBInput = $state(0);
   $effect(() => { hsbHInput = hue; hsbSInput = satHSV; hsbBInput = valHSV; });
 
-  // Efecto para notificar cambios al usuario
+  // ─── Efecto para notificar cambios al usuario ─────────────────────────────────
+  // FIX 1: Marcamos isInternalChange = true antes de modificar `value`
+  // para que el efecto de sincronización externa lo ignore y no cause
+  // un loop que sobreescriba el hue con pérdida de precisión.
   $effect(() => {
-    // Actualizar valor bindeado
-    value = hex;
+    isInternalChange = true;
 
-    if(colorMode === "hex") {
+    if (colorMode === "hex") {
       value = hex;
-    } else if(colorMode === "rgb") {
+    } else if (colorMode === "rgb") {
       value = `rgb(${rInput} ${gInput} ${bInput} / ${alpha}%)`;
-    } else if(colorMode === "hsl") {
+    } else if (colorMode === "hsl") {
       value = `hsl(${hslHInput}deg ${hslSInput}% ${hslLInput}% / ${alpha}%)`;
-    } else if(colorMode === "hsb") {
+    } else if (colorMode === "hsb") {
       value = `hsba(${hsbHInput}%, ${hsbSInput}%, ${hsbBInput}%, ${alpha / 100})`;
     }
+
+    lastExternalValue = value;
 
     // Notificar cambio (solo después de inicializado)
     if (lastExternalValue !== undefined) {
@@ -348,6 +339,10 @@
         alpha,
       });
     }
+
+    // Usar microtask para resetear la bandera después de que Svelte
+    // haya propagado el cambio de `value` a los efectos que lo observan.
+    Promise.resolve().then(() => { isInternalChange = false; });
   });
 
   function onHsbChange() {
@@ -363,6 +358,8 @@
     const rect = areaEl.getBoundingClientRect();
     const x = Math.min(Math.max(0, e.clientX - rect.left), rect.width);
     const y = Math.min(Math.max(0, e.clientY - rect.top), rect.height);
+    // FIX 1+2: Solo actualizamos sat y val. El hue NO se toca aquí,
+    // porque al arrastrar por el área nunca debe cambiar el hue base.
     satHSV = Math.round((x / rect.width) * 100);
     valHSV = Math.round((1 - y / rect.height) * 100);
   }
@@ -392,7 +389,10 @@
       const rgbVal = hexToRgb(result.sRGBHex);
       if (rgbVal) {
         const hsv = rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b);
-        hue = hsv.h; satHSV = hsv.s; valHSV = hsv.v;
+        // FIX 2: Preservar hue si se selecciona un color sin saturación.
+        if (hsv.s > 0) hue = hsv.h;
+        satHSV = hsv.s;
+        valHSV = hsv.v;
       }
     } catch {}
   }
@@ -421,14 +421,14 @@
       class="flex items-center gap-2"
       disabled={disabled}
     >
-      <ColorPickerSwatch class="w-5 h-5" />
+      <ColorPickerSwatch class="w-6 h-6 rounded-md" value={`rgb(${rInput} ${gInput} ${bInput} / ${alpha}%)`} showAlpha={true} />
       <span class="text-sm font-mono">
         {value}
       </span>
     </Popover.Trigger>
   {/if}
 
-  <Popover.Content class="flex flex-col gap-4 min-w-76 p-2.25" portalProps={{}}>
+  <Popover.Content class="flex flex-col gap-4 min-w-76 p-2.25" portalProps={{to: portalElement}}>
     <div class="flex flex-col gap-4 {className}">
 
       <!-- ── Área de color ────────────────────────────────────────────────── -->
@@ -437,6 +437,7 @@
         aria-label="Color picker area"
         tabindex="0"
         role="slider"
+        aria-valuenow={hue}
         aria-valuetext="Saturation {satHSV}%, Brightness {valHSV}%"
         onpointerdown={onAreaPointerDown}
         onpointermove={onAreaPointerMove}
@@ -487,7 +488,6 @@
 
         <div class="flex flex-1 flex-col gap-2">
           <!-- Hue slider -->
-          <!-- Hue slider -->
           <SliderHue
             type="single"
             bind:value={hue}
@@ -496,7 +496,6 @@
             class="w-full h-3 slider rounded-3xl color-picker-slider color-picker-slider--hue bg-[linear-gradient(to_right,#ff0000_0%,#ffff00_16.66%,#00ff00_33.33%,#00ffff_50%,#0000ff_66.66%,#ff00ff_83.33%,#ff0000_100%)]"
           />
 
-          <!-- Alpha slider -->
           <!-- Alpha slider -->
           <SliderAlpha
             type="single"
@@ -601,7 +600,6 @@
               bind:value={hslHInput}
               onchange={onHslChange}
             />
-
             <!-- S -->
             <Input
               type="number"
@@ -615,22 +613,7 @@
               bind:value={hslSInput}
               onchange={onHslChange}
             />
-
             <!-- L -->
-            <Input
-              type="number"
-              placeholder="0"
-              class={inputClass("-ms-px rounded-none border-l-0")}
-              aria-label="Lightness (0-100)"
-              inputmode="numeric"
-              pattern="[0-9]*"
-              min="0"
-              max="100"
-              bind:value={hslLInput}
-              onchange={onHslChange}
-            />
-
-          {:else if colorMode === "hsb"}
             <Input
               type="number"
               placeholder="0"
@@ -658,7 +641,6 @@
               bind:value={hsbHInput}
               onchange={onHsbChange}
             />
-
             <!-- Saturation -->
             <Input
               type="number"
@@ -672,7 +654,6 @@
               bind:value={hsbSInput}
               onchange={onHsbChange}
             />
-
             <!-- Brightness -->
             <Input
               type="number"
