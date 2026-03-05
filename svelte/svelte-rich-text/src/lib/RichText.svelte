@@ -657,22 +657,72 @@
     }
   }
 
-  let colorValue = $state("rebeccapurple");
+  let defaultColor = "#fafafa"
+  let colorValue = $derived(defaultColor);
 
   function onFormatChange(e) {
-    console.log("Format changed:", e);
+
+    
   }
 
-  let colorValueRgb = $state(null);
+  let colorValueRgb = $state(colorValue);
 
   function onChange(value: any) {
-    console.log("Color changed:", value);
+    colorValue = value.hex;
     colorValueRgb = value.rgb;
   }
 
-  function onOpenChange(open: boolean) {
-    console.log("Color picker open:", open);
+let prevSelection: { from: number; to: number } | null = null;
+let prevColorValueRgb: string | null = null;
+
+function onOpenChange(open: boolean) {
+
+  if (open) {
+    const { from, to } = $editor.state.selection;
+    prevSelection = { from, to };
+    prevColorValueRgb = $editor?.getAttributes("textStyle")?.color;
+    return;
   }
+
+  if (!open) {
+
+    if(colorValue === defaultColor) return;
+
+    if(colorValueRgb === prevColorValueRgb) {
+      return;
+    }
+
+    // Guardar color reciente
+    const included = recentCustomColors.includes(colorValueRgb);
+    if (!included) {
+      recentCustomColors = [
+        ...recentCustomColors,
+        colorValueRgb,
+      ];
+    }
+
+    // Aplicar color al rango previo
+    if (prevSelection) {
+      const { from, to } = prevSelection;
+      const { state, view } = $editor;
+
+      const textStyle = state.schema.marks.textStyle;
+
+      const tr = state.tr.addMark(
+        from,
+        to,
+        textStyle.create({ color: colorValueRgb })
+      );
+
+      view.dispatch(tr);
+
+
+      colorValue = defaultColor;
+      colorValueRgb = defaultColor;
+
+    }
+  }
+}
 </script>
 
 <div
@@ -853,60 +903,26 @@
     </div>
   {:else if activeDropdownType === "text-color-dropdown"}
     <div class="fl-editor-color-palette">
-      <button
-        class="fl-color-swatch fl-color-picker-btn"
-        aria-label="Text color picker"
-        type="button"
+      <div class="color-picker-wrapper">
+        <ColorPicker
+        value={$editor?.getAttributes("textStyle")?.color || colorValue}
+        defaultFormat="rgb"
+        onFormatChange={onFormatChange}
+        onChange={onChange}
+        onOpenChange={onOpenChange}
+        portalElement={".color-picker-wrapper"}
       >
-        <input
-          type="color"
-          onblur={(event: any) => {
-            const inclued = recentCustomColors.includes(event?.target?.value);
-            if (!inclued) {
-              recentCustomColors = [
-                ...recentCustomColors,
-                event?.target?.value,
-              ];
-            }
-            $editor.chain().focus().setColor(event?.target?.value).run();
-            hideDropdown();
-          }}
-          onchange={(event: any) => {
-            const inclued = recentCustomColors.includes(event?.target?.value);
-            if (!inclued) {
-              recentCustomColors = [
-                ...recentCustomColors,
-                event?.target?.value,
-              ];
-            }
-            $editor.chain().focus().setColor(event?.target?.value).run();
-            hideDropdown();
-          }}
-          value={rgbToHex($editor?.getAttributes("textStyle")?.color)}
-          data-testid="setColor"
-          id="colorPicker"
-        />
-      </button>
-    <div class="color-picker-wrapper">
-      <ColorPicker
-      bind:value={colorValue}
-      defaultFormat="hex"
-      onFormatChange={onFormatChange}
-      onChange={onChange}
-      onOpenChange={onOpenChange}
-      portalElement={".color-picker-wrapper"}
-    >
-      <ColorPickerTrigger class="font-mono">
-        <!-- <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} value={colorValueRgb} /> -->
-        <!-- {colorValue} -->
-        <button
-        class="fl-color-swatch fl-color-picker-btn"
-        aria-label="Text color picker"
-        type="button"
-        ></button>
-      </ColorPickerTrigger>
-    </ColorPicker>
-    </div>
+        <ColorPickerTrigger class="font-mono">
+          <!-- <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} value={colorValueRgb} /> -->
+          <!-- {colorValue} -->
+          <button
+          class="fl-color-swatch fl-color-picker-btn"
+          aria-label="Text color picker"
+          type="button"
+          ></button>
+        </ColorPickerTrigger>
+      </ColorPicker>
+      </div>
 
       {#each TEXT_COLOR_PALETTE as color}
         <button
