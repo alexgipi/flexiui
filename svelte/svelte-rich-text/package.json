@@ -39,7 +39,7 @@
   "author": "alexgipi <alexgp895@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@flexiui/svelte-color-picker": "^0.0.2",
+    "@flexiui/svelte-color-picker": "^0.0.5",
     "@flexiui/svelte-dropdown": "^0.4.0",
     "@floating-ui/dom": "^1.7.4",
     "@tiptap/core": "^3.0.9",
