@@ -1,6 +1,6 @@
 {
   "name": "@flexiui/svelte-color-picker",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "A lightweight and flexible color picker component for Svelte",
   "keywords": [
     "svelte",
