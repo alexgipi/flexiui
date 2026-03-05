@@ -894,6 +894,7 @@
       onFormatChange={onFormatChange}
       onChange={onChange}
       onOpenChange={onOpenChange}
+      portalElement={".color-picker-wrapper"}
     >
       <ColorPickerTrigger class="font-mono">
         <!-- <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} value={colorValueRgb} /> -->
