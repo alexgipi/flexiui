@@ -71,7 +71,7 @@
   backdrop-filter: blur(42px);
   border-radius: 14px;
   min-width: auto;
-  z-index: 1000;
+  z-index: 49;
   box-sizing: border-box;
 
   &.fl-toolbar-dropdown-panel--table {
