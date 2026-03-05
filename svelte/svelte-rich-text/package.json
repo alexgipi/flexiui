@@ -39,6 +39,7 @@
   "author": "alexgipi <alexgp895@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@flexiui/svelte-color-picker": "^0.0.2",
     "@flexiui/svelte-dropdown": "^0.4.0",
     "@floating-ui/dom": "^1.7.4",
     "@tiptap/core": "^3.0.9",
@@ -53,8 +54,13 @@
     "@tiptap/pm": "^3.0.9",
     "@tiptap/starter-kit": "^3.0.9",
     "@tiptap/static-renderer": "^3.14.0",
+    "bits-ui": "^2.16.3",
     "katex": "^0.16.27",
-    "svelte-tiptap": "^3.0.0",
+    "svelte-tiptap": "^3.0.1",
+    "tailwindcss": "^4.2.1",
     "wavesurfer.js": "^7.12.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.1"
   }
 }

@@ -1,15 +1,21 @@
 <script lang="ts" generics="T extends keyof SvelteHTMLElements = 'div'">
-  import type { SvelteHTMLElements } from 'svelte/elements';
+  import type { SvelteHTMLElements } from "svelte/elements";
   import "./styles.css";
   import "katex/dist/katex.min.css";
   import { onMount, onDestroy } from "svelte";
   import type { Readable } from "svelte/store";
   import { computePosition, offset, autoUpdate } from "@floating-ui/dom";
   import {
+    ColorPicker,
+    ColorPickerSwatch,
+    ColorPickerTrigger,
+  } from "@flexiui/svelte-color-picker";
+
+  import {
     Mathematics,
     migrateMathStrings,
   } from "@tiptap/extension-mathematics";
-  import { CharacterCount } from '@tiptap/extensions'
+  import { CharacterCount } from "@tiptap/extensions";
   import { CellSelection } from "prosemirror-tables";
   import {
     createEditor,
@@ -35,7 +41,7 @@
 
   import { Document } from "@tiptap/extension-document";
 
-  const InlineDoc = Document.extend({ content: "inline*" })
+  const InlineDoc = Document.extend({ content: "inline*" });
 
   interface Props {
     id?: string;
@@ -154,6 +160,7 @@
   }: Props = $props();
 
   let editor = $state() as Readable<Editor>;
+  let color = $state("#3b82f6");
 
   const DEFAULT_TOOLBAR = [
     [{ type: "undo" }, "redo"],
@@ -164,7 +171,13 @@
     ["inlineMath"],
     ["image", "audio"],
     ["mediaGrid", "table"],
-    ["textAlignLeft", "textAlignCenter", "textAlignRight", "clearFormatting", "clearNodes"],
+    [
+      "textAlignLeft",
+      "textAlignCenter",
+      "textAlignRight",
+      "clearFormatting",
+      "clearNodes",
+    ],
     // ...
   ];
 
@@ -209,7 +222,8 @@
     editorConfig.toolbarJustifyContent = "flex-end";
   }
 
-  let bubbleOffset = $editor?.storage.tableCell.customTableSelection === "column" ? 18 : 8;
+  let bubbleOffset =
+    $editor?.storage.tableCell.customTableSelection === "column" ? 18 : 8;
 
   let tooltipVisible = $state(false);
   let tooltipX = $state(0);
@@ -233,7 +247,9 @@
 
   const isAccentSoft = editorConfig.buttonStyle === "accent-soft";
   let percentage = $derived.by(() => {
-    return $editor ? (100 / charactersLimit) * $editor.storage.characterCount.characters() : 0
+    return $editor
+      ? (100 / charactersLimit) * $editor.storage.characterCount.characters()
+      : 0;
   });
 
   let toolbarGroups = $derived(
@@ -577,7 +593,6 @@
       },
     });
   });
-  
 
   onDestroy(() => {
     if (editor) {
@@ -641,6 +656,23 @@
       editor.view.dispatch(tr);
     }
   }
+
+  let colorValue = $state("rebeccapurple");
+
+  function onFormatChange(e) {
+    console.log("Format changed:", e);
+  }
+
+  let colorValueRgb = $state(null);
+
+  function onChange(value: any) {
+    console.log("Color changed:", value);
+    colorValueRgb = value.rgb;
+  }
+
+  function onOpenChange(open: boolean) {
+    console.log("Color picker open:", open);
+  }
 </script>
 
 <div
@@ -660,7 +692,8 @@
   --fl-toolbar-btn-padding: {editorConfig.toolbarBtnPadding};
   --fl-toolbar-btn-radius: {editorConfig.toolbarBtnRadius};
   --fl-toolbar-btn-min-height: {editorConfig.toolbarBtnMinHeight};
-  --fl-toolbar-btn-min-width: {editorConfig.toolbarBtnMinWidth || editorConfig.toolbarBtnMinHeight};
+  --fl-toolbar-btn-min-width: {editorConfig.toolbarBtnMinWidth ||
+    editorConfig.toolbarBtnMinHeight};
   --fl-doc-max-width: {editorConfig.docMaxWidth};
   --fl-doc-padding: {editorConfig.docPadding};
   --fl-doc-bg: {editorConfig.docBg};
@@ -682,29 +715,35 @@
                   <p>Array anidado (no debería pasar)</p>
                 {:else if typeof toolbarItem === "string"}
                   <RenderToolbarButton
-                  type={toolbarItem}
-                  {editor}
-                  {nodeCounters}
-                  {nodesLimit}
-                  {currentNodeCount}
-                  accentSoft={isAccentSoft}
-                  {fontSize}
-                  onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
-                    toogleDropdown(e.currentTarget as HTMLElement, dropdownName);
-                  }}
+                    type={toolbarItem}
+                    {editor}
+                    {nodeCounters}
+                    {nodesLimit}
+                    {currentNodeCount}
+                    accentSoft={isAccentSoft}
+                    {fontSize}
+                    onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
+                      toogleDropdown(
+                        e.currentTarget as HTMLElement,
+                        dropdownName,
+                      );
+                    }}
                   />
                 {:else if isButton(toolbarItem)}
                   <RenderToolbarButton
-                  type={toolbarItem.type}
-                  {editor}
-                  {nodeCounters}
-                  {nodesLimit}
-                  {currentNodeCount}
-                  accentSoft={isAccentSoft}
-                  {fontSize}
-                  onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
-                    toogleDropdown(e.currentTarget as HTMLElement, dropdownName);
-                  }}
+                    type={toolbarItem.type}
+                    {editor}
+                    {nodeCounters}
+                    {nodesLimit}
+                    {currentNodeCount}
+                    accentSoft={isAccentSoft}
+                    {fontSize}
+                    onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
+                      toogleDropdown(
+                        e.currentTarget as HTMLElement,
+                        dropdownName,
+                      );
+                    }}
                   />
                 {/if}
               {/each}
@@ -715,7 +754,12 @@
     </header>
   {/if}
 
-  <EditorContent as={contentWrapperAs} editor={$editor} class="fl-rich-text-content" data-fl-editable="true" />
+  <EditorContent
+    as={contentWrapperAs}
+    editor={$editor}
+    class="fl-rich-text-content"
+    data-fl-editable="true"
+  />
 
   <!-- Warning message for node limit -->
   {#if showLimitWarning && nodesLimit}
@@ -728,27 +772,31 @@
   <!-- Bottom bar showing node count -->
   {#if showCountersBar || percentage >= 90}
     <div class="fl-counters-bar">
-      <div class="fl-character-count" class:fl-character-count--warning={percentage >= 100}>
+      <div
+        class="fl-character-count"
+        class:fl-character-count--warning={percentage >= 100}
+      >
         {#if charactersLimit}
           <svg height="20" width="20" viewBox="0 0 20 20">
-              <circle r="10" cx="10" cy="10" fill="#ffffff30" />
-              <circle
-                r="5"
-                cx="10"
-                cy="10"
-                fill="transparent"
-                stroke="currentColor"
-                stroke-width="10"
-                stroke-dasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
-                transform="rotate(-90) translate(-20)"
-              />
-              <circle r="6" cx="10" cy="10" fill="var(--fl-editor-bg)" />
+            <circle r="10" cx="10" cy="10" fill="#ffffff30" />
+            <circle
+              r="5"
+              cx="10"
+              cy="10"
+              fill="transparent"
+              stroke="currentColor"
+              stroke-width="10"
+              stroke-dasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
+              transform="rotate(-90) translate(-20)"
+            />
+            <circle r="6" cx="10" cy="10" fill="var(--fl-editor-bg)" />
           </svg>
         {/if}
 
         <span>
-          Characters: {$editor?.storage?.characterCount?.characters()} 
-          {#if charactersLimit} / {charactersLimit}{/if}
+          Characters: {$editor?.storage?.characterCount?.characters()}
+          {#if charactersLimit}
+            / {charactersLimit}{/if}
         </span>
       </div>
 
@@ -839,6 +887,25 @@
           id="colorPicker"
         />
       </button>
+    <div class="color-picker-wrapper">
+      <ColorPicker
+      bind:value={colorValue}
+      defaultFormat="hex"
+      onFormatChange={onFormatChange}
+      onChange={onChange}
+      onOpenChange={onOpenChange}
+    >
+      <ColorPickerTrigger class="font-mono">
+        <!-- <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} value={colorValueRgb} /> -->
+        <!-- {colorValue} -->
+        <button
+        class="fl-color-swatch fl-color-picker-btn"
+        aria-label="Text color picker"
+        type="button"
+        ></button>
+      </ColorPickerTrigger>
+    </ColorPicker>
+    </div>
 
       {#each TEXT_COLOR_PALETTE as color}
         <button
@@ -1131,29 +1198,35 @@
                   <p>Array anidado (no debería pasar)</p>
                 {:else if typeof bubbleMenuItem === "string"}
                   <RenderToolbarButton
-                  type={bubbleMenuItem}
-                  {editor}
-                  {nodeCounters}
-                  {nodesLimit}
-                  {currentNodeCount}
-                  accentSoft={isAccentSoft}
-                  {fontSize}
-                  onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
-                    toogleDropdown(e.currentTarget as HTMLElement, dropdownName);
-                  }}
+                    type={bubbleMenuItem}
+                    {editor}
+                    {nodeCounters}
+                    {nodesLimit}
+                    {currentNodeCount}
+                    accentSoft={isAccentSoft}
+                    {fontSize}
+                    onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
+                      toogleDropdown(
+                        e.currentTarget as HTMLElement,
+                        dropdownName,
+                      );
+                    }}
                   />
                 {:else if isButton(bubbleMenuItem)}
                   <RenderToolbarButton
-                  type={bubbleMenuItem.type}
-                  {editor}
-                  {nodeCounters}
-                  {nodesLimit}
-                  {currentNodeCount}
-                  accentSoft={isAccentSoft}
-                  {fontSize}
-                  onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
-                    toogleDropdown(e.currentTarget as HTMLElement, dropdownName);
-                  }}
+                    type={bubbleMenuItem.type}
+                    {editor}
+                    {nodeCounters}
+                    {nodesLimit}
+                    {currentNodeCount}
+                    accentSoft={isAccentSoft}
+                    {fontSize}
+                    onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
+                      toogleDropdown(
+                        e.currentTarget as HTMLElement,
+                        dropdownName,
+                      );
+                    }}
                   />
                 {/if}
               {/each}
