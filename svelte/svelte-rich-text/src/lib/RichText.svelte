@@ -667,10 +667,10 @@
 
   let colorValueRgb = $state(colorValue);
 
-  function onChange(value: any) {
-    colorValue = value.hex;
-    colorValueRgb = value.rgb;
-  }
+function onChange(value: any) {
+  colorValue = value.hex;
+  colorValueRgb = value.rgb;
+}
 
 let prevSelection: { from: number; to: number } | null = null;
 let prevColorValueRgb: string | null = null;
@@ -719,6 +719,65 @@ function onOpenChange(open: boolean) {
 
       colorValue = defaultColor;
       colorValueRgb = defaultColor;
+
+    }
+  }
+}
+
+
+// Highlight colorPicker
+let highlightColorValue = $state(null);
+let highlightColorValueRgb = $state(null);
+let prevSelectionHighlight: { from: number; to: number } | null = null;
+let prevHighlightColorValueRgb: string | null = null;
+
+function onChangeHighlight(value: any) {
+  highlightColorValue = value.hex;
+  highlightColorValueRgb = value.rgb;
+}
+
+function onOpenChangeHighlight(open: boolean) {
+  if (open) {
+    const { from, to } = $editor.state.selection;
+    prevSelectionHighlight = { from, to };
+    prevColorValueRgb = $editor?.getAttributes("highlight")?.color;
+    return;
+  }
+
+  if (!open) {
+    if(highlightColorValue === defaultColor) return;
+
+    if(highlightColorValueRgb === prevHighlightColorValueRgb) {
+      return;
+    }
+
+    // Guardar color reciente
+    const included = recentCustomColors.includes(highlightColorValueRgb);
+    if (!included) {
+      recentCustomColors = [
+        ...recentCustomColors,
+        highlightColorValueRgb,
+      ];
+    }
+
+    // Aplicar color al rango previo
+    if (prevSelectionHighlight) {
+      const { from, to } = prevSelectionHighlight;
+      const { state, view } = $editor;
+
+      const highlight = state.schema.marks.highlight;
+
+      const tr = state.tr.addMark(
+        from,
+        to,
+        highlight.create({ color: highlightColorValueRgb })
+      );
+
+      view.dispatch(tr);
+
+
+      highlightColorValue = defaultColor;
+      highlightColorValueRgb = defaultColor;
 
     }
   }
@@ -903,25 +962,23 @@ function onOpenChange(open: boolean) {
     </div>
   {:else if activeDropdownType === "text-color-dropdown"}
     <div class="fl-editor-color-palette">
-      <div class="color-picker-wrapper">
+      <div class="color-picker-wrapper" id="color-picker-text-color">
         <ColorPicker
-        value={$editor?.getAttributes("textStyle")?.color || colorValue}
-        defaultFormat="rgb"
-        onFormatChange={onFormatChange}
-        onChange={onChange}
-        onOpenChange={onOpenChange}
-        portalElement={".color-picker-wrapper"}
-      >
-        <ColorPickerTrigger class="font-mono">
-          <!-- <ColorPickerSwatch class="w-6 h-6 rounded-md" showAlpha={true} value={colorValueRgb} /> -->
-          <!-- {colorValue} -->
-          <button
-          class="fl-color-swatch fl-color-picker-btn"
-          aria-label="Text color picker"
-          type="button"
-          ></button>
-        </ColorPickerTrigger>
-      </ColorPicker>
+          value={$editor?.getAttributes("textStyle")?.color || colorValue}
+          defaultFormat="rgb"
+          onFormatChange={onFormatChange}
+          onChange={onChange}
+          onOpenChange={onOpenChange}
+          portalElement={"#color-picker-text-color"}
+        >
+          <ColorPickerTrigger class="font-mono">
+            <button
+            class="fl-color-swatch fl-color-picker-btn"
+            aria-label="Text color picker"
+            type="button"
+            ></button>
+          </ColorPickerTrigger>
+        </ColorPicker>
       </div>
 
       {#each TEXT_COLOR_PALETTE as color}
@@ -933,6 +990,11 @@ function onOpenChange(open: boolean) {
           onclick={() => {
             $editor?.chain().focus().setColor(color).run();
             hideDropdown();
+            
+            setTimeout(() => {
+              colorValue = defaultColor;
+              colorValueRgb = null;
+            }, 100);
           }}
           style="background-color: {color};"
           aria-label={color}
@@ -1061,11 +1123,30 @@ function onOpenChange(open: boolean) {
               .run();
             hideDropdown();
           }}
-          value={rgbToHex($editor?.getAttributes("textStyle")?.color)}
+          value={rgbToHex(rgbToHex($editor?.getAttributes("highlight")?.color))}
           data-testid="setHiglight"
           id="colorPicker"
         />
       </button>
+
+      <div class="color-picker-wrapper" id="color-picker-highlight-color">
+        <ColorPicker
+          value={$editor?.getAttributes("highlight")?.color || highlightColorValue}
+          defaultFormat="rgb"
+          onFormatChange={onFormatChange}
+          onChange={onChangeHighlight}
+          onOpenChange={onOpenChangeHighlight}
+          portalElement={"#color-picker-highlight-color"}
+        >
+          <ColorPickerTrigger class="font-mono">
+            <button
+            class="fl-color-swatch fl-color-picker-btn"
+            aria-label="Text color picker"
+            type="button"
+            ></button>
+          </ColorPickerTrigger>
+        </ColorPicker>
+      </div>
 
       {#each HIGHLIGHT_COLOR_PALETTE as color}
         <button
