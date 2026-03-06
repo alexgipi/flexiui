@@ -51,6 +51,15 @@
   function canCreateSubheading(editor) {
     return !hasH1AfterCursor(editor);
   }
+
+  const headingActions = {
+    "1": () => $editor.chain().focus().toggleH1().run(),
+    "2": () => $editor.chain().focus().toggleH2().run(),
+    "3": () => $editor.chain().focus().toggleH3().run(),
+    "4": () => $editor.chain().focus().toggleH4().run(),
+    "5": () => $editor.chain().focus().toggleH5().run(),
+    "6": () => $editor.chain().focus().toggleH6().run(),
+  };
 </script>
 
 {#if level === 1}
@@ -65,12 +74,24 @@
     {@html icons[level]}
   </button>
 {:else}
-  <button
+  <!-- <button
     type="button"
     onclick={() => $editor.chain().focus().toggleHeading({ level }).run()}
     class:is-active={$editor.isActive("heading", { level })}
     class:accent-soft={accenSoft}
     aria-label={ariaLabel}
+    disabled={!canCreateSubheading($editor)}
+  >
+    {@html icons[level]}
+  </button> -->
+  <button
+    type="button"
+    onclick={() => {
+      headingActions[level]();
+    }}
+    class:is-active={$editor.isActive("h"+level)}
+    class:accent-soft={accenSoft}
+    aria-label={`Heading ${level}`}
     disabled={!canCreateSubheading($editor)}
   >
     {@html icons[level]}
