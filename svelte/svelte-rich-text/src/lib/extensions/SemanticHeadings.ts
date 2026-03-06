@@ -30,7 +30,7 @@ export const SemanticHeadings = Extension.create({
           
           // Recolectar todos los headings en orden
           doc.descendants((node, pos) => {
-            if (node.type.name === 'heading') {
+            if (node.type.name === 'heading' || node.type.name === 'h1' || node.type.name === 'h2' || node.type.name === 'h3' || node.type.name === 'h4' || node.type.name === 'h5' || node.type.name === 'h6') {
               headings.push({
                 level: node.attrs.level,
                 pos: pos
@@ -94,7 +94,7 @@ export const SemanticHeadings = Extension.create({
 
         // Buscar el último heading y verificar si ya existe h1
         doc.descendants((node) => {
-          if (node.type.name === 'heading') {
+          if (node.type.name === 'heading' || node.type.name === 'h1' || node.type.name === 'h2' || node.type.name === 'h3' || node.type.name === 'h4' || node.type.name === 'h5' || node.type.name === 'h6') {
             lastHeadingLevel = node.attrs.level;
             if (node.attrs.level === 1) {
               hasH1 = true;
@@ -129,7 +129,7 @@ export const SemanticHeadings = Extension.create({
         let hasH1 = false;
 
         doc.descendants((node) => {
-          if (node.type.name === 'heading') {
+          if (node.type.name === 'heading' || node.type.name === 'h1' || node.type.name === 'h2' || node.type.name === 'h3' || node.type.name === 'h4' || node.type.name === 'h5' || node.type.name === 'h6') {
             lastHeadingLevel = node.attrs.level;
             if (node.attrs.level === 1) {
               hasH1 = true;

@@ -9,7 +9,7 @@ declare module '@tiptap/core' {
   }
 }
 
-const allowedTypes = ["paragraph", "heading", "h1"];
+const allowedTypes = ["paragraph", "heading", "h1", "h2", "h3", "h4", "h5", "h6"];
 
 export const NodeLineHeight = Extension.create({
   name: "nodeLineHeight",
