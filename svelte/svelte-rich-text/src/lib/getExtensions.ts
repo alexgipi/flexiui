@@ -24,10 +24,30 @@ declare module '@tiptap/core' {
     h1: {
       toggleH1: () => ReturnType;
     };
+
+    h2: {
+      toggleH2: () => ReturnType;
+    };
+
+    h3: {
+      toggleH3: () => ReturnType;
+    };
+
+    h4: {
+      toggleH4: () => ReturnType;
+    };
+
+    h5: {
+      toggleH5: () => ReturnType;
+    };
+
+    h6: {
+      toggleH6: () => ReturnType;
+    };
   }
 }
 
-  const DocHeading = Heading.extend({
+  const H1 = Heading.extend({
     name: "h1",
   
     addCommands() {
@@ -41,6 +61,76 @@ declare module '@tiptap/core' {
     },
   }).configure({ levels: [1] });
 
+  const H2 = Heading.extend({
+    name: "h2",
+  
+    addCommands() {
+      return {
+        toggleH2:
+          () =>
+          ({ commands }) => {
+            return commands.toggleNode('h2', 'paragraph');
+          },
+      }
+    },
+  }).configure({ levels: [2] });
+
+  const H3 = Heading.extend({
+    name: "h3",
+  
+    addCommands() {
+      return {
+        toggleH3:
+          () =>
+          ({ commands }) => {
+            return commands.toggleNode('h3', 'paragraph');
+          },
+      }
+    },
+  }).configure({ levels: [3] });
+
+  const H4 = Heading.extend({
+    name: "h4",
+  
+    addCommands() {
+      return {
+        toggleH4:
+          () =>
+          ({ commands }) => {
+            return commands.toggleNode('h4', 'paragraph');
+          },
+      }
+    },
+  }).configure({ levels: [4] });
+
+  const H5 = Heading.extend({
+    name: "h5",
+  
+    addCommands() {
+      return {
+        toggleH5:
+          () =>
+          ({ commands }) => {
+            return commands.toggleNode('h5', 'paragraph');
+          },
+      }
+    },
+  }).configure({ levels: [5] });
+
+  const H6 = Heading.extend({
+    name: "h6",
+  
+    addCommands() {
+      return {
+        toggleH6:
+          () =>
+          ({ commands }) => {
+            return commands.toggleNode('h6', 'paragraph');
+          },
+      }
+    },
+  }).configure({ levels: [6] });
+
 
 export function getRichTextExtensions(options?: {
   editable?: boolean;
@@ -50,8 +140,13 @@ export function getRichTextExtensions(options?: {
   const { editable = false, trailingNode = true, customExtensions = [] } = options ?? {};
 
   return [
-    DocHeading,
-    Heading.configure({ levels: [2, 3, 4, 5, 6] }),
+    H1,
+    H2,
+    H3,
+    H4,
+    H5,
+    H6,
+    // Heading.configure({ levels: [2, 3, 4, 5, 6] }),
     Highlight.configure({ multicolor: true }),
     TextStyleKit.configure({
       // fontSize: false
@@ -73,6 +168,11 @@ export function getRichTextExtensions(options?: {
     TextAlign.configure({
       types: [
         "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
         "heading",
         "paragraph",
         "bulletList",
