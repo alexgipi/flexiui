@@ -1,6 +1,6 @@
 export const exampleJSONContent = [
     {
-        type: "heading",
+        type: "h1",
         attrs: { level: 1 },
         content: [{ type: "text", text: "Hi there," }],
     },

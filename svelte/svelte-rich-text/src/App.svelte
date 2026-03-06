@@ -36,6 +36,16 @@
       placeholder: ({ node }) => {
         if (node.type.name === "h1") {
           return "Introduce un título";
+        } else if (node.type.name === "h2") {
+          return "Introduce un título H2";
+        } else if (node.type.name === "h3") {
+          return "Introduce un título H3";
+        } else if (node.type.name === "h4") {
+          return "Introduce un título H4";
+        } else if (node.type.name === "h5") {
+          return "Introduce un título H5";
+        } else if (node.type.name === "h6") {
+          return "Introduce un título H6";
         } else if (node.type.name === "heading") {
           const level = node.attrs.level;
           return "Introduce un título H" + level;
@@ -545,7 +555,7 @@
         },
       },
       {
-        type: "heading",
+        type: "h1",
         attrs: {
           textAlign: null,
           lineHeight: null,
