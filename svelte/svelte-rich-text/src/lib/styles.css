@@ -63,6 +63,11 @@
   box-sizing: border-box;
 }
 
+.fl-rich-text-doc-clean {
+  outline: none;
+  position: relative;
+}
+
 .fl-toolbar-dropdown-panel {
   position: absolute;
   padding: 9px;
@@ -636,4 +641,35 @@ button {
       width: 100%;
     }
   }
+}
+
+
+/* El handle flota sobre el borde derecho del nodo */
+[data-resizable], [style*="max-width"] {
+  position: relative;
+}
+
+.resize-handle {
+  position: absolute;
+  right: -4px;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  opacity: 0;
+  background: #3b82f6;
+  border-radius: 4px;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+p:hover .resize-handle,
+h1:hover .resize-handle,
+h2:hover .resize-handle,
+blockquote:hover .resize-handle {
+  opacity: 0.6;
+}
+
+.resize-handle:hover {
+  opacity: 1 !important;
 }

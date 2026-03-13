@@ -100,6 +100,7 @@
     contentWrapperAs?: T;
     inlineNodeMode?: boolean;
     trailingNode?: boolean;
+    cleanMode?: boolean;
   }
 
   type ToolbarButton =
@@ -157,6 +158,8 @@
     contentWrapperAs = "div" as T,
     inlineNodeMode = false,
     trailingNode = true,
+    cleanMode = false,
+    ...rest
   }: Props = $props();
 
   let editor = $state() as Readable<Editor>;
@@ -391,7 +394,7 @@
       content,
       editorProps: {
         attributes: {
-          class: "fl-rich-text-doc",
+          class: cleanMode ? "fl-rich-text-doc-clean" : "fl-rich-text-doc",
         },
         handleKeyDown: (view, event) => {
           if (event.key === "Enter" && !event.ctrlKey) {
@@ -784,153 +787,172 @@ function onOpenChangeHighlight(open: boolean) {
 }
 </script>
 
-<div
-  class="fl-rich-text {className}"
-  class:editable
-  style="
-  --fl-editor-accent-color: {editorConfig.editorAccentColor};
-  --fl-editor-radius: {editorConfig.editorRadius};
-  --fl-editor-bg: {editorConfig.editorBgColor};
-  --fl-toolbar-sticky-position: {editorConfig.toolbarStickyPosition}px;
-  --fl-toolbar-z-index: {editorConfig.toolbarZIndex};
-  --fl-toolbar-padding: {editorConfig.toolbarPadding};
-  --fl-toolbar-gap: {editorConfig.toolbarGap};
-  --fl-toolbar-bg: {editorConfig.toolbarBgColor};
-  --fl-toolbar-justify-content: {editorConfig.toolbarJustifyContent};
-  --fl-toolbar-text-color: {editorConfig.toolbarTextColor};
-  --fl-toolbar-btn-padding: {editorConfig.toolbarBtnPadding};
-  --fl-toolbar-btn-radius: {editorConfig.toolbarBtnRadius};
-  --fl-toolbar-btn-min-height: {editorConfig.toolbarBtnMinHeight};
-  --fl-toolbar-btn-min-width: {editorConfig.toolbarBtnMinWidth ||
-    editorConfig.toolbarBtnMinHeight};
-  --fl-doc-max-width: {editorConfig.docMaxWidth};
-  --fl-doc-padding: {editorConfig.docPadding};
-  --fl-doc-bg: {editorConfig.docBg};
-  --fl-doc-margin-inline: {editorConfig.docMarginInline};
-  --fl-doc-margin-block: {editorConfig.docMarginBlock};
-  --fl-doc-radius: {editorConfig.docRadius};
-  --fl-doc-text-color: {editorConfig.docTextColor};
-"
->
-  {#if editor && showToolbar}
-    <header class="fl-rich-text-toolbar">
-      <div class="fl-rich-text-toolbar-container container">
-        {#each toolbarGroups as toolbarGroup}
-          {#if toolbarGroup.length > 0}
-            <div role="group" class="fl-rich-text-toolbar-group">
-              {#each toolbarGroup as toolbarItem}
-                {#if Array.isArray(toolbarItem)}
-                  <!-- Si por alguna razón hay un array anidado, manejarlo -->
-                  <p>Array anidado (no debería pasar)</p>
-                {:else if typeof toolbarItem === "string"}
-                  <RenderToolbarButton
-                    type={toolbarItem}
-                    {editor}
-                    {nodeCounters}
-                    {nodesLimit}
-                    {currentNodeCount}
-                    accentSoft={isAccentSoft}
-                    {fontSize}
-                    onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
-                      toogleDropdown(
-                        e.currentTarget as HTMLElement,
-                        dropdownName,
-                      );
-                    }}
-                  />
-                {:else if isButton(toolbarItem)}
-                  <RenderToolbarButton
-                    type={toolbarItem.type}
-                    {editor}
-                    {nodeCounters}
-                    {nodesLimit}
-                    {currentNodeCount}
-                    accentSoft={isAccentSoft}
-                    {fontSize}
-                    onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
-                      toogleDropdown(
-                        e.currentTarget as HTMLElement,
-                        dropdownName,
-                      );
-                    }}
-                  />
-                {/if}
-              {/each}
-            </div>
-          {/if}
-        {/each}
+{#if cleanMode}
+
+    <EditorContent
+      as={contentWrapperAs}
+      editor={$editor}
+      class="fl-rich-text-content {className}"
+      data-fl-editable="true"
+      {...rest}
+    />
+
+    <!-- Warning message for node limit -->
+    {#if showLimitWarning && nodesLimit}
+      <div class="fl-node-limit-warning">
+        {limitWarningMessage ||
+          ` No se pueden añadir más nodos a este editor. Max: ${nodesLimit}`}
       </div>
-    </header>
-  {/if}
+    {/if}
 
-  <EditorContent
-    as={contentWrapperAs}
-    editor={$editor}
-    class="fl-rich-text-content"
-    data-fl-editable="true"
-  />
+{:else}
+  <div
+    class="fl-rich-text {className}"
+    class:editable
+    style="
+    --fl-editor-accent-color: {editorConfig.editorAccentColor};
+    --fl-editor-radius: {editorConfig.editorRadius};
+    --fl-editor-bg: {editorConfig.editorBgColor};
+    --fl-toolbar-sticky-position: {editorConfig.toolbarStickyPosition}px;
+    --fl-toolbar-z-index: {editorConfig.toolbarZIndex};
+    --fl-toolbar-padding: {editorConfig.toolbarPadding};
+    --fl-toolbar-gap: {editorConfig.toolbarGap};
+    --fl-toolbar-bg: {editorConfig.toolbarBgColor};
+    --fl-toolbar-justify-content: {editorConfig.toolbarJustifyContent};
+    --fl-toolbar-text-color: {editorConfig.toolbarTextColor};
+    --fl-toolbar-btn-padding: {editorConfig.toolbarBtnPadding};
+    --fl-toolbar-btn-radius: {editorConfig.toolbarBtnRadius};
+    --fl-toolbar-btn-min-height: {editorConfig.toolbarBtnMinHeight};
+    --fl-toolbar-btn-min-width: {editorConfig.toolbarBtnMinWidth ||
+      editorConfig.toolbarBtnMinHeight};
+    --fl-doc-max-width: {editorConfig.docMaxWidth};
+    --fl-doc-padding: {editorConfig.docPadding};
+    --fl-doc-bg: {editorConfig.docBg};
+    --fl-doc-margin-inline: {editorConfig.docMarginInline};
+    --fl-doc-margin-block: {editorConfig.docMarginBlock};
+    --fl-doc-radius: {editorConfig.docRadius};
+    --fl-doc-text-color: {editorConfig.docTextColor};
+  "
+  >
+    {#if editor && showToolbar}
+      <header class="fl-rich-text-toolbar">
+        <div class="fl-rich-text-toolbar-container container">
+          {#each toolbarGroups as toolbarGroup}
+            {#if toolbarGroup.length > 0}
+              <div role="group" class="fl-rich-text-toolbar-group">
+                {#each toolbarGroup as toolbarItem}
+                  {#if Array.isArray(toolbarItem)}
+                    <!-- Si por alguna razón hay un array anidado, manejarlo -->
+                    <p>Array anidado (no debería pasar)</p>
+                  {:else if typeof toolbarItem === "string"}
+                    <RenderToolbarButton
+                      type={toolbarItem}
+                      {editor}
+                      {nodeCounters}
+                      {nodesLimit}
+                      {currentNodeCount}
+                      accentSoft={isAccentSoft}
+                      {fontSize}
+                      onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
+                        toogleDropdown(
+                          e.currentTarget as HTMLElement,
+                          dropdownName,
+                        );
+                      }}
+                    />
+                  {:else if isButton(toolbarItem)}
+                    <RenderToolbarButton
+                      type={toolbarItem.type}
+                      {editor}
+                      {nodeCounters}
+                      {nodesLimit}
+                      {currentNodeCount}
+                      accentSoft={isAccentSoft}
+                      {fontSize}
+                      onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
+                        toogleDropdown(
+                          e.currentTarget as HTMLElement,
+                          dropdownName,
+                        );
+                      }}
+                    />
+                  {/if}
+                {/each}
+              </div>
+            {/if}
+          {/each}
+        </div>
+      </header>
+    {/if}
 
-  <!-- Warning message for node limit -->
-  {#if showLimitWarning && nodesLimit}
-    <div class="fl-node-limit-warning">
-      {limitWarningMessage ||
-        ` No se pueden añadir más nodos a este editor. Max: ${nodesLimit}`}
-    </div>
-  {/if}
+    <EditorContent
+      as={contentWrapperAs}
+      editor={$editor}
+      class="fl-rich-text-content"
+      data-fl-editable="true"
+    />
 
-  <!-- Bottom bar showing node count -->
-  {#if showCountersBar || percentage >= 90}
-    <div class="fl-counters-bar">
-      <div
-        class="fl-character-count"
-        class:fl-character-count--warning={percentage >= 100}
-      >
-        {#if charactersLimit}
-          <svg height="20" width="20" viewBox="0 0 20 20">
-            <circle r="10" cx="10" cy="10" fill="#ffffff30" />
-            <circle
-              r="5"
-              cx="10"
-              cy="10"
-              fill="transparent"
-              stroke="currentColor"
-              stroke-width="10"
-              stroke-dasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
-              transform="rotate(-90) translate(-20)"
-            />
-            <circle r="6" cx="10" cy="10" fill="var(--fl-editor-bg)" />
-          </svg>
+    <!-- Warning message for node limit -->
+    {#if showLimitWarning && nodesLimit}
+      <div class="fl-node-limit-warning">
+        {limitWarningMessage ||
+          ` No se pueden añadir más nodos a este editor. Max: ${nodesLimit}`}
+      </div>
+    {/if}
+
+    <!-- Bottom bar showing node count -->
+    {#if showCountersBar || percentage >= 90}
+      <div class="fl-counters-bar">
+        <div
+          class="fl-character-count"
+          class:fl-character-count--warning={percentage >= 100}
+        >
+          {#if charactersLimit}
+            <svg height="20" width="20" viewBox="0 0 20 20">
+              <circle r="10" cx="10" cy="10" fill="#ffffff30" />
+              <circle
+                r="5"
+                cx="10"
+                cy="10"
+                fill="transparent"
+                stroke="currentColor"
+                stroke-width="10"
+                stroke-dasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
+                transform="rotate(-90) translate(-20)"
+              />
+              <circle r="6" cx="10" cy="10" fill="var(--fl-editor-bg)" />
+            </svg>
+          {/if}
+
+          <span>
+            Characters: {$editor?.storage?.characterCount?.characters()}
+            {#if charactersLimit}
+              / {charactersLimit}{/if}
+          </span>
+        </div>
+
+        {#if showCountersBar}
+          <span>
+            Words: {$editor?.storage?.characterCount?.words()}
+          </span>
         {/if}
 
-        <span>
-          Characters: {$editor?.storage?.characterCount?.characters()}
-          {#if charactersLimit}
-            / {charactersLimit}{/if}
-        </span>
+        {#if nodesLimit}
+          <span class="fl-node-count-text">
+            Nodes: {currentNodeCount} / {nodesLimit}
+          </span>
+        {/if}
+
+        <!-- <div class="fl-node-count-progress">
+          <div
+            class="fl-node-count-progress-bar"
+            style="width: {Math.min((currentNodeCount / nodesLimit) * 100, 100)}%"
+          ></div>
+        </div> -->
       </div>
-
-      {#if showCountersBar}
-        <span>
-          Words: {$editor?.storage?.characterCount?.words()}
-        </span>
-      {/if}
-
-      {#if nodesLimit}
-        <span class="fl-node-count-text">
-          Nodes: {currentNodeCount} / {nodesLimit}
-        </span>
-      {/if}
-
-      <!-- <div class="fl-node-count-progress">
-        <div
-          class="fl-node-count-progress-bar"
-          style="width: {Math.min((currentNodeCount / nodesLimit) * 100, 100)}%"
-        ></div>
-      </div> -->
-    </div>
-  {/if}
-</div>
-
+    {/if}
+  </div>
+{/if}
 <div
   class="fl-toolbar-dropdown-panel"
   bind:this={tooltip}

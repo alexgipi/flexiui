@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { ResizableNodes } from './lib/extensions/resizable-nodes';
+  import { Focus } from '@tiptap/extensions'
   import { SpecialBox } from "./lib/extensions/SpecialBox";
   import { PrismCodeEditor } from "@flexiui/svelte-prism-code-editor";
   import { Document } from "@tiptap/extension-document";
@@ -71,6 +73,11 @@
       textColor: "#e5e7eb",
       borderRadius: "12px",
     }),
+    // ResizableNodes.configure({
+    //   nodes: ['h1', 'paragraph'],
+    //   minWidth: 120,
+    // }),
+    Focus,
   ];
 
   let content = {
@@ -723,6 +730,7 @@
 
   <div class="card">
     <RichText
+      cleanMode={true}
       nodesLimit={12}
       trailingNode={true}
       charactersLimit={1000}

@@ -348,6 +348,7 @@ tbody tr:last-child td {
     font-size: revert;
     line-height: revert;
     margin: revert;
+    position: relative;
   }
 
   /* Code and preformatted text styles */
