@@ -21,10 +21,11 @@
     createEditor,
     Editor,
     // EditorContent,
-    BubbleMenu,
+    // BubbleMenu,
   } from "svelte-tiptap";
 
   import EditorContent from "./svelte-tiptap-extends/EditorContent.svelte";
+  import BubbleMenu from "./svelte-tiptap-extends/BubbleMenu.svelte";
   import { getRichTextExtensions } from "./getExtensions";
   import { rgbToHex } from "./utils";
 
@@ -101,6 +102,7 @@
     inlineNodeMode?: boolean;
     trailingNode?: boolean;
     cleanMode?: boolean;
+    [key: string]: any;
   }
 
   type ToolbarButton =
@@ -394,7 +396,7 @@
       content,
       editorProps: {
         attributes: {
-          class: cleanMode ? "fl-rich-text-doc-clean" : "fl-rich-text-doc",
+          class: `fl-rich-text-doc ${cleanMode ? "fl-rich-text-doc--clean" : ""}`,
         },
         handleKeyDown: (view, event) => {
           if (event.key === "Enter" && !event.ctrlKey) {
@@ -792,8 +794,7 @@ function onOpenChangeHighlight(open: boolean) {
     <EditorContent
       as={contentWrapperAs}
       editor={$editor}
-      class="fl-rich-text-content {className}"
-      data-fl-editable="true"
+      class={className}
       {...rest}
     />
 
@@ -953,6 +954,7 @@ function onOpenChangeHighlight(open: boolean) {
     {/if}
   </div>
 {/if}
+
 <div
   class="fl-toolbar-dropdown-panel"
   bind:this={tooltip}
@@ -1308,7 +1310,13 @@ function onOpenChangeHighlight(open: boolean) {
       }}
       appendTo={document.body}
     >
-      <div data-test-id="bubble-menu" class="fl-bubble-menu flex">
+      <div
+      data-test-id="bubble-menu"
+      class="fl-bubble-menu flex"
+      style="
+      --fl-editor-accent-color: {editorConfig.editorAccentColor};
+      "
+      >
         {#each bubbleMenuGroups as bubbleMenuGroup}
           {#if bubbleMenuGroup.length > 0}
             <div role="group" class="fl-rich-text-toolbar-group">
