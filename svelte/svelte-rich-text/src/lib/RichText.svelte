@@ -5,6 +5,7 @@
   import { onMount, onDestroy } from "svelte";
   import type { Readable } from "svelte/store";
   import { computePosition, offset, autoUpdate } from "@floating-ui/dom";
+  import { TextSelection } from "prosemirror-state";
   import {
     ColorPicker,
     ColorPickerSwatch,
@@ -578,6 +579,15 @@
       },
       onBlur({ editor, event }) {
         focused = false;
+
+        const { state, view } = editor;
+
+        const pos = state.selection.to;
+
+        const tr = state.tr.setSelection(TextSelection.create(state.doc, pos));
+
+        view.dispatch(tr);
+
         editorEvents.onBlur({ editor, event });
       },
       onDestroy() {
@@ -666,150 +676,132 @@
     }
   }
 
-  let defaultColor = "#fafafa"
+  let defaultColor = "#fafafa";
   let colorValue = $derived(defaultColor);
 
-  function onFormatChange(e) {
-
-    
-  }
+  function onFormatChange(e) {}
 
   let colorValueRgb = $state(colorValue);
 
-function onChange(value: any) {
-  colorValue = value.hex;
-  colorValueRgb = value.rgb;
-}
-
-let prevSelection: { from: number; to: number } | null = null;
-let prevColorValueRgb: string | null = null;
-
-function onOpenChange(open: boolean) {
-
-  if (open) {
-    const { from, to } = $editor.state.selection;
-    prevSelection = { from, to };
-    prevColorValueRgb = $editor?.getAttributes("textStyle")?.color;
-    return;
+  function onChange(value: any) {
+    colorValue = value.hex;
+    colorValueRgb = value.rgb;
   }
 
-  if (!open) {
+  let prevSelection: { from: number; to: number } | null = null;
+  let prevColorValueRgb: string | null = null;
 
-    if(colorValue === defaultColor) return;
-
-    if(colorValueRgb === prevColorValueRgb) {
+  function onOpenChange(open: boolean) {
+    if (open) {
+      const { from, to } = $editor.state.selection;
+      prevSelection = { from, to };
+      prevColorValueRgb = $editor?.getAttributes("textStyle")?.color;
       return;
     }
 
-    // Guardar color reciente
-    const included = recentCustomColors.includes(colorValueRgb);
-    if (!included) {
-      recentCustomColors = [
-        ...recentCustomColors,
-        colorValueRgb,
-      ];
-    }
+    if (!open) {
+      if (colorValue === defaultColor) return;
 
-    // Aplicar color al rango previo
-    if (prevSelection) {
-      const { from, to } = prevSelection;
-      const { state, view } = $editor;
+      if (colorValueRgb === prevColorValueRgb) {
+        return;
+      }
 
-      const textStyle = state.schema.marks.textStyle;
+      // Guardar color reciente
+      const included = recentCustomColors.includes(colorValueRgb);
+      if (!included) {
+        recentCustomColors = [...recentCustomColors, colorValueRgb];
+      }
 
-      const tr = state.tr.addMark(
-        from,
-        to,
-        textStyle.create({ color: colorValueRgb })
-      );
+      // Aplicar color al rango previo
+      if (prevSelection) {
+        const { from, to } = prevSelection;
+        const { state, view } = $editor;
 
-      view.dispatch(tr);
+        const textStyle = state.schema.marks.textStyle;
 
+        const tr = state.tr.addMark(
+          from,
+          to,
+          textStyle.create({ color: colorValueRgb }),
+        );
 
-      colorValue = defaultColor;
-      colorValueRgb = defaultColor;
+        view.dispatch(tr);
 
+        colorValue = defaultColor;
+        colorValueRgb = defaultColor;
+      }
     }
   }
-}
 
+  // Highlight colorPicker
+  let highlightColorValue = $state(null);
+  let highlightColorValueRgb = $state(null);
+  let prevSelectionHighlight: { from: number; to: number } | null = null;
+  let prevHighlightColorValueRgb: string | null = null;
 
-// Highlight colorPicker
-let highlightColorValue = $state(null);
-let highlightColorValueRgb = $state(null);
-let prevSelectionHighlight: { from: number; to: number } | null = null;
-let prevHighlightColorValueRgb: string | null = null;
-
-function onChangeHighlight(value: any) {
-  highlightColorValue = value.hex;
-  highlightColorValueRgb = value.rgb;
-}
-
-function onOpenChangeHighlight(open: boolean) {
-  if (open) {
-    const { from, to } = $editor.state.selection;
-    prevSelectionHighlight = { from, to };
-    prevColorValueRgb = $editor?.getAttributes("highlight")?.color;
-    return;
+  function onChangeHighlight(value: any) {
+    highlightColorValue = value.hex;
+    highlightColorValueRgb = value.rgb;
   }
 
-  if (!open) {
-    if(highlightColorValue === defaultColor) return;
-
-    if(highlightColorValueRgb === prevHighlightColorValueRgb) {
+  function onOpenChangeHighlight(open: boolean) {
+    if (open) {
+      const { from, to } = $editor.state.selection;
+      prevSelectionHighlight = { from, to };
+      prevColorValueRgb = $editor?.getAttributes("highlight")?.color;
       return;
     }
 
-    // Guardar color reciente
-    const included = recentCustomColors.includes(highlightColorValueRgb);
-    if (!included) {
-      recentCustomColors = [
-        ...recentCustomColors,
-        highlightColorValueRgb,
-      ];
-    }
+    if (!open) {
+      if (highlightColorValue === defaultColor) return;
 
-    // Aplicar color al rango previo
-    if (prevSelectionHighlight) {
-      const { from, to } = prevSelectionHighlight;
-      const { state, view } = $editor;
+      if (highlightColorValueRgb === prevHighlightColorValueRgb) {
+        return;
+      }
 
-      const highlight = state.schema.marks.highlight;
+      // Guardar color reciente
+      const included = recentCustomColors.includes(highlightColorValueRgb);
+      if (!included) {
+        recentCustomColors = [...recentCustomColors, highlightColorValueRgb];
+      }
 
-      const tr = state.tr.addMark(
-        from,
-        to,
-        highlight.create({ color: highlightColorValueRgb })
-      );
+      // Aplicar color al rango previo
+      if (prevSelectionHighlight) {
+        const { from, to } = prevSelectionHighlight;
+        const { state, view } = $editor;
 
-      view.dispatch(tr);
+        const highlight = state.schema.marks.highlight;
 
+        const tr = state.tr.addMark(
+          from,
+          to,
+          highlight.create({ color: highlightColorValueRgb }),
+        );
 
-      highlightColorValue = defaultColor;
-      highlightColorValueRgb = defaultColor;
+        view.dispatch(tr);
 
+        highlightColorValue = defaultColor;
+        highlightColorValueRgb = defaultColor;
+      }
     }
   }
-}
 </script>
 
 {#if cleanMode}
+  <EditorContent
+    as={contentWrapperAs}
+    editor={$editor}
+    class={className}
+    {...rest}
+  />
 
-    <EditorContent
-      as={contentWrapperAs}
-      editor={$editor}
-      class={className}
-      {...rest}
-    />
-
-    <!-- Warning message for node limit -->
-    {#if showLimitWarning && nodesLimit}
-      <div class="fl-node-limit-warning">
-        {limitWarningMessage ||
-          ` No se pueden añadir más nodos a este editor. Max: ${nodesLimit}`}
-      </div>
-    {/if}
-
+  <!-- Warning message for node limit -->
+  {#if showLimitWarning && nodesLimit}
+    <div class="fl-node-limit-warning">
+      {limitWarningMessage ||
+        ` No se pueden añadir más nodos a este editor. Max: ${nodesLimit}`}
+    </div>
+  {/if}
 {:else}
   <div
     class="fl-rich-text {className}"
@@ -858,7 +850,10 @@ function onOpenChangeHighlight(open: boolean) {
                       {currentNodeCount}
                       accentSoft={isAccentSoft}
                       {fontSize}
-                      onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
+                      onToggleDropdown={(
+                        e: MouseEvent,
+                        dropdownName: string,
+                      ) => {
                         toogleDropdown(
                           e.currentTarget as HTMLElement,
                           dropdownName,
@@ -874,7 +869,10 @@ function onOpenChangeHighlight(open: boolean) {
                       {currentNodeCount}
                       accentSoft={isAccentSoft}
                       {fontSize}
-                      onToggleDropdown={(e: MouseEvent, dropdownName: string) => {
+                      onToggleDropdown={(
+                        e: MouseEvent,
+                        dropdownName: string,
+                      ) => {
                         toogleDropdown(
                           e.currentTarget as HTMLElement,
                           dropdownName,
@@ -994,16 +992,16 @@ function onOpenChangeHighlight(open: boolean) {
         <ColorPicker
           value={$editor?.getAttributes("textStyle")?.color || colorValue}
           defaultFormat="rgb"
-          onFormatChange={onFormatChange}
-          onChange={onChange}
-          onOpenChange={onOpenChange}
+          {onFormatChange}
+          {onChange}
+          {onOpenChange}
           portalElement={"#color-picker-text-color"}
         >
           <ColorPickerTrigger class="font-mono">
             <button
-            class="fl-color-swatch fl-color-picker-btn"
-            aria-label="Text color picker"
-            type="button"
+              class="fl-color-swatch fl-color-picker-btn"
+              aria-label="Text color picker"
+              type="button"
             ></button>
           </ColorPickerTrigger>
         </ColorPicker>
@@ -1018,7 +1016,7 @@ function onOpenChangeHighlight(open: boolean) {
           onclick={() => {
             $editor?.chain().focus().setColor(color).run();
             hideDropdown();
-            
+
             setTimeout(() => {
               colorValue = defaultColor;
               colorValueRgb = null;
@@ -1159,18 +1157,19 @@ function onOpenChangeHighlight(open: boolean) {
 
       <div class="color-picker-wrapper" id="color-picker-highlight-color">
         <ColorPicker
-          value={$editor?.getAttributes("highlight")?.color || highlightColorValue}
+          value={$editor?.getAttributes("highlight")?.color ||
+            highlightColorValue}
           defaultFormat="rgb"
-          onFormatChange={onFormatChange}
+          {onFormatChange}
           onChange={onChangeHighlight}
           onOpenChange={onOpenChangeHighlight}
           portalElement={"#color-picker-highlight-color"}
         >
           <ColorPickerTrigger class="font-mono">
             <button
-            class="fl-color-swatch fl-color-picker-btn"
-            aria-label="Text color picker"
-            type="button"
+              class="fl-color-swatch fl-color-picker-btn"
+              aria-label="Text color picker"
+              type="button"
             ></button>
           </ColorPickerTrigger>
         </ColorPicker>
@@ -1315,9 +1314,9 @@ function onOpenChangeHighlight(open: boolean) {
       appendTo={document.body}
     >
       <div
-      data-test-id="bubble-menu"
-      class="fl-bubble-menu flex"
-      style="
+        data-test-id="bubble-menu"
+        class="fl-bubble-menu flex"
+        style="
       --fl-editor-accent-color: {editorConfig.editorAccentColor};
       "
       >
