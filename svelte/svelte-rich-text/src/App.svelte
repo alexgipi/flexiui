@@ -762,8 +762,8 @@
         onCreate: handleEditorCreate,
         onContentError: handleEditorContentError,
       }}
-
       {content}
+      data-fl-key="page_layout.2.cards.3.card_title"
     />
   </div>
 
