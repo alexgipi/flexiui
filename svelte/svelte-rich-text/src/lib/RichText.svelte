@@ -227,6 +227,8 @@
     editorConfig.toolbarJustifyContent = "flex-end";
   }
 
+  let focused = $state(false);
+
   let bubbleOffset =
     $editor?.storage.tableCell.customTableSelection === "column" ? 18 : 8;
 
@@ -571,9 +573,11 @@
       },
 
       onFocus({ editor, event }) {
+        focused = true;
         editorEvents.onFocus({ editor, event });
       },
       onBlur({ editor, event }) {
+        focused = false;
         editorEvents.onBlur({ editor, event });
       },
       onDestroy() {
@@ -1274,7 +1278,7 @@ function onOpenChangeHighlight(open: boolean) {
   {/if}
 </div>
 
-{#if editor}
+{#if editor && focused}
   <div class="hidden">
     <BubbleMenu
       options={{
