@@ -63,9 +63,10 @@
   box-sizing: border-box;
 }
 
-.fl-rich-text-doc-clean {
-  outline: none;
-  position: relative;
+.fl-rich-text-doc--clean {
+  padding: 0;
+  margin: 0;
+  max-width: none;
 }
 
 .fl-toolbar-dropdown-panel {
@@ -122,66 +123,66 @@
     background: transparent;
     line-height: 1.6;
   }
+}
 
-  .fl-bubble-menu {
-    padding: 6px;
-    background: #242424b0;
-    border: 1px solid #ffffff12;
-    backdrop-filter: blur(16px);
-    border-radius: 14px;
+.fl-bubble-menu {
+  padding: 6px;
+  background: #242424b0;
+  border: 1px solid #ffffff12;
+  backdrop-filter: blur(16px);
+  border-radius: 14px;
+  display: flex;
+  gap: 5px;
+  position: relative;
+  z-index: var(--fl-toolbar-z-index, 10);
+
+
+  .fl-bubble-menu-mark-button {
+    border-radius: 9px;
+    border: none;
     display: flex;
-    gap: 5px;
-    position: relative;
-    z-index: var(--fl-toolbar-z-index, 10);
+    align-items: center;
+    justify-content: center;
+    padding: 6px 11px;
+    min-width: 30px;
+    min-height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: background 0.3s ease;
+    cursor: pointer;
 
+    &.fl-bubble-menu-mark-button {
+      padding-inline: 6px;
 
-    .fl-bubble-menu-mark-button {
-      border-radius: 9px;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 11px;
-      min-width: 30px;
-      min-height: 30px;
-      background: rgba(255, 255, 255, 0.1);
-      transition: background 0.3s ease;
-      cursor: pointer;
+      svg {
+        width: 16px;
+        height: 16px;
 
-      &.fl-bubble-menu-mark-button {
-        padding-inline: 6px;
-
-        svg {
-          width: 16px;
-          height: 16px;
-
-          &.toogle-dropdown-button-icon {
-            width: 8px;
-            margin: 0 2px 0 6px;
-          }
+        &.toogle-dropdown-button-icon {
+          width: 8px;
+          margin: 0 2px 0 6px;
         }
       }
+    }
 
-      &.is-active {
-        background: var(--fl-editor-accent-color);
-        color: white;
+    &.is-active {
+      background: var(--fl-editor-accent-color);
+      color: white;
 
-        &.accent-soft {
-          background: transparent;
-          color: var(--fl-editor-accent-color);
-          position: relative;
-          
-          &::after {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            background: var(--fl-editor-accent-color);
-            opacity: 0.15;
-            border-radius: inherit;
-          }
+      &.accent-soft {
+        background: transparent;
+        color: var(--fl-editor-accent-color);
+        position: relative;
+        
+        &::after {
+          content: "";
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          left: 0;
+          top: 0;
+          background: var(--fl-editor-accent-color);
+          opacity: 0.15;
+          border-radius: inherit;
         }
       }
     }
