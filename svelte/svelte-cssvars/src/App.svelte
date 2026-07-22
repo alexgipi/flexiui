@@ -18,120 +18,10 @@
         singular: "CSS variable",
         plural: "CSS variables",
       },
-      fixedVarsCSS: `
-        --bgColor: #ffffff;
-        --bgImage: url(https://hola.com/media/imagen.jpg);
-        --textColor: #000000;
-        --textOpacity: 100%;
-        --padding: 1rem;
-        --margin: 1rem 0;
-        --buttonRadius: 6px 12px;
-      `,
-      fixedVarsConfig: {
-        bgColor: {
-          label: {
-            es: "Color de fondo",
-            en: "Background color",
-          },
-          type: "color"
-        },
-        bgImage: {
-          label: {
-            es: "Imagen de fondo",
-            en: "Background image",
-          },
-          type: "url"
-        },
-        textColor: {
-          label: {
-            es: "Color del texto",
-            en: "Text color",
-          },
-          type: "color"        
-        },
-        textOpacity: {
-          label: {
-            es: "Opacidad del texto",
-            en: "Text opacity",
-          },
-          type: "range",
-          min: 0,
-          max: 100,
-          step: 1,
-          unit: "%",
-        },
-        padding: {
-          label: {
-            es: "Padding",
-            en: "Padding",
-          },
-          type: "padding",
-          svgIcon: `
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-padding" style="height: 26px;min-width: 26px;">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-              
-              <path class="left bottom" d="M8 16v.01"></path>
-              <path class="left" d="M8 12v.01"></path>
-              <path class="left top" d="M8 8v.01"></path>
-              <path class="right bottom" d="M16 16v.01"></path>
-              <path class="right" d="M16 12v.01"></path>
-              <path class="right top" d="M16 8v.01"></path>
-              <path class="top" d="M12 8v.01"></path>
-              <path class="bottom" d="M12 16v.01"></path>
-            </svg>
-          `     
-        },
-        margin: {
-          label: {
-            es: "Margin",
-            en: "Margin",
-          },
-          type: "margin",
-          svgIcon: `
-            <svg style="height: 26px;min-width: 26px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2"> 
-              <path d="M8 8h8v8h-8z"></path> 
-              <path class="top left" d="M4 4v.01"></path> 
-              <path class="top" d="M8 4v.01"></path> 
-              <path class="top" d="M12 4v.01"></path> 
-              <path class="top" d="M16 4v.01"></path> 
-              <path class="top right" d="M20 4v.01"></path> 
-              <path class="bottom left" d="M4 20v.01"></path> 
-              <path class="bottom" d="M8 20v.01"></path> 
-              <path class="bottom" d="M12 20v.01"></path> 
-              <path class="bottom" d="M16 20v.01"></path> 
-              <path class="bottom right" d="M20 20v.01"></path> 
-              <path class="right" d="M20 16v.01"></path> 
-              <path class="right" d="M20 12v.01"></path> 
-              <path class="right" d="M20 8v.01"></path> 
-              <path class="left" d="M4 16v.01"></path> 
-              <path class="left" d="M4 12v.01"></path> 
-              <path class="left" d="M4 8v.01"></path>
-            </svg> 
-          ` 
-        },
-        buttonRadius: {
-          label: {
-            es: "Border radius del botón",
-            en: "Button border radius"
-          },
-          type: "border-radius",
-          svgIcon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
-            <!-- Esquina superior izquierda -->
-            <path class="top-left" d="M120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160h-80Z"/>
-            <!-- Esquina superior derecha -->
-            <path class="top-right" d="M760-600v-160H600v-80h160q33 0 56.5 23.5T840-760v160h-80Z"/>
-            <!-- Esquina inferior izquierda -->
-            <path class="bottom-left" d="M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80H200Z"/>
-            <!-- Esquina inferior derecha -->
-            <path class="bottom-right" d="M600-120v-80h160v-160h80v160q0 33-23.5 56.5T760-120H600Z"/>
-          </svg>`
-        }
-      }
   }
 
   const varsCSSFixed = `
-    --bgColor: #ffffff;
+    --bg-color: #ffffff;
     --bgImage: url(https://hola.com/media/imagen.jpg);
     --textColor: #000000;
     --textOpacity: 100%;
@@ -143,7 +33,7 @@
   `
 
   const varsCSS = `
-    --bgColor: #ffffff;
+    --bg-color: #ffffff;
     --bgImage: url(https://hola.com/media/imagen.jpg);
     --textColor: #000000;
     --textOpacity: 100%;
@@ -155,9 +45,9 @@
   `
 
   const varsConfigFixed = {
-      bgColor: {
+      'bg-color': {
         label: {
-          es: "Color de fondooooo",
+          es: "Color de fondo",
           en: "Background color",
         },
         type: "color"
@@ -211,9 +101,9 @@
   }
 
   let varsConfig = {
-      bgColor: {
+      'bg-color': {
         label: {
-          es: "Color de fondooooo",
+          es: "Color de fondo",
           en: "Background color",
         },
         type: "color"
@@ -300,7 +190,6 @@
   </div>
   <div class="card">
     <CSSVars 
-    id="css-vars"
     {editable}
     on:update={e => onUpdate(e)}
     {varsCSSFixed}
@@ -316,12 +205,39 @@
     placeholder={'Press enter to add a new CSS Variable'} 
     required={false}
     styleConfig={{
-      display: "flex",
-      alignItems: "flex-end",
-      justifyContent: "flex-start",
-      flexDirection: "column",
-      flexWrap: "wrap",
-      gap: "0.5rem",
+      // display: "flex",
+      // alignItems: "flex-end",
+      // justifyContent: "flex-start",
+      // flexDirection: "column",
+      // flexWrap: "wrap",
+      // gap: "0.5rem",
+    }}
+    />
+  </div>
+
+  <div class="card">
+    <CSSVars 
+    {editable}
+    on:update={e => onUpdate(e)}
+    {varsCSSFixed}
+    {varsConfigFixed}
+    {varsCSS}
+    bind:varsConfig={varsConfig}
+    bind:varsObject={varsObject}
+    name="tags" 
+    labels={field.labels}
+    tags={[]}  
+    ruleSeparator=':'
+    separator=';'
+    placeholder={'Press enter to add a new CSS Variable'} 
+    required={false}
+    styleConfig={{
+      // display: "flex",
+      // alignItems: "flex-end",
+      // justifyContent: "flex-start",
+      // flexDirection: "column",
+      // flexWrap: "wrap",
+      // gap: "0.5rem",
     }}
     />
   </div>

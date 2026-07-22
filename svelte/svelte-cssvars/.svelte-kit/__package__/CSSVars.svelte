@@ -7,6 +7,7 @@
     isNumeric,
     isValidColor,
     isValidCSSUrl,
+    isValidVar,
   } from "./utils";
   import { Dropdown, DropdownItem } from "@flexiui/svelte-dropdown";
   import { PrismCodeEditor } from "@flexiui/svelte-prism-code-editor";
@@ -14,7 +15,7 @@
   let view = "tags";
 
   export let name;
-  export let id;
+  export let id = 'cssvars-' + crypto.randomUUID().slice(0, 8);
   export const required = false;
   export let editable = true;
   export let styleConfig = {};
@@ -213,7 +214,7 @@
 
     // if type is color
     if (varsConfig[key].type === "color") {
-      const isValid = isValidColor(element.innerText);
+      const isValid = isValidColor(element.innerText) || isValidVar(element.innerText);
       if (!isValid) {
         element.style.color = "red";
         return;
@@ -295,7 +296,7 @@
         }
       }
     } else if (varsConfig[key].type === "color") {
-      const isValid = isValidColor(element.innerText);
+      const isValid = isValidColor(element.innerText) || isValidVar(element.innerText);
 
       if (!isValid) {
         element.style.color = "red";
@@ -433,15 +434,11 @@
   }
 
   function cssVarsToObject(cssString) {
-    return Object.fromEntries(
-      cssString
-        .match(/--\w+:\s*[^;]+;/g) // Busca pares clave-valor completos terminados en ';'
-        .map((declaration) => {
-          const [key, ...valueParts] = declaration.split(/:\s*/); // Divide en clave y resto
-          const value = valueParts.join(":").replace(/;$/, "").trim(); // Reconstruye el valor y elimina el ';'
-          return [key.trim().slice(2), value]; // Remueve '--' de la clave
-        })
-    );
+    const result = {};
+    for (const match of cssString.matchAll(/--(\w[\w-]*):\s*([^;]+);/g)) {
+      result[match[1]] = match[2].trim();
+    }
+    return result;
   }
 
   function detectCursorPosition(
@@ -540,6 +537,8 @@
 
   function handleClickOptions(key) {
     openedKey = key;
+    showLabelsEditor = false;
+    showConfig = false;
   }
 
   function handleCloseDropdown() {
@@ -824,7 +823,7 @@
                 <button
                   class="tag-options-btn"
                   on:click={() => handleClickOptions(key)}
-                  data-dropdown-toggle="dropdown"
+                  data-dropdown-toggle={`${id}__dropdown`}
                   data-dropdown-trigger="click"
                   data-dropdown-key={key}
                   type="button"
@@ -1221,7 +1220,7 @@
   position="bottom-right"
   yOffset={2}
   xOffset={0}
-  id="dropdown"
+  id={`${id}__dropdown`}
   on:close={handleCloseDropdown}
   on:open={handleOpenDropdown}
 >

@@ -2,7 +2,7 @@ import { SvelteComponentTyped } from "svelte";
 declare const __propDef: {
     props: {
         name: any;
-        id: any;
+        id?: string;
         required?: false;
         editable?: boolean;
         styleConfig?: {};
@@ -16,12 +16,8 @@ declare const __propDef: {
         varsCSSFixed?: any;
         varsConfigFixed?: {};
         varsConfig?: {};
-        varsObjectFixed?: {
-            [k: string]: any;
-        };
-        varsObject?: {
-            [k: string]: any;
-        };
+        varsObjectFixed?: {};
+        varsObject?: {};
         getCSS?: () => string;
     };
     events: {

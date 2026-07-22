@@ -47,3 +47,7 @@ export function isValidColor(value) {
 
   return false;
 }
+
+export function isValidVar(value) {
+  return /^var\(--[\w-]+(\s*,\s*.+)?\)$/.test(value.trim());
+}
