@@ -28,6 +28,8 @@
     ]
   }, null, 2);
 
+  let htmlValue = `<h1>Hello World</h1>`;
+
   let editor;
 
   function onUpdate(e){
@@ -62,6 +64,19 @@
     language="json" 
     id="example-code-editor" 
     {value}
+    className='no-drag'>
+    </PrismCodeEditor>
+  </div>
+
+    <div class="card">
+    <PrismCodeEditor 
+    bind:editor={editor}
+    on:update={e => onUpdate(e)}
+    readOnly={false}
+    lineNumbers={true}
+    language="html" 
+    id="example-code-editor-2" 
+    value={htmlValue}
     className='no-drag'>
     </PrismCodeEditor>
   </div>
