@@ -128,7 +128,7 @@
   type BubbleMenuConfig = ToolbarItem[] | ToolbarItem[][];
 
   let {
-    id = "fl-rich-text-editor",
+    id = `fl-r-text-${Math.random().toString(36).slice(2, 10)}`,
     className,
     editable,
     content,
