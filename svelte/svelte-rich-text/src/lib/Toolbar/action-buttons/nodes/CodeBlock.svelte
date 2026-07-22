@@ -4,9 +4,10 @@
 
 <!-- Code block -->
 <button
+  class="fl-bubble-menu-mark-button"
   type="button"
   onclick={() => $editor.chain().focus().toggleCodeBlock().run()}
-  class={$editor.isActive("codeBlock") ? "is-active" : ""}
+  class:is-active={$editor.isActive("codeBlock")}
   aria-label={ariaLabel}
   class:accent-soft={accenSoft}
 >

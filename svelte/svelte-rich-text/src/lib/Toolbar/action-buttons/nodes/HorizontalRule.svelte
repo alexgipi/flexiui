@@ -4,6 +4,7 @@
 
 <!-- Horizontal rule -->
 <button
+  class="fl-bubble-menu-mark-button"
   type="button"
   onclick={() => $editor.chain().focus().setHorizontalRule().run()}
   aria-label={ariaLabel}

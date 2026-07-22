@@ -36,6 +36,7 @@
 
 <!-- Table -->
 <button
+  class="fl-bubble-menu-mark-button"
   type="button"
   onclick={addTable}
   aria-label={ariaLabel}

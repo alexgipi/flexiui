@@ -317,8 +317,8 @@ style={`
   ${playBtnTextColor && `--player-play-btn-color: ${playBtnTextColor};`}
   ${`--player-primary-color: ${rewrite ? accentColor : $audioAttributes.accentColor || accentColor};`}
   ${accentColorPaused && `--player-progress-default-bg: ${accentColorPaused};`}
-  ${textColor && `--player-text-color: ${textColor};`}
-  ${borderRadius && `--player-border-radius: ${borderRadius};`}
+  ${textColor && `--player-text-color:  ${rewrite ? textColor : $audioAttributes.textColor || textColor};`}
+  ${borderRadius && `--player-border-radius: ${rewrite ? borderRadius : $audioAttributes.borderRadius || borderRadius};`}
 `}
 >
   <button

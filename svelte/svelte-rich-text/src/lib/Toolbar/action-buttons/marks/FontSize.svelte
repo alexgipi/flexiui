@@ -4,7 +4,7 @@
   let { 
     editor, 
     accenSoft = false,
-    ariaLabel = "Blockquote",
+    ariaLabel = "Font size",
     fontSize
   } = $props();
 
@@ -50,7 +50,7 @@
   
 </script>
 
-<div class="fl-font-size-editor">
+<div class="fl-font-size-editor fl-bubble-menu-mark-button">
   <button
     type="button"
     aria-label="Decrease font size"

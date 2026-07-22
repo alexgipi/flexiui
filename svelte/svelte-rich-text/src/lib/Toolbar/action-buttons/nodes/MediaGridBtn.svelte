@@ -32,6 +32,7 @@
 
 <!-- Grid -->
 <button
+  class="fl-bubble-menu-mark-button"
   type="button"
   onclick={addMediaGrid}
   aria-label={ariaLabel}

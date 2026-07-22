@@ -26,13 +26,13 @@
   // });
 
   const CustomDocument = Document.extend({
-    content: "block+",
+    content: "h1 block+",
   });
 
   // accept list item order list item an taskListItem
 
   let customExtensions = [
-    // CustomDocument,
+    CustomDocument,
     SpecialBox,
     PlaceholderExt.configure({
       placeholder: ({ node }) => {
@@ -696,6 +696,11 @@
     const bgColor = color;
     $audioAttributes.bgColor = bgColor;
   }
+
+  function changeTextColor(color: string) {
+    const textColor = color;
+    $audioAttributes.textColor = textColor;
+  }
 </script>
 
 <main>
@@ -726,14 +731,16 @@
     <button onclick={() => changeBgColor("#ddd")}>
       Background color #ddd
     </button>
+
+    <button onclick={() => changeTextColor("red")}>
+      Text color RED
+    </button>
   </div>
 
   <div class="card">
     <RichText
-      cleanMode={true}
-      nodesLimit={12}
+      cleanMode={false}
       trailingNode={true}
-      charactersLimit={1000}
       showCountersBar={false}
       semanticHeadings={true}
       uniqueH1={true}
@@ -746,7 +753,6 @@
         // docMarginBlock: "0"
       }}
       className="my-rich-text"
-      id="flexi-rich-text"
       {customExtensions}
       editorEvents={{
         onUpdate: handleEditorUpdate,
@@ -785,7 +791,6 @@
         // docMarginBlock: "0"
       }}
       className="my-rich-text"
-      id="flexi-rich-text"
       customExtensions={[...customExtensions]}
       editorEvents={{
         onUpdate: handleEditorUpdate,

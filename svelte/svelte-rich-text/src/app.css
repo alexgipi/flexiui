@@ -393,6 +393,7 @@ tbody tr:last-child td {
   ol {
     padding: 0 1.25rem;
     margin: 1.25rem 1rem 1.25rem 0.4rem;
+    list-style: revert;
 
     li p {
       margin-top: 0.25em;

@@ -14,5 +14,7 @@
   onclick={handleClick}
 >
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-line-height"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 8l3 -3l3 3"/><path d="M3 16l3 3l3 -3"/><path d="M6 5l0 14"/><path d="M13 6l7 0"/><path d="M13 12l7 0"/><path d="M13 18l7 0"/></svg>
-    <svg class="toogle-dropdown-button-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><use href="#dropdown-arrow"></use></svg>
+    <svg class="toogle-dropdown-button-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"></path>
+    </svg>
 </button>

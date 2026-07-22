@@ -7,6 +7,7 @@
 </script>
 
 <button
+  class="fl-bubble-menu-mark-button"
   aria-label={ariaLabel}
   type="button"
   onclick={() => $editor.chain().focus().unsetAllMarks().run()}

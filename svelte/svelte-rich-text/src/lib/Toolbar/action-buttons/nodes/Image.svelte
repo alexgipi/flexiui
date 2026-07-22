@@ -40,6 +40,7 @@
 
 <!-- Image -->
 <button
+  class="fl-bubble-menu-mark-button"
   type="button"
   onclick={addImage}
   aria-label={ariaLabel}

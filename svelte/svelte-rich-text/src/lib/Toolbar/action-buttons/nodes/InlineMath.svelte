@@ -28,6 +28,7 @@
 </script>
 
 <button
+  class="fl-bubble-menu-mark-button"
   type="button"
   onclick={addInlineMath}
   aria-label={ariaLabel}

@@ -160,7 +160,7 @@ export function getRichTextExtensions(options?: {
       listKeymap: false,
     }),
     EnhancedLink,
-    Image.configure({ inline: true }),
+    Image.configure({ inline: false }),
     Audio.configure({
       HTMLAttributes: { class: "audio-player" },
     }),

@@ -15,6 +15,7 @@
 <!-- Text align -->
 <button
   type="button"
+  class="fl-bubble-menu-mark-button"
   onclick={() => $editor.chain().focus().toggleTextAlign(position).run()}
   class:is-active={$editor.isActive({ textAlign: position })}
   class:accent-soft={accenSoft}

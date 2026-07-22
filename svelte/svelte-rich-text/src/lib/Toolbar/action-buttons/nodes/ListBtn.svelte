@@ -33,6 +33,7 @@
 </script>
 
 <button
+  class="fl-bubble-menu-mark-button"
   type="button"
   onclick={() => $editor.chain().focus().toggleList(type, itemType).run()}
   class:is-active={$editor.isActive(type)}

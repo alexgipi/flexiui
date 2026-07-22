@@ -127,6 +127,13 @@
   type ToolbarConfig = ToolbarItem[] | ToolbarItem[][];
   type BubbleMenuConfig = ToolbarItem[] | ToolbarItem[][];
 
+  type BubbleMenuOptions = {
+    placement?: "top" | "right" | "bottom" | "left";
+    strategy?: "absolute" | "fixed";
+    offset?: number;
+    flip?: boolean;
+  };
+
   let {
     id = `fl-r-text-${Math.random().toString(36).slice(2, 10)}`,
     className,
@@ -142,6 +149,7 @@
     uniqueH1 = false,
     toolbarConfig = undefined,
     bubbleMenuConfig = undefined,
+    bubbleMenuOptions = {},
     customExtensions = [],
     editorEvents = {
       onTransaction: () => {},
@@ -229,9 +237,22 @@
   }
 
   let focused = $state(false);
+  let shouldClearSelectionOnFocus = false;
 
   let bubbleOffset =
     $editor?.storage.tableCell.customTableSelection === "column" ? 18 : 8;
+
+  const defaultBubbleMenuOptions = {
+    placement: "bottom" as const,
+    strategy: "absolute" as const,
+    offset: bubbleOffset,
+    flip: true,
+  };
+
+  let mergedBubbleMenuOptions = $derived({
+    ...defaultBubbleMenuOptions,
+    ...bubbleMenuOptions,
+  });
 
   let tooltipVisible = $state(false);
   let tooltipX = $state(0);
@@ -487,6 +508,51 @@
             }, 200);
           }
         },
+        transformPastedText(text) {
+          return text;
+        },
+        transformPastedHTML(html: string) {
+          const div = document.createElement("div");
+          div.innerHTML = html;
+
+          const cleanNode = (node: HTMLElement) => {
+            // 1. Eliminar atributos que generan "basura"
+            node.removeAttribute("style");
+            node.removeAttribute("class");
+            node.removeAttribute("id");
+
+            // 2. Opcional: eliminar atributos específicos
+            [...node.attributes].forEach((attr) => {
+              if (
+                attr.name.startsWith("data-") ||
+                attr.name.startsWith("aria-")
+              ) {
+                node.removeAttribute(attr.name);
+              }
+            });
+
+            // 3. Reemplazar tags innecesarios (span, font...) por su contenido
+            if (["SPAN", "FONT"].includes(node.tagName)) {
+              const parent = node.parentNode;
+              while (node.firstChild) {
+                parent?.insertBefore(node.firstChild, node);
+              }
+              parent?.removeChild(node);
+              return;
+            }
+
+            // 4. Recursivo
+            Array.from(node.children).forEach((child) =>
+              cleanNode(child as HTMLElement),
+            );
+          };
+
+          Array.from(div.children).forEach((child) =>
+            cleanNode(child as HTMLElement),
+          );
+
+          return div.innerHTML;
+        },
       },
       onTransaction: ({ editor, transaction }) => {
         // Actualizar contador de nodos
@@ -573,21 +639,44 @@
         editorEvents.onSelectionUpdate({ editor });
       },
 
-      onFocus({ editor, event }) {
+      onFocus({ editor }) {
         focused = true;
-        editorEvents.onFocus({ editor, event });
+
+        editorEvents.onFocus({ editor });
       },
       onBlur({ editor, event }) {
+        const relatedTarget = event.relatedTarget as HTMLElement;
+
+        const isSameEditor = relatedTarget?.closest(`#${id}`); // usa el id del editor actual
+
+        const isBubbleMenu =
+          relatedTarget?.closest(".fl-bubble-menu") ||
+          relatedTarget?.classList.contains("fl-bubble-menu-mark-button");
+        const isToolbarDropdown = relatedTarget?.closest(
+          ".fl-toolbar-dropdown-panel",
+        );
+        const isFontSizeEditor = relatedTarget?.closest(".fl-font-size-editor");
+
+        if (
+          relatedTarget?.classList.contains("fl-bubble-menu-mark-button") ||
+          isFontSizeEditor ||
+          isBubbleMenu
+        ) {
+          return;
+        }
+
+        // Solo saltar la limpieza si el foco va al MISMO editor
+        if (isSameEditor || isBubbleMenu || isToolbarDropdown) {
+          focused = false;
+          editorEvents.onBlur({ editor, event });
+          return;
+        }
+
+        // Foco fue fuera o a OTRO editor → limpiar
+        shouldClearSelectionOnFocus = true;
+        clearSelection(editor);
+
         focused = false;
-
-        const { state, view } = editor;
-
-        const pos = state.selection.to;
-
-        const tr = state.tr.setSelection(TextSelection.create(state.doc, pos));
-
-        view.dispatch(tr);
-
         editorEvents.onBlur({ editor, event });
       },
       onDestroy() {
@@ -785,6 +874,16 @@
       }
     }
   }
+
+  function clearSelection(editor) {
+    const { state, view } = editor;
+
+    const pos = state.selection.to;
+
+    const tr = state.tr.setSelection(TextSelection.create(state.doc, pos));
+
+    view.dispatch(tr);
+  }
 </script>
 
 {#if cleanMode}
@@ -804,6 +903,7 @@
   {/if}
 {:else}
   <div
+    {id}
     class="fl-rich-text {className}"
     class:editable
     style="
@@ -1280,12 +1380,7 @@
 {#if editor && focused}
   <div class="hidden">
     <BubbleMenu
-      options={{
-        placement: "top",
-        strategy: "absolute",
-        offset: bubbleOffset,
-        flip: false,
-      }}
+      options={mergedBubbleMenuOptions}
       editor={$editor}
       shouldShow={() => {
         const emptySelection = $editor.state.selection.empty;

@@ -3,9 +3,10 @@
 </script>
 
 <button
+  class="fl-bubble-menu-mark-button"
   type="button"
   onclick={() => $editor.chain().focus().toggleBlockquote().run()}
-  class={$editor.isActive("blockquote") ? "is-active" : ""}
+  class:is-active={$editor.isActive("blockquote")}
   aria-label={ariaLabel}
   class:accent-soft={accenSoft}
 >
