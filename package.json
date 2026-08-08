@@ -27,6 +27,7 @@
     "check": "sui-mono check",
     "release": "sui-mono release --lock",
     "build:docs": "npm run build --workspace=docs",
+    "build:packages": "npm run build --workspace=svelte/svelte-prism-code && npm run build --workspace=svelte/svelte-dropdown && npm run build --workspace=svelte/svelte-cssvars && npm run build --workspace=svelte/svelte-quote && npm run build --workspace=svelte/svelte-tabs && npm run build --workspace=svelte/tags-input",
     "dev:docs": "npm run dev --workspace=docs",
     "dev:svelte-tags-input": "npm run dev --workspace=svelte/tags-input",
     "build:svelte-tags-input": "npm run build --workspace=svelte/tags-input",
