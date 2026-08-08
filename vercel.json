@@ -1,5 +1,8 @@
 {
   "framework": "astro",
   "buildCommand": "npm run build:packages && npm run build:docs",
-  "outputDirectory": "docs/dist"
+  "outputDirectory": "docs/dist",
+  "redirects": [
+    { "source": "/", "destination": "/svelte/accordion", "permanent": true }
+  ]
 }
