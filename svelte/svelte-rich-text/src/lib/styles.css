@@ -29,10 +29,17 @@
   --fl-doc-margin-block: 2rem;
   --fl-doc-radius: 0;
   --fl-doc-text-color: currentColor;
-
 }
 
 /* Basic editor styles */
+
+::selection {
+  background: #535bf28c;
+}
+
+::-moz-selection {
+  background: #535bf28c;
+}
 
 .fl-rich-text-content {
   outline: none;
@@ -136,7 +143,6 @@
   position: relative;
   z-index: var(--fl-toolbar-z-index, 10);
 
-
   .fl-bubble-menu-mark-button {
     border-radius: 9px;
     border: none;
@@ -172,7 +178,7 @@
         background: transparent;
         color: var(--fl-editor-accent-color);
         position: relative;
-        
+
         &::after {
           content: "";
           position: absolute;
@@ -233,7 +239,10 @@
     cursor: pointer;
     line-height: 1;
     min-height: var(--fl-toolbar-btn-min-height, 34px);
-  min-width: var(--fl-toolbar-btn-min-width, var(--fl-toolbar-btn-min-height, 34px));
+    min-width: var(
+      --fl-toolbar-btn-min-width,
+      var(--fl-toolbar-btn-min-height, 34px)
+    );
 
     &.fl-font-size-button {
       font-size: 14px;
@@ -257,7 +266,6 @@
   }
 }
 
-
 button {
   &.is-active {
     background: var(--fl-editor-accent-color);
@@ -267,7 +275,7 @@ button {
       background: transparent;
       color: var(--fl-editor-accent-color);
       position: relative;
-      
+
       &::after {
         content: "";
         position: absolute;
@@ -398,7 +406,10 @@ button {
   border-radius: var(--fl-toolbar-btn-radius, 9px);
   background: rgba(255, 255, 255, 0.1);
   min-height: var(--fl-toolbar-btn-min-height, 34px);
-  min-width: var(--fl-toolbar-btn-min-width, var(--fl-toolbar-btn-min-height, 34px));
+  min-width: var(
+    --fl-toolbar-btn-min-width,
+    var(--fl-toolbar-btn-min-height, 34px)
+  );
 
   & button {
     border: none;
@@ -576,7 +587,8 @@ button {
   &.fl-character-count--warning {
     color: #ff5c33;
 
-    svg, span {
+    svg,
+    span {
       color: currentColor;
     }
   }
@@ -601,7 +613,6 @@ button {
   transition: width 0.2s ease;
   border-radius: 2px;
 }
-
 
 .media-grid-item-view-content > div {
   display: flex;
@@ -644,9 +655,9 @@ button {
   }
 }
 
-
 /* El handle flota sobre el borde derecho del nodo */
-[data-resizable], [style*="max-width"] {
+[data-resizable],
+[style*="max-width"] {
   position: relative;
 }
 

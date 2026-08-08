@@ -29,6 +29,7 @@
   import BubbleMenu from "./svelte-tiptap-extends/BubbleMenu.svelte";
   import { getRichTextExtensions } from "./getExtensions";
   import { rgbToHex } from "./utils";
+  import { recentColorsStore, RECENT_COLORS_KEY, MAX_RECENT_COLORS } from "./recentColors";
 
   import MergeCellsBtn from "./Toolbar/action-buttons/MergeCellsBtn.svelte";
   import SplitCellBtn from "./Toolbar/action-buttons/SplitCellBtn.svelte";
@@ -273,6 +274,14 @@
   let headingLevels: HeadingLevel[] = [1, 2, 3, 4, 5, 6];
 
   let recentCustomColors = $state([]) as string[];
+  recentColorsStore.subscribe(v => { recentCustomColors = v; });
+
+  function saveRecentColors(colors: string[]) {
+    recentColorsStore.set(colors);
+    try {
+      localStorage.setItem(RECENT_COLORS_KEY, JSON.stringify(colors));
+    } catch {}
+  }
 
   const isAccentSoft = editorConfig.buttonStyle === "accent-soft";
   let percentage = $derived.by(() => {
@@ -798,7 +807,8 @@
       // Guardar color reciente
       const included = recentCustomColors.includes(colorValueRgb);
       if (!included) {
-        recentCustomColors = [...recentCustomColors, colorValueRgb];
+        recentCustomColors = [...recentCustomColors, colorValueRgb].slice(-MAX_RECENT_COLORS);
+        saveRecentColors(recentCustomColors);
       }
 
       // Aplicar color al rango previo
@@ -850,8 +860,10 @@
 
       // Guardar color reciente
       const included = recentCustomColors.includes(highlightColorValueRgb);
+
       if (!included) {
-        recentCustomColors = [...recentCustomColors, highlightColorValueRgb];
+        recentCustomColors = [...recentCustomColors, highlightColorValueRgb].slice(-MAX_RECENT_COLORS);
+        saveRecentColors(recentCustomColors);
       }
 
       // Aplicar color al rango previo
@@ -1060,7 +1072,7 @@
 <div
   class="fl-toolbar-dropdown-panel"
   bind:this={tooltip}
-  style="display: {tooltipVisible ? 'flex' : 'none'}; 
+  style="display: {tooltipVisible ? 'flex' : 'none'};
   left: {tooltipX}px;
   top: {tooltipY}px;
   --fl-editor-accent-color: {editorConfig.editorAccentColor};
@@ -1211,49 +1223,6 @@
     </div>
   {:else if activeDropdownType === "highlight"}
     <div class="fl-editor-color-palette">
-      <button
-        class="fl-color-swatch fl-color-picker-btn"
-        aria-label="Highlight color picker"
-        type="button"
-      >
-        <input
-          type="color"
-          onblur={(event: any) => {
-            const inclued = recentCustomColors.includes(event?.target?.value);
-            if (!inclued) {
-              recentCustomColors = [
-                ...recentCustomColors,
-                event?.target?.value,
-              ];
-            }
-            $editor
-              .chain()
-              .focus()
-              .setHighlight({ color: event?.target?.value })
-              .run();
-            hideDropdown();
-          }}
-          onchange={(event: any) => {
-            const inclued = recentCustomColors.includes(event?.target?.value);
-            if (!inclued) {
-              recentCustomColors = [
-                ...recentCustomColors,
-                event?.target?.value,
-              ];
-            }
-
-            $editor
-              .chain()
-              .focus()
-              .setHighlight({ color: event?.target?.value })
-              .run();
-            hideDropdown();
-          }}
-          value={rgbToHex(rgbToHex($editor?.getAttributes("highlight")?.color))}
-          data-testid="setHiglight"
-          id="colorPicker"
-        />
-      </button>
 
       <div class="color-picker-wrapper" id="color-picker-highlight-color">
         <ColorPicker
@@ -1294,7 +1263,7 @@
       <button
         class="fl-color-swatch unset-color"
         onclick={() => {
-          $editor?.chain().focus().unsetColor().run();
+          $editor?.chain().focus().unsetHighlight().run();
           hideDropdown();
         }}
         style="background-color: #ffffff;"
